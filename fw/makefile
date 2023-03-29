@@ -44,6 +44,4 @@ include $(DMBS_PATH)/atprogram.mk
 
 .PHONY: flash
 flash:
-	sudo dfu-programmer at90usb1286 erase --force
-	sudo dfu-programmer at90usb1286 flash Joystick.hex
-	sudo dfu-programmer at90usb1286 reset
+	sudo avrdude -c flip1 -p usb1286 -U flash:w:Joystick.hex
