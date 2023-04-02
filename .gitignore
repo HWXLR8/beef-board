@@ -1,0 +1,14 @@
+fw/obj
+fw/*.bin
+fw/*.eep
+fw/*.elf
+fw/*.hex
+fw/*.lss
+fw/*.map
+fw/*.sym
+
+pcb/*-backups
+pcb/*.kicad_prl
+pcb/*.bak
+pcb/fp-info-cache
+pcb/sym-lib-table
