@@ -68,8 +68,8 @@ int main(void)
 	SetupHardware();
 
 	// pin setup
-	DDRB = 0x00;
-	PORTB = 0xFF;
+	DDRB = 0b00000010; // PB1 output, all else inputs
+	PORTB =0b00000001;
 
 	GlobalInterruptEnable();
 
@@ -77,6 +77,14 @@ int main(void)
 	{
 		HID_Device_USBTask(&Joystick_HID_Interface);
 		USB_USBTask();
+
+		if ( (PINB & (1 << PINB0)) == (1 << PINB0) ) {
+		  // pin is high
+		  PORTB = 0b00000001;
+		} else {
+		  // pin is low
+		  PORTB = 0b00000011;
+		}
 	}
 }
 
