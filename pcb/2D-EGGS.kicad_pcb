@@ -361,7 +361,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 128d3e02-0273-4a6e-b28b-9cc019ced032)
-    (at 136.5 94.14 180)
+    (at 137.244 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1103,7 +1103,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 37e3c638-cae8-4259-bda1-132b12097e37)
-    (at 123.43 94.48 180)
+    (at 125.724 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1289,7 +1289,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 3f0fc110-fc8a-4901-8687-0fb3cdd98ea0)
-    (at 157.02 103.04 180)
+    (at 157.094 103.582 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1345,7 +1345,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 4a5a577e-8058-48bd-8c94-d259cd7a8f0a)
-    (at 130.12 94.03 180)
+    (at 131.484 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1401,7 +1401,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 4b966f9c-2f96-499e-adf4-90e32e0cb40e)
-    (at 101.06 94.8 180)
+    (at 108.444 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1457,7 +1457,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 4ec84312-5657-4e9a-bce0-90aab76855c1)
-    (at 170.59 103.57 180)
+    (at 170.794 103.582 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1619,7 +1619,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 538b865e-d45a-4eeb-a99a-e4d0ceb33528)
-    (at 80.78 103.17 180)
+    (at 80.654 103.582 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -1941,7 +1941,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp 842f1682-616b-4a2d-8e2e-942fd44d40ac)
-    (at 144.31 94.36 180)
+    (at 143.004 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -2423,7 +2423,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp bb62c76e-b7fd-419f-a222-e22a03627427)
-    (at 116.63 94.62 180)
+    (at 119.964 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -3247,7 +3247,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp edd38cc2-bc3d-402e-a00c-15e24e39bc39)
-    (at 94.36 103.44 180)
+    (at 94.354 103.582 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -3303,7 +3303,7 @@
 
   (footprint "Package_TO_SOT_THT:TO-92_Inline" (layer "F.Cu")
     (tstamp f5cfe764-a847-48ea-a9c4-c2d572b6c16e)
-    (at 109 94.59 180)
+    (at 114.204 94.8 180)
     (descr "TO-92 leads in-line, narrow, oval pads, drill 0.75mm (see NXP sot054_po.pdf)")
     (tags "to-92 sc-43 sc-43a sot54 PA33 transistor")
     (property "Sheetfile" "2D-EGGS.kicad_sch")
@@ -3357,6 +3357,14 @@
     )
   )
 
+  (gr_circle (center 88.704 64.312) (end 93.204 64.312)
+    (stroke (width 0.1) (type default)) (fill none) (layer "F.SilkS") (tstamp 0cc3aee3-b58d-496c-a0d2-afc9d6b8e5b6))
+  (gr_circle (center 160.204 64.312) (end 164.704 64.312)
+    (stroke (width 0.1) (type default)) (fill none) (layer "F.SilkS") (tstamp 0d5f526b-f3e9-4caa-bfbd-1c10ede5e5a1))
+  (gr_circle (center 88.704 95.812) (end 93.204 95.812)
+    (stroke (width 0.1) (type default)) (fill none) (layer "F.SilkS") (tstamp 1e2d74aa-c9e7-4ea0-8cb7-a85979d9ef2e))
+  (gr_circle (center 160.204 95.812) (end 164.704 95.812)
+    (stroke (width 0.1) (type default)) (fill none) (layer "F.SilkS") (tstamp c131da40-24b9-4e76-9948-b81f99c2fa26))
   (gr_circle (center 160.204 64.312) (end 163.204 64.312)
     (stroke (width 0.1) (type default)) (fill none) (layer "Edge.Cuts") (tstamp 1c1d50fd-34ba-40ad-b3b7-16c25d6c12d6))
   (gr_circle (center 160.204 95.812) (end 163.204 95.812)
