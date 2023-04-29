@@ -65,23 +65,30 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
  * including initial setup of all components and the main program loop.
  */
 int8_t turntablePosition = 0;
+uint8_t button = 0;
 int main(void) {
   SetupHardware();
 
   // pin setup
-  // we will set port C and port F as inputs to the
+  // we will set pins F0 and F1 as inputs to the
   // photo interrupters
-  // specifically pins C6 and F7
-  DDRC = 0;
   DDRF = 0;
-  PORTC = 0xFF;
   PORTF = 0xFF;
 
-  // this is just to turn off the LEDs, they were annoying
-  DDRD = 0xFF;
-  DDRB = 0xFF;
-  PORTD = 0xFF;
-  PORTB = 0xFF;
+  // buttons to pins
+  // BUTTON 1 / Q1 : B0
+  // BUTTON 2 / Q2 : B2
+  // BUTTON 3 / Q3 : B4
+  // BUTTON 4 / Q4 : B6
+  // BUTTON 5 / Q5 : D0
+  // BUTTON 6 / Q6 : D2
+  // BUTTON 7 / Q7 : D4
+  // START    / Q8 : D6
+  // VEFX     / Q9 : C0
+  // EFFECT   / Q10: C2
+  // AUX      / Q11: C4
+  DDRC &= 0b10101010;
+  PORTB |= 0b01010101;
 
   int prev = -1;
   int curr = -1;
@@ -93,11 +100,11 @@ int main(void) {
 
     /*---------------------turntable logic---------------------*/
     // curr is binary value ab
-    // where a is the signal of C6
-    // and   b is the signal of F7
-    // e.g. when C6 == 1 and F7 == 0, then curr == 0b10
-    int a = PINC & (1 << 6) ? 1 : 0;
-    int b = PINF & (1 << 7) ? 1 : 0;
+    // where a is the signal of F0
+    // and   b is the signal of F1
+    // e.g. when F0 == 1 and F1 == 0, then curr == 0b10
+    int a = PINF & (1 << 0) ? 1 : 0;
+    int b = PINF & (1 << 1) ? 1 : 0;
     curr = (a << 1) | b;
 
     if (prev == 3 && curr == 1 || prev == 1 && curr == 0 ||
@@ -114,6 +121,11 @@ int main(void) {
     prev = curr;
 
     /*---------------------button logic---------------------*/
+    if ((PINB & (1 << 0))) {
+      button |= (PINB & (1 << 0));
+    } else {
+      button &= (PINB & (1 << 0));
+    }
   }
 }
 
@@ -145,7 +157,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(
 
   // turntable movement
   JoystickReport->X = turntablePosition;
-  // JoystickReport->Button = ;
+  JoystickReport->Button = ~button;
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;
