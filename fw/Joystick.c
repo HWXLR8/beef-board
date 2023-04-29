@@ -75,8 +75,7 @@ int main(void) {
   DDRF = 0;
   PORTF = 0xFF;
 
-  // buttons to pins
-  // --- in ButtonsA ---
+  // buttons to pins:
   // BUTTON 1 / Q1 : B0
   // BUTTON 2 / Q2 : B2
   // BUTTON 3 / Q3 : B4
@@ -84,13 +83,16 @@ int main(void) {
   // BUTTON 5 / Q5 : D0
   // BUTTON 6 / Q6 : D2
   // BUTTON 7 / Q7 : D4
-  // --- in ButtonsB ---
   // START    / Q8 : D6
   // VEFX     / Q9 : C0
   // EFFECT   / Q10: C2
   // AUX      / Q11: C4
-  DDRC &= 0b10101010;
+  DDRB &= 0b10101010;
+  DDRD &= 0b10101010;
+  DDRC &= 0b11101010;
   PORTB |= 0b01010101;
+  PORTD |= 0b01010101;
+  PORTC |= 0b00010101;
 
   int prev = -1;
   int curr = -1;
@@ -123,10 +125,128 @@ int main(void) {
     prev = curr;
 
     /*---------------------button logic---------------------*/
-    if ((PINB & (1 << 0))) {
-      button |= (PINB & (1 << 0));
+    // int tmp;
+    // buttons to pins:
+    // // BUTTON 1 / Q1 : B0
+    // tmp = (~PINB & (1 << 0)) ? 1 : 0;
+    // tmp <<= 0;
+    // button = tmp ? (button | tmp) : (button & tmp);
+    // // BUTTON 2 / Q2 : B2
+    // tmp = (~PINB & (1 << 2)) ? 1 : 0;
+    // tmp <<= 1;
+    // button = tmp ? (button | tmp) : (button & tmp);
+    // // BUTTON 3 / Q3 : B4
+    // tmp = (~PINB & (1 << 4)) ? 1 : 0;
+    // tmp <<= 2;
+    // button = tmp ? button | tmp : button & tmp;
+    // // BUTTON 4 / Q4 : B6
+    // tmp = (~PINB & (1 << 6)) ? 1 : 0;
+    // tmp <<= 3;
+    // button = tmp ? button | tmp : button & tmp;
+    // // BUTTON 5 / Q5 : D0
+    // tmp = (~PIND & (1 << 0)) ? 1 : 0;
+    // tmp <<= 4;
+    // button = tmp ? (button | tmp) : (button & tmp);
+    // // BUTTON 6 / Q6 : D2
+    // tmp = (~PIND & (1 << 2)) ? 1 : 0;
+    // tmp <<= 5;
+    // button = tmp ? button | tmp : button & tmp;
+    // // BUTTON 7 / Q7 : D4
+    // tmp = (~PIND & (1 << 4)) ? 1 : 0;
+    // tmp <<= 6;
+    // button = tmp ? button | tmp : button & tmp;
+    // // START    / Q8 : D6
+    // tmp = (~PIND & (1 << 6)) ? 1 : 0;
+    // tmp <<= 7;
+    // button = tmp ? button | tmp : button & tmp;
+    // // VEFX     / Q9 : C0
+    // tmp = (~PINC & (1 << 0)) ? 1 : 0;
+    // tmp <<= 8;
+    // button = tmp ? button | tmp : button & tmp;
+    // // EFFECT   / Q10: C2
+    // tmp = (~PINC & (1 << 2)) ? 1 : 0;
+    // tmp <<= 9;
+    // button = tmp ? button | tmp : button & tmp;
+    // // AUX      / Q11: C4
+    // tmp = (~PINC & (1 << 4)) ? 1 : 0;
+    // tmp <<= 10;
+    // button = tmp ? button | tmp : button & tmp;
+
+    // BUTTON 1 / Q1 : B0
+    if (~PINB & (1 << 0)) {
+      button |= (1 << 0);  // Set bit 0
     } else {
-      button &= (PINB & (1 << 0));
+      button &= ~(1 << 0);  // Clear bit 0
+    }
+
+    // BUTTON 2 / Q2 : B2
+    if (~PINB & (1 << 2)) {
+      button |= (1 << 1);  // Set bit 1
+    } else {
+      button &= ~(1 << 1);  // Clear bit 1
+    }
+
+    // BUTTON 3 / Q3 : B4
+    if (~PINB & (1 << 4)) {
+      button |= (1 << 2);
+    } else {
+      button &= ~(1 << 2);
+    }
+
+    // BUTTON 4 / Q4 : B6
+    if (~PINB & (1 << 6)) {
+      button |= (1 << 3);
+    } else {
+      button &= ~(1 << 3);
+    }
+
+    // BUTTON 5 / Q5 : D0
+    if (~PIND & (1 << 0)) {
+      button |= (1 << 4);
+    } else {
+      button &= ~(1 << 4);
+    }
+
+    // BUTTON 6 / Q6 : D2
+    if (~PIND & (1 << 2)) {
+      button |= (1 << 5);
+    } else {
+      button &= ~(1 << 5);
+    }
+
+    // BUTTON 7 / Q7 : D4
+    if (~PIND & (1 << 4)) {
+      button |= (1 << 6);
+    } else {
+      button &= ~(1 << 6);
+    }
+
+    // START / Q8 : D6
+    if (~PIND & (1 << 6)) {
+      button |= (1 << 7);
+    } else {
+      button &= ~(1 << 7);
+    }
+
+    // VEFX / Q9 : C0
+    if (~PINC & (1 << 0)) {
+      button |= (1 << 8);
+    } else {
+      button &= ~(1 << 8);
+    }
+
+    // EFFECT / Q10: C2
+    if (~PINC & (1 << 2)) {
+      button |= (1 << 9);
+    } else {
+      button &= ~(1 << 9);
+    }
+
+    // AUX / Q11: C4
+    if (~PINC & (1 << 4)) {
+      button |= (1 << 10);
+    } else {
+      button &= ~(1 << 10);
     }
   }
 }
@@ -159,7 +279,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(
 
   // turntable movement
   JoystickReport->X = turntablePosition;
-  JoystickReport->Button = ~button;
+  JoystickReport->Button = button;
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;

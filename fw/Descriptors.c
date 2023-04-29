@@ -52,7 +52,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] = {
      *   Max physical X/Y/Z Axis values (used to determine resolution):  1
      *   Buttons: 2
      */
-    HID_DESCRIPTOR_JOYSTICK(-128, 127, -1, 1, 11)};
+    HID_DESCRIPTOR_JOYSTICK(-128, 127, -1, 1, 16)};
 
 /** Device descriptor structure. This descriptor, located in FLASH memory,
  * describes the overall device characteristics, including the supported USB
