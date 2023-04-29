@@ -68,13 +68,15 @@ int8_t turntablePosition = 0;
 uint16_t button = 0;
 int main(void) {
   SetupHardware();
-
   // pin setup
+
+  // for turntable
   // we will set pins F0 and F1 as inputs to the
   // photo interrupters
   DDRF = 0;
   PORTF = 0xFF;
 
+  // for buttons
   // buttons to pins:
   // BUTTON 1 / Q1 : B0
   // BUTTON 2 / Q2 : B2
@@ -117,60 +119,8 @@ int main(void) {
     } else if (prev == 1 && curr == 3 || prev == 0 && curr == 1 ||
                prev == 2 && curr == 0 || prev == 3 && curr == 2) {
       turntablePosition--;
-    } else {
-      // silence both ports when there is no motion
-      // we should reach this branch when (prev == curr)
-      ;
     }
     prev = curr;
-
-    /*---------------------button logic---------------------*/
-    // int tmp;
-    // buttons to pins:
-    // // BUTTON 1 / Q1 : B0
-    // tmp = (~PINB & (1 << 0)) ? 1 : 0;
-    // tmp <<= 0;
-    // button = tmp ? (button | tmp) : (button & tmp);
-    // // BUTTON 2 / Q2 : B2
-    // tmp = (~PINB & (1 << 2)) ? 1 : 0;
-    // tmp <<= 1;
-    // button = tmp ? (button | tmp) : (button & tmp);
-    // // BUTTON 3 / Q3 : B4
-    // tmp = (~PINB & (1 << 4)) ? 1 : 0;
-    // tmp <<= 2;
-    // button = tmp ? button | tmp : button & tmp;
-    // // BUTTON 4 / Q4 : B6
-    // tmp = (~PINB & (1 << 6)) ? 1 : 0;
-    // tmp <<= 3;
-    // button = tmp ? button | tmp : button & tmp;
-    // // BUTTON 5 / Q5 : D0
-    // tmp = (~PIND & (1 << 0)) ? 1 : 0;
-    // tmp <<= 4;
-    // button = tmp ? (button | tmp) : (button & tmp);
-    // // BUTTON 6 / Q6 : D2
-    // tmp = (~PIND & (1 << 2)) ? 1 : 0;
-    // tmp <<= 5;
-    // button = tmp ? button | tmp : button & tmp;
-    // // BUTTON 7 / Q7 : D4
-    // tmp = (~PIND & (1 << 4)) ? 1 : 0;
-    // tmp <<= 6;
-    // button = tmp ? button | tmp : button & tmp;
-    // // START    / Q8 : D6
-    // tmp = (~PIND & (1 << 6)) ? 1 : 0;
-    // tmp <<= 7;
-    // button = tmp ? button | tmp : button & tmp;
-    // // VEFX     / Q9 : C0
-    // tmp = (~PINC & (1 << 0)) ? 1 : 0;
-    // tmp <<= 8;
-    // button = tmp ? button | tmp : button & tmp;
-    // // EFFECT   / Q10: C2
-    // tmp = (~PINC & (1 << 2)) ? 1 : 0;
-    // tmp <<= 9;
-    // button = tmp ? button | tmp : button & tmp;
-    // // AUX      / Q11: C4
-    // tmp = (~PINC & (1 << 4)) ? 1 : 0;
-    // tmp <<= 10;
-    // button = tmp ? button | tmp : button & tmp;
 
     // BUTTON 1 / Q1 : B0
     if (~PINB & (1 << 0)) {
@@ -277,7 +227,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(
   //   JoystickReport->Button |= (1 << 0);
   // }
 
-  // turntable movement
+  // not sure if usage of global variables is idiomatic here
   JoystickReport->X = turntablePosition;
   JoystickReport->Button = button;
 
