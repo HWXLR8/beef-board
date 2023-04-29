@@ -63,7 +63,10 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 /** Main program entry point. This routine contains the overall program flow, including initial
  *  setup of all components and the main program loop.
  */
+// not sure if using global variables in this manner will lead to problems down the line
 int8_t turntablePosition = 0;
+// bit-field for the buttons
+// first 11 bits map to the state of each button from J1 to J11
 uint16_t button = 0;
 int main(void)
 {
@@ -78,17 +81,17 @@ int main(void)
 
 	// for buttons
 	// buttons to pins:
-	// BUTTON 1 / Q1 : B0
-	// BUTTON 2 / Q2 : B2
-	// BUTTON 3 / Q3 : B4
-	// BUTTON 4 / Q4 : B6
-	// BUTTON 5 / Q5 : D0
-	// BUTTON 6 / Q6 : D2
-	// BUTTON 7 / Q7 : D4
-	// START    / Q8 : D6
-	// VEFX     / Q9 : C0
-	// EFFECT   / Q10: C2
-	// AUX      / Q11: C4
+	// BUTTON 1 / J1 : B0
+	// BUTTON 2 / J2 : B2
+	// BUTTON 3 / J3 : B4
+	// BUTTON 4 / J4 : B6
+	// BUTTON 5 / J5 : D0
+	// BUTTON 6 / J6 : D2
+	// BUTTON 7 / J7 : D4
+	// START    / J8 : D6
+	// VEFX     / J9 : C0
+	// EFFECT   / J10: C2
+	// AUX      / J11: C4
 	DDRB &= 0b10101010;
 	DDRD &= 0b10101010;
 	DDRC &= 0b11101010;
@@ -96,8 +99,8 @@ int main(void)
 	PORTD |= 0b01010101;
 	PORTC |= 0b00010101;
 
-	int prev = -1;
-	int curr = -1;
+	int8_t prev = -1;
+	int8_t curr = -1;
 	GlobalInterruptEnable();
 
 	for (;;)
@@ -106,12 +109,12 @@ int main(void)
 		USB_USBTask();
 
 		/*---------------------turntable logic---------------------*/
-		// curr is binary value ab
+		// curr is binary number ab
 		// where a is the signal of F0
 		// and   b is the signal of F1
 		// e.g. when F0 == 1 and F1 == 0, then curr == 0b10
-		int a = PINF & (1 << 0) ? 1 : 0;
-		int b = PINF & (1 << 1) ? 1 : 0;
+		int8_t a = PINF & (1 << 0) ? 1 : 0;
+		int8_t b = PINF & (1 << 1) ? 1 : 0;
 		curr = (a << 1) | b;
 
 		if (prev == 3 && curr == 1 || prev == 1 && curr == 0 ||
@@ -126,27 +129,27 @@ int main(void)
 		}
 		prev = curr;
 
-		// BUTTON 1 / Q1 : B0
+		// BUTTON 1 / J1 : B0
 		if (~PINB & (1 << 0))
 		{
-			button |= (1 << 0); // Set bit 0
+			button |= (1 << 0);
 		}
 		else
 		{
-			button &= ~(1 << 0); // Clear bit 0
+			button &= ~(1 << 0);
 		}
 
-		// BUTTON 2 / Q2 : B2
+		// BUTTON 2 / J2 : B2
 		if (~PINB & (1 << 2))
 		{
-			button |= (1 << 1); // Set bit 1
+			button |= (1 << 1);
 		}
 		else
 		{
-			button &= ~(1 << 1); // Clear bit 1
+			button &= ~(1 << 1);
 		}
 
-		// BUTTON 3 / Q3 : B4
+		// BUTTON 3 / J3 : B4
 		if (~PINB & (1 << 4))
 		{
 			button |= (1 << 2);
@@ -156,7 +159,7 @@ int main(void)
 			button &= ~(1 << 2);
 		}
 
-		// BUTTON 4 / Q4 : B6
+		// BUTTON 4 / J4 : B6
 		if (~PINB & (1 << 6))
 		{
 			button |= (1 << 3);
@@ -166,7 +169,7 @@ int main(void)
 			button &= ~(1 << 3);
 		}
 
-		// BUTTON 5 / Q5 : D0
+		// BUTTON 5 / J5 : D0
 		if (~PIND & (1 << 0))
 		{
 			button |= (1 << 4);
@@ -176,7 +179,7 @@ int main(void)
 			button &= ~(1 << 4);
 		}
 
-		// BUTTON 6 / Q6 : D2
+		// BUTTON 6 / J6 : D2
 		if (~PIND & (1 << 2))
 		{
 			button |= (1 << 5);
@@ -186,7 +189,7 @@ int main(void)
 			button &= ~(1 << 5);
 		}
 
-		// BUTTON 7 / Q7 : D4
+		// BUTTON 7 / J7 : D4
 		if (~PIND & (1 << 4))
 		{
 			button |= (1 << 6);
@@ -196,7 +199,7 @@ int main(void)
 			button &= ~(1 << 6);
 		}
 
-		// START / Q8 : D6
+		// START / J8 : D6
 		if (~PIND & (1 << 6))
 		{
 			button |= (1 << 7);
@@ -206,7 +209,7 @@ int main(void)
 			button &= ~(1 << 7);
 		}
 
-		// VEFX / Q9 : C0
+		// VEFX / J9 : C0
 		if (~PINC & (1 << 0))
 		{
 			button |= (1 << 8);
@@ -216,7 +219,7 @@ int main(void)
 			button &= ~(1 << 8);
 		}
 
-		// EFFECT / Q10: C2
+		// EFFECT / J10: C2
 		if (~PINC & (1 << 2))
 		{
 			button |= (1 << 9);
@@ -226,7 +229,7 @@ int main(void)
 			button &= ~(1 << 9);
 		}
 
-		// AUX / Q11: C4
+		// AUX / J11: C4
 		if (~PINC & (1 << 4))
 		{
 			button |= (1 << 10);
