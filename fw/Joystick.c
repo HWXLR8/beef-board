@@ -65,7 +65,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
  * including initial setup of all components and the main program loop.
  */
 int8_t turntablePosition = 0;
-uint8_t button = 0;
+uint16_t button = 0;
 int main(void) {
   SetupHardware();
 
@@ -76,6 +76,7 @@ int main(void) {
   PORTF = 0xFF;
 
   // buttons to pins
+  // --- in ButtonsA ---
   // BUTTON 1 / Q1 : B0
   // BUTTON 2 / Q2 : B2
   // BUTTON 3 / Q3 : B4
@@ -83,6 +84,7 @@ int main(void) {
   // BUTTON 5 / Q5 : D0
   // BUTTON 6 / Q6 : D2
   // BUTTON 7 / Q7 : D4
+  // --- in ButtonsB ---
   // START    / Q8 : D6
   // VEFX     / Q9 : C0
   // EFFECT   / Q10: C2
