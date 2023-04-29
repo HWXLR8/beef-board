@@ -11,9 +11,9 @@
 
 # Run "make help" for target help.
 
-MCU          = at90usb1286
+MCU          = atmega32u4
 ARCH         = AVR8
-BOARD        = BOARD_NONE
+BOARD        = LEONARDO
 F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
@@ -44,4 +44,5 @@ include $(DMBS_PATH)/atprogram.mk
 
 .PHONY: flash
 flash:
-	sudo avrdude -c flip1 -p usb1286 -U flash:w:Joystick.hex
+	sudo avrdude -c flip1 -p atmega32u4 -c avr109 -U flash:w:Joystick.hex
+# ./avrdude.exe -p atmega32u4 -P COM8 -c avr109 -U flash:w:fw.hex
