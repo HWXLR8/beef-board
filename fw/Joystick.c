@@ -31,321 +31,305 @@
 /** \file
  *
  *  Main source file for the Joystick demo. This file contains the main tasks of
- *  the demo and is responsible for the initial application hardware
- * configuration.
+ *  the demo and is responsible for the initial application hardware configuration.
  */
 
 #include "Joystick.h"
 
-/** Buffer to hold the previously generated HID report, for comparison purposes
- * inside the HID class driver. */
+/** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
 
-/** LUFA HID Class driver interface configuration and state information. This
- * structure is passed to all HID Class driver functions, so that multiple
- * instances of the same class within a device can be differentiated from one
- * another.
+/** LUFA HID Class driver interface configuration and state information. This structure is
+ *  passed to all HID Class driver functions, so that multiple instances of the same class
+ *  within a device can be differentiated from one another.
  */
-USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
-    .Config =
-        {
-            .InterfaceNumber = INTERFACE_ID_Joystick,
-            .ReportINEndpoint =
-                {
-                    .Address = JOYSTICK_EPADDR,
-                    .Size = JOYSTICK_EPSIZE,
-                    .Banks = 1,
-                },
-            .PrevReportINBuffer = PrevJoystickHIDReportBuffer,
-            .PrevReportINBufferSize = sizeof(PrevJoystickHIDReportBuffer),
-        },
-};
+USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
+	{
+		.Config =
+			{
+				.InterfaceNumber              = INTERFACE_ID_Joystick,
+				.ReportINEndpoint             =
+					{
+						.Address              = JOYSTICK_EPADDR,
+						.Size                 = JOYSTICK_EPSIZE,
+						.Banks                = 1,
+					},
+				.PrevReportINBuffer           = PrevJoystickHIDReportBuffer,
+				.PrevReportINBufferSize       = sizeof(PrevJoystickHIDReportBuffer),
+			},
+	};
 
-/** Main program entry point. This routine contains the overall program flow,
- * including initial setup of all components and the main program loop.
+
+/** Main program entry point. This routine contains the overall program flow, including initial
+ *  setup of all components and the main program loop.
  */
 int8_t turntablePosition = 0;
 uint16_t button = 0;
 int main(void)
 {
-  SetupHardware();
-  // pin setup
+	SetupHardware();
+	// pin setup
 
-  // for turntable
-  // we will set pins F0 and F1 as inputs to the
-  // photo interrupters
-  DDRF = 0;
-  PORTF = 0xFF;
+	// for turntable
+	// we will set pins F0 and F1 as inputs to the
+	// photo interrupters
+	DDRF = 0;
+	PORTF = 0xFF;
 
-  // for buttons
-  // buttons to pins:
-  // BUTTON 1 / Q1 : B0
-  // BUTTON 2 / Q2 : B2
-  // BUTTON 3 / Q3 : B4
-  // BUTTON 4 / Q4 : B6
-  // BUTTON 5 / Q5 : D0
-  // BUTTON 6 / Q6 : D2
-  // BUTTON 7 / Q7 : D4
-  // START    / Q8 : D6
-  // VEFX     / Q9 : C0
-  // EFFECT   / Q10: C2
-  // AUX      / Q11: C4
-  DDRB &= 0b10101010;
-  DDRD &= 0b10101010;
-  DDRC &= 0b11101010;
-  PORTB |= 0b01010101;
-  PORTD |= 0b01010101;
-  PORTC |= 0b00010101;
+	// for buttons
+	// buttons to pins:
+	// BUTTON 1 / Q1 : B0
+	// BUTTON 2 / Q2 : B2
+	// BUTTON 3 / Q3 : B4
+	// BUTTON 4 / Q4 : B6
+	// BUTTON 5 / Q5 : D0
+	// BUTTON 6 / Q6 : D2
+	// BUTTON 7 / Q7 : D4
+	// START    / Q8 : D6
+	// VEFX     / Q9 : C0
+	// EFFECT   / Q10: C2
+	// AUX      / Q11: C4
+	DDRB &= 0b10101010;
+	DDRD &= 0b10101010;
+	DDRC &= 0b11101010;
+	PORTB |= 0b01010101;
+	PORTD |= 0b01010101;
+	PORTC |= 0b00010101;
 
-  int prev = -1;
-  int curr = -1;
-  GlobalInterruptEnable();
+	int prev = -1;
+	int curr = -1;
+	GlobalInterruptEnable();
 
-  for (;;)
-  {
-    HID_Device_USBTask(&Joystick_HID_Interface);
-    USB_USBTask();
+	for (;;)
+	{
+		HID_Device_USBTask(&Joystick_HID_Interface);
+		USB_USBTask();
 
-    /*---------------------turntable logic---------------------*/
-    // curr is binary value ab
-    // where a is the signal of F0
-    // and   b is the signal of F1
-    // e.g. when F0 == 1 and F1 == 0, then curr == 0b10
-    int a = PINF & (1 << 0) ? 1 : 0;
-    int b = PINF & (1 << 1) ? 1 : 0;
-    curr = (a << 1) | b;
+		/*---------------------turntable logic---------------------*/
+		// curr is binary value ab
+		// where a is the signal of F0
+		// and   b is the signal of F1
+		// e.g. when F0 == 1 and F1 == 0, then curr == 0b10
+		int a = PINF & (1 << 0) ? 1 : 0;
+		int b = PINF & (1 << 1) ? 1 : 0;
+		curr = (a << 1) | b;
 
-    if (prev == 3 && curr == 1 || prev == 1 && curr == 0 ||
-        prev == 0 && curr == 2 || prev == 2 && curr == 3)
-    {
-      turntablePosition++;
-    }
-    else if (prev == 1 && curr == 3 || prev == 0 && curr == 1 ||
-             prev == 2 && curr == 0 || prev == 3 && curr == 2)
-    {
-      turntablePosition--;
-    }
-    prev = curr;
+		if (prev == 3 && curr == 1 || prev == 1 && curr == 0 ||
+				prev == 0 && curr == 2 || prev == 2 && curr == 3)
+		{
+			turntablePosition++;
+		}
+		else if (prev == 1 && curr == 3 || prev == 0 && curr == 1 ||
+						 prev == 2 && curr == 0 || prev == 3 && curr == 2)
+		{
+			turntablePosition--;
+		}
+		prev = curr;
 
-    // BUTTON 1 / Q1 : B0
-    if (~PINB & (1 << 0))
-    {
-      button |= (1 << 0); // Set bit 0
-    }
-    else
-    {
-      button &= ~(1 << 0); // Clear bit 0
-    }
+		// BUTTON 1 / Q1 : B0
+		if (~PINB & (1 << 0))
+		{
+			button |= (1 << 0); // Set bit 0
+		}
+		else
+		{
+			button &= ~(1 << 0); // Clear bit 0
+		}
 
-    // BUTTON 2 / Q2 : B2
-    if (~PINB & (1 << 2))
-    {
-      button |= (1 << 1); // Set bit 1
-    }
-    else
-    {
-      button &= ~(1 << 1); // Clear bit 1
-    }
+		// BUTTON 2 / Q2 : B2
+		if (~PINB & (1 << 2))
+		{
+			button |= (1 << 1); // Set bit 1
+		}
+		else
+		{
+			button &= ~(1 << 1); // Clear bit 1
+		}
 
-    // BUTTON 3 / Q3 : B4
-    if (~PINB & (1 << 4))
-    {
-      button |= (1 << 2);
-    }
-    else
-    {
-      button &= ~(1 << 2);
-    }
+		// BUTTON 3 / Q3 : B4
+		if (~PINB & (1 << 4))
+		{
+			button |= (1 << 2);
+		}
+		else
+		{
+			button &= ~(1 << 2);
+		}
 
-    // BUTTON 4 / Q4 : B6
-    if (~PINB & (1 << 6))
-    {
-      button |= (1 << 3);
-    }
-    else
-    {
-      button &= ~(1 << 3);
-    }
+		// BUTTON 4 / Q4 : B6
+		if (~PINB & (1 << 6))
+		{
+			button |= (1 << 3);
+		}
+		else
+		{
+			button &= ~(1 << 3);
+		}
 
-    // BUTTON 5 / Q5 : D0
-    if (~PIND & (1 << 0))
-    {
-      button |= (1 << 4);
-    }
-    else
-    {
-      button &= ~(1 << 4);
-    }
+		// BUTTON 5 / Q5 : D0
+		if (~PIND & (1 << 0))
+		{
+			button |= (1 << 4);
+		}
+		else
+		{
+			button &= ~(1 << 4);
+		}
 
-    // BUTTON 6 / Q6 : D2
-    if (~PIND & (1 << 2))
-    {
-      button |= (1 << 5);
-    }
-    else
-    {
-      button &= ~(1 << 5);
-    }
+		// BUTTON 6 / Q6 : D2
+		if (~PIND & (1 << 2))
+		{
+			button |= (1 << 5);
+		}
+		else
+		{
+			button &= ~(1 << 5);
+		}
 
-    // BUTTON 7 / Q7 : D4
-    if (~PIND & (1 << 4))
-    {
-      button |= (1 << 6);
-    }
-    else
-    {
-      button &= ~(1 << 6);
-    }
+		// BUTTON 7 / Q7 : D4
+		if (~PIND & (1 << 4))
+		{
+			button |= (1 << 6);
+		}
+		else
+		{
+			button &= ~(1 << 6);
+		}
 
-    // START / Q8 : D6
-    if (~PIND & (1 << 6))
-    {
-      button |= (1 << 7);
-    }
-    else
-    {
-      button &= ~(1 << 7);
-    }
+		// START / Q8 : D6
+		if (~PIND & (1 << 6))
+		{
+			button |= (1 << 7);
+		}
+		else
+		{
+			button &= ~(1 << 7);
+		}
 
-    // VEFX / Q9 : C0
-    if (~PINC & (1 << 0))
-    {
-      button |= (1 << 8);
-    }
-    else
-    {
-      button &= ~(1 << 8);
-    }
+		// VEFX / Q9 : C0
+		if (~PINC & (1 << 0))
+		{
+			button |= (1 << 8);
+		}
+		else
+		{
+			button &= ~(1 << 8);
+		}
 
-    // EFFECT / Q10: C2
-    if (~PINC & (1 << 2))
-    {
-      button |= (1 << 9);
-    }
-    else
-    {
-      button &= ~(1 << 9);
-    }
+		// EFFECT / Q10: C2
+		if (~PINC & (1 << 2))
+		{
+			button |= (1 << 9);
+		}
+		else
+		{
+			button &= ~(1 << 9);
+		}
 
-    // AUX / Q11: C4
-    if (~PINC & (1 << 4))
-    {
-      button |= (1 << 10);
-    }
-    else
-    {
-      button &= ~(1 << 10);
-    }
-  }
+		// AUX / Q11: C4
+		if (~PINC & (1 << 4))
+		{
+			button |= (1 << 10);
+		}
+		else
+		{
+			button &= ~(1 << 10);
+		}
+	}
 }
 
-/** HID class driver callback function for the creation of HID reports to the
- * host.
- *
- *  \param[in]     HIDInterfaceInfo  Pointer to the HID class interface
- * configuration structure being referenced \param[in,out] ReportID    Report ID
- * requested by the host if non-zero, otherwise callback should set to the
- * generated report ID \param[in]     ReportType  Type of the report to create,
- * either HID_REPORT_ITEM_In or HID_REPORT_ITEM_Feature \param[out] ReportData
- * Pointer to a buffer where the created report should be stored \param[out]
- * ReportSize  Number of bytes written in the report (or zero if no report is to
- * be sent)
- *
- *  \return Boolean \c true to force the sending of the report, \c false to let
- * the library determine if it needs to be sent
- */
-bool CALLBACK_HID_Device_CreateHIDReport(
-    USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo, uint8_t *const ReportID,
-    const uint8_t ReportType, void *ReportData, uint16_t *const ReportSize)
-{
-  USB_JoystickReport_Data_t *JoystickReport =
-      (USB_JoystickReport_Data_t *)ReportData;
-
-  // button press
-  // if (!(PINB & _BV(PB0))) {
-  //   JoystickReport->Button |= (1 << 0);
-  // }
-
-  // not sure if usage of global variables is idiomatic here
-  JoystickReport->X = turntablePosition;
-  JoystickReport->Button = button;
-
-  *ReportSize = sizeof(USB_JoystickReport_Data_t);
-  return false;
-}
-
-/** Configures the board hardware and chip peripherals for the demo's
- * functionality. */
+/** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void)
 {
 #if (ARCH == ARCH_AVR8)
-  /* Disable watchdog if enabled by bootloader/fuses */
-  MCUSR &= ~(1 << WDRF);
-  wdt_disable();
+	/* Disable watchdog if enabled by bootloader/fuses */
+	MCUSR &= ~(1 << WDRF);
+	wdt_disable();
 
-  /* Disable clock division */
-  clock_prescale_set(clock_div_1);
+	/* Disable clock division */
+	clock_prescale_set(clock_div_1);
 #elif (ARCH == ARCH_XMEGA)
-  /* Start the PLL to multiply the 2MHz RC oscillator to 32MHz and switch the
-   * CPU core to run from it */
-  XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000, F_CPU);
-  XMEGACLK_SetCPUClockSource(CLOCK_SRC_PLL);
+	/* Start the PLL to multiply the 2MHz RC oscillator to 32MHz and switch the CPU core to run from it */
+	XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000, F_CPU);
+	XMEGACLK_SetCPUClockSource(CLOCK_SRC_PLL);
 
-  /* Start the 32MHz internal RC oscillator and start the DFLL to increase it to
-   * 48MHz using the USB SOF as a reference */
-  XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC32MHZ);
-  XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_INT_USBSOF, F_USB);
+	/* Start the 32MHz internal RC oscillator and start the DFLL to increase it to 48MHz using the USB SOF as a reference */
+	XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC32MHZ);
+	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_INT_USBSOF, F_USB);
 
-  PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
+	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
 #endif
 
-  /* Hardware Initialization */
-  USB_Init();
+	/* Hardware Initialization */
+	USB_Init();
 }
 
 /** Event handler for the library USB Connection event. */
-void EVENT_USB_Device_Connect(void) {}
+void EVENT_USB_Device_Connect(void){}
 
 /** Event handler for the library USB Disconnection event. */
-void EVENT_USB_Device_Disconnect(void) {}
+void EVENT_USB_Device_Disconnect(void){}
 
 /** Event handler for the library USB Configuration Changed event. */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-  bool ConfigSuccess = true;
+	bool ConfigSuccess = true;
 
-  ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
+	ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
 
-  USB_Device_EnableSOFEvents();
+	USB_Device_EnableSOFEvents();
 }
 
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void)
 {
-  HID_Device_ProcessControlRequest(&Joystick_HID_Interface);
+	HID_Device_ProcessControlRequest(&Joystick_HID_Interface);
 }
 
 /** Event handler for the USB device Start Of Frame event. */
 void EVENT_USB_Device_StartOfFrame(void)
 {
-  HID_Device_MillisecondElapsed(&Joystick_HID_Interface);
+	HID_Device_MillisecondElapsed(&Joystick_HID_Interface);
 }
 
-/** HID class driver callback function for the processing of HID reports from
- * the host.
+/** HID class driver callback function for the creation of HID reports to the host.
  *
- *  \param[in] HIDInterfaceInfo  Pointer to the HID class interface
- * configuration structure being referenced \param[in] ReportID    Report ID of
- * the received report from the host \param[in] ReportType  The type of report
- * that the host has sent, either HID_REPORT_ITEM_Out or HID_REPORT_ITEM_Feature
- *  \param[in] ReportData  Pointer to a buffer where the received report has
- * been stored \param[in] ReportSize  Size in bytes of the received HID report
+ *  \param[in]     HIDInterfaceInfo  Pointer to the HID class interface configuration structure being referenced
+ *  \param[in,out] ReportID    Report ID requested by the host if non-zero, otherwise callback should set to the generated report ID
+ *  \param[in]     ReportType  Type of the report to create, either HID_REPORT_ITEM_In or HID_REPORT_ITEM_Feature
+ *  \param[out]    ReportData  Pointer to a buffer where the created report should be stored
+ *  \param[out]    ReportSize  Number of bytes written in the report (or zero if no report is to be sent)
+ *
+ *  \return Boolean \c true to force the sending of the report, \c false to let the library determine if it needs to be sent
  */
-void CALLBACK_HID_Device_ProcessHIDReport(
-    USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo, const uint8_t ReportID,
-    const uint8_t ReportType, const void *ReportData,
-    const uint16_t ReportSize)
+bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+                                         uint8_t* const ReportID,
+                                         const uint8_t ReportType,
+                                         void* ReportData,
+                                         uint16_t* const ReportSize)
 {
-  // Unused (but mandatory for the HID class driver) in this demo, since there
-  // are no Host->Device reports
+	USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
+
+	JoystickReport->X = turntablePosition;
+	JoystickReport->Button = button;
+
+	*ReportSize = sizeof(USB_JoystickReport_Data_t);
+	return false;
+}
+
+/** HID class driver callback function for the processing of HID reports from the host.
+ *
+ *  \param[in] HIDInterfaceInfo  Pointer to the HID class interface configuration structure being referenced
+ *  \param[in] ReportID    Report ID of the received report from the host
+ *  \param[in] ReportType  The type of report that the host has sent, either HID_REPORT_ITEM_Out or HID_REPORT_ITEM_Feature
+ *  \param[in] ReportData  Pointer to a buffer where the received report has been stored
+ *  \param[in] ReportSize  Size in bytes of the received HID report
+ */
+void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+                                          const uint8_t ReportID,
+                                          const uint8_t ReportType,
+                                          const void* ReportData,
+                                          const uint16_t ReportSize)
+{
+	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 }
