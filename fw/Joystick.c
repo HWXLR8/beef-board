@@ -66,7 +66,8 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
  */
 int8_t turntablePosition = 0;
 uint16_t button = 0;
-int main(void) {
+int main(void)
+{
   SetupHardware();
   // pin setup
 
@@ -100,7 +101,8 @@ int main(void) {
   int curr = -1;
   GlobalInterruptEnable();
 
-  for (;;) {
+  for (;;)
+  {
     HID_Device_USBTask(&Joystick_HID_Interface);
     USB_USBTask();
 
@@ -114,88 +116,124 @@ int main(void) {
     curr = (a << 1) | b;
 
     if (prev == 3 && curr == 1 || prev == 1 && curr == 0 ||
-        prev == 0 && curr == 2 || prev == 2 && curr == 3) {
+        prev == 0 && curr == 2 || prev == 2 && curr == 3)
+    {
       turntablePosition++;
-    } else if (prev == 1 && curr == 3 || prev == 0 && curr == 1 ||
-               prev == 2 && curr == 0 || prev == 3 && curr == 2) {
+    }
+    else if (prev == 1 && curr == 3 || prev == 0 && curr == 1 ||
+             prev == 2 && curr == 0 || prev == 3 && curr == 2)
+    {
       turntablePosition--;
     }
     prev = curr;
 
     // BUTTON 1 / Q1 : B0
-    if (~PINB & (1 << 0)) {
-      button |= (1 << 0);  // Set bit 0
-    } else {
-      button &= ~(1 << 0);  // Clear bit 0
+    if (~PINB & (1 << 0))
+    {
+      button |= (1 << 0); // Set bit 0
+    }
+    else
+    {
+      button &= ~(1 << 0); // Clear bit 0
     }
 
     // BUTTON 2 / Q2 : B2
-    if (~PINB & (1 << 2)) {
-      button |= (1 << 1);  // Set bit 1
-    } else {
-      button &= ~(1 << 1);  // Clear bit 1
+    if (~PINB & (1 << 2))
+    {
+      button |= (1 << 1); // Set bit 1
+    }
+    else
+    {
+      button &= ~(1 << 1); // Clear bit 1
     }
 
     // BUTTON 3 / Q3 : B4
-    if (~PINB & (1 << 4)) {
+    if (~PINB & (1 << 4))
+    {
       button |= (1 << 2);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 2);
     }
 
     // BUTTON 4 / Q4 : B6
-    if (~PINB & (1 << 6)) {
+    if (~PINB & (1 << 6))
+    {
       button |= (1 << 3);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 3);
     }
 
     // BUTTON 5 / Q5 : D0
-    if (~PIND & (1 << 0)) {
+    if (~PIND & (1 << 0))
+    {
       button |= (1 << 4);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 4);
     }
 
     // BUTTON 6 / Q6 : D2
-    if (~PIND & (1 << 2)) {
+    if (~PIND & (1 << 2))
+    {
       button |= (1 << 5);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 5);
     }
 
     // BUTTON 7 / Q7 : D4
-    if (~PIND & (1 << 4)) {
+    if (~PIND & (1 << 4))
+    {
       button |= (1 << 6);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 6);
     }
 
     // START / Q8 : D6
-    if (~PIND & (1 << 6)) {
+    if (~PIND & (1 << 6))
+    {
       button |= (1 << 7);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 7);
     }
 
     // VEFX / Q9 : C0
-    if (~PINC & (1 << 0)) {
+    if (~PINC & (1 << 0))
+    {
       button |= (1 << 8);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 8);
     }
 
     // EFFECT / Q10: C2
-    if (~PINC & (1 << 2)) {
+    if (~PINC & (1 << 2))
+    {
       button |= (1 << 9);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 9);
     }
 
     // AUX / Q11: C4
-    if (~PINC & (1 << 4)) {
+    if (~PINC & (1 << 4))
+    {
       button |= (1 << 10);
-    } else {
+    }
+    else
+    {
       button &= ~(1 << 10);
     }
   }
@@ -217,10 +255,11 @@ int main(void) {
  * the library determine if it needs to be sent
  */
 bool CALLBACK_HID_Device_CreateHIDReport(
-    USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo, uint8_t* const ReportID,
-    const uint8_t ReportType, void* ReportData, uint16_t* const ReportSize) {
-  USB_JoystickReport_Data_t* JoystickReport =
-      (USB_JoystickReport_Data_t*)ReportData;
+    USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo, uint8_t *const ReportID,
+    const uint8_t ReportType, void *ReportData, uint16_t *const ReportSize)
+{
+  USB_JoystickReport_Data_t *JoystickReport =
+      (USB_JoystickReport_Data_t *)ReportData;
 
   // button press
   // if (!(PINB & _BV(PB0))) {
@@ -237,7 +276,8 @@ bool CALLBACK_HID_Device_CreateHIDReport(
 
 /** Configures the board hardware and chip peripherals for the demo's
  * functionality. */
-void SetupHardware(void) {
+void SetupHardware(void)
+{
 #if (ARCH == ARCH_AVR8)
   /* Disable watchdog if enabled by bootloader/fuses */
   MCUSR &= ~(1 << WDRF);
@@ -270,7 +310,8 @@ void EVENT_USB_Device_Connect(void) {}
 void EVENT_USB_Device_Disconnect(void) {}
 
 /** Event handler for the library USB Configuration Changed event. */
-void EVENT_USB_Device_ConfigurationChanged(void) {
+void EVENT_USB_Device_ConfigurationChanged(void)
+{
   bool ConfigSuccess = true;
 
   ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
@@ -279,12 +320,14 @@ void EVENT_USB_Device_ConfigurationChanged(void) {
 }
 
 /** Event handler for the library USB Control Request reception event. */
-void EVENT_USB_Device_ControlRequest(void) {
+void EVENT_USB_Device_ControlRequest(void)
+{
   HID_Device_ProcessControlRequest(&Joystick_HID_Interface);
 }
 
 /** Event handler for the USB device Start Of Frame event. */
-void EVENT_USB_Device_StartOfFrame(void) {
+void EVENT_USB_Device_StartOfFrame(void)
+{
   HID_Device_MillisecondElapsed(&Joystick_HID_Interface);
 }
 
@@ -299,9 +342,10 @@ void EVENT_USB_Device_StartOfFrame(void) {
  * been stored \param[in] ReportSize  Size in bytes of the received HID report
  */
 void CALLBACK_HID_Device_ProcessHIDReport(
-    USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo, const uint8_t ReportID,
-    const uint8_t ReportType, const void* ReportData,
-    const uint16_t ReportSize) {
+    USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo, const uint8_t ReportID,
+    const uint8_t ReportType, const void *ReportData,
+    const uint16_t ReportSize)
+{
   // Unused (but mandatory for the HID class driver) in this demo, since there
   // are no Host->Device reports
 }

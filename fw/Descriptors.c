@@ -167,47 +167,50 @@ const USB_Descriptor_String_t PROGMEM ProductString =
  */
 uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
                                     const uint16_t wIndex,
-                                    const void** const DescriptorAddress) {
+                                    const void **const DescriptorAddress)
+{
   const uint8_t DescriptorType = (wValue >> 8);
   const uint8_t DescriptorNumber = (wValue & 0xFF);
 
-  const void* Address = NULL;
+  const void *Address = NULL;
   uint16_t Size = NO_DESCRIPTOR;
 
-  switch (DescriptorType) {
-    case DTYPE_Device:
-      Address = &DeviceDescriptor;
-      Size = sizeof(USB_Descriptor_Device_t);
+  switch (DescriptorType)
+  {
+  case DTYPE_Device:
+    Address = &DeviceDescriptor;
+    Size = sizeof(USB_Descriptor_Device_t);
+    break;
+  case DTYPE_Configuration:
+    Address = &ConfigurationDescriptor;
+    Size = sizeof(USB_Descriptor_Configuration_t);
+    break;
+  case DTYPE_String:
+    switch (DescriptorNumber)
+    {
+    case STRING_ID_Language:
+      Address = &LanguageString;
+      Size = pgm_read_byte(&LanguageString.Header.Size);
       break;
-    case DTYPE_Configuration:
-      Address = &ConfigurationDescriptor;
-      Size = sizeof(USB_Descriptor_Configuration_t);
+    case STRING_ID_Manufacturer:
+      Address = &ManufacturerString;
+      Size = pgm_read_byte(&ManufacturerString.Header.Size);
       break;
-    case DTYPE_String:
-      switch (DescriptorNumber) {
-        case STRING_ID_Language:
-          Address = &LanguageString;
-          Size = pgm_read_byte(&LanguageString.Header.Size);
-          break;
-        case STRING_ID_Manufacturer:
-          Address = &ManufacturerString;
-          Size = pgm_read_byte(&ManufacturerString.Header.Size);
-          break;
-        case STRING_ID_Product:
-          Address = &ProductString;
-          Size = pgm_read_byte(&ProductString.Header.Size);
-          break;
-      }
+    case STRING_ID_Product:
+      Address = &ProductString;
+      Size = pgm_read_byte(&ProductString.Header.Size);
+      break;
+    }
 
-      break;
-    case HID_DTYPE_HID:
-      Address = &ConfigurationDescriptor.HID_JoystickHID;
-      Size = sizeof(USB_HID_Descriptor_HID_t);
-      break;
-    case HID_DTYPE_Report:
-      Address = &JoystickReport;
-      Size = sizeof(JoystickReport);
-      break;
+    break;
+  case HID_DTYPE_HID:
+    Address = &ConfigurationDescriptor.HID_JoystickHID;
+    Size = sizeof(USB_HID_Descriptor_HID_t);
+    break;
+  case HID_DTYPE_Report:
+    Address = &JoystickReport;
+    Size = sizeof(JoystickReport);
+    break;
   }
 
   *DescriptorAddress = Address;

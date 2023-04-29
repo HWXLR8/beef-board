@@ -45,4 +45,3 @@ include $(DMBS_PATH)/atprogram.mk
 .PHONY: flash
 flash:
 	sudo avrdude -c flip1 -p usb1286 -U flash:w:Joystick.hex
-# ./avrdude.exe -p atmega32u4 -P COM8 -c avr109 -U flash:w:fw.hex
