@@ -94,11 +94,12 @@ int main(void)
 	// VEFX     : C0 : C1
 	// EFFECT   : C2 : C3
 	// AUX      : C4 : C5
-	DDRB &= 0b10101010;
-	DDRD &= 0b10101010;
+	DDRB = 0b10101010;
+	DDRD = 0b10101010;
 	DDRC &= 0b11101010;
-	PORTB |= 0b01010101;
-	PORTD |= 0b01010101;
+	DDRC |= 0b00101010;
+	PORTB = 0b01010101;
+	PORTD = 0b01010101;
 	PORTC |= 0b00010101;
 
 	int8_t prev = -1;
