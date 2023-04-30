@@ -77,8 +77,8 @@ int main(void)
 	// we will set pins F0 and F1 as inputs to the
 	// photo interrupters
 	// idk what F2-F7 are used for atm
-	DDRF |= 0b1111100;
-	PORTF |= 0b11111100;
+	DDRF  &= 0b11111100;
+	PORTF |= 0b00000011;
 
 	// for buttons
 	// buttons to pins:
@@ -98,13 +98,13 @@ int main(void)
 	// leaving this comment since I am noob at working with bit-fields
 	// using &= and |= for DDRC and PORTC should achieve an assignment of 
 	// DDR? = 0bXXYYYYYY where the XX bits are unchanged from whatever they previously were
-	DDRB = 0b10101010;
-	DDRD = 0b10101010;
+	DDRB  = 0b10101010;
+	DDRD  = 0b10101010;
 	DDRC &= 0b11101010;
 	DDRC |= 0b00101010;
 
-	PORTB = 0b01010101;
-	PORTD = 0b01010101;
+	PORTB  = 0b01010101;
+	PORTD  = 0b01010101;
 	PORTC |= 0b00010101;
 	PORTC &= 0b11010101;
 
