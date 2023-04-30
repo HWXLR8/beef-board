@@ -66,7 +66,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 // not sure if using global variables in this manner will lead to problems down the line
 int8_t turntablePosition = 0;
 // bit-field for the buttons
-// first 11 bits map to the state of each button from J1 to J11
+// first 11 bits map to the state of each button
 uint16_t button = 0;
 int main(void)
 {
@@ -76,22 +76,23 @@ int main(void)
 	// for turntable
 	// we will set pins F0 and F1 as inputs to the
 	// photo interrupters
-	DDRF = 0;
-	PORTF = 0xFF;
+	// idk what F2-F7 are used for atm
+	DDRF |= 0b1111100;
+	PORTF |= 0b11111100;
 
 	// for buttons
 	// buttons to pins:
-	// BUTTON 1 / J1 : B0
-	// BUTTON 2 / J2 : B2
-	// BUTTON 3 / J3 : B4
-	// BUTTON 4 / J4 : B6
-	// BUTTON 5 / J5 : D0
-	// BUTTON 6 / J6 : D2
-	// BUTTON 7 / J7 : D4
-	// START    / J8 : D6
-	// VEFX     / J9 : C0
-	// EFFECT   / J10: C2
-	// AUX      / J11: C4
+	// BUTTON 1 : B0
+	// BUTTON 2 : B2
+	// BUTTON 3 : B4
+	// BUTTON 4 : B6
+	// BUTTON 5 : D0
+	// BUTTON 6 : D2
+	// BUTTON 7 : D4
+	// START    : D6
+	// VEFX     : C0
+	// EFFECT   : C2
+	// AUX      : C4
 	DDRB &= 0b10101010;
 	DDRD &= 0b10101010;
 	DDRC &= 0b11101010;
@@ -129,7 +130,7 @@ int main(void)
 		}
 		prev = curr;
 
-		// BUTTON 1 / J1 : B0
+		// BUTTON 1 : B0
 		if (~PINB & (1 << 0))
 		{
 			button |= (1 << 0);
@@ -139,7 +140,7 @@ int main(void)
 			button &= ~(1 << 0);
 		}
 
-		// BUTTON 2 / J2 : B2
+		// BUTTON 2 : B2
 		if (~PINB & (1 << 2))
 		{
 			button |= (1 << 1);
@@ -149,7 +150,7 @@ int main(void)
 			button &= ~(1 << 1);
 		}
 
-		// BUTTON 3 / J3 : B4
+		// BUTTON 3 : B4
 		if (~PINB & (1 << 4))
 		{
 			button |= (1 << 2);
@@ -159,7 +160,7 @@ int main(void)
 			button &= ~(1 << 2);
 		}
 
-		// BUTTON 4 / J4 : B6
+		// BUTTON 4 : B6
 		if (~PINB & (1 << 6))
 		{
 			button |= (1 << 3);
@@ -169,7 +170,7 @@ int main(void)
 			button &= ~(1 << 3);
 		}
 
-		// BUTTON 5 / J5 : D0
+		// BUTTON 5 : D0
 		if (~PIND & (1 << 0))
 		{
 			button |= (1 << 4);
@@ -179,7 +180,7 @@ int main(void)
 			button &= ~(1 << 4);
 		}
 
-		// BUTTON 6 / J6 : D2
+		// BUTTON 6 : D2
 		if (~PIND & (1 << 2))
 		{
 			button |= (1 << 5);
@@ -189,7 +190,7 @@ int main(void)
 			button &= ~(1 << 5);
 		}
 
-		// BUTTON 7 / J7 : D4
+		// BUTTON 7 : D4
 		if (~PIND & (1 << 4))
 		{
 			button |= (1 << 6);
@@ -199,7 +200,7 @@ int main(void)
 			button &= ~(1 << 6);
 		}
 
-		// START / J8 : D6
+		// START : D6
 		if (~PIND & (1 << 6))
 		{
 			button |= (1 << 7);
@@ -209,7 +210,7 @@ int main(void)
 			button &= ~(1 << 7);
 		}
 
-		// VEFX / J9 : C0
+		// VEFX : C0
 		if (~PINC & (1 << 0))
 		{
 			button |= (1 << 8);
@@ -219,7 +220,7 @@ int main(void)
 			button &= ~(1 << 8);
 		}
 
-		// EFFECT / J10: C2
+		// EFFECT : C2
 		if (~PINC & (1 << 2))
 		{
 			button |= (1 << 9);
@@ -229,7 +230,7 @@ int main(void)
 			button &= ~(1 << 9);
 		}
 
-		// AUX / J11: C4
+		// AUX : C4
 		if (~PINC & (1 << 4))
 		{
 			button |= (1 << 10);
