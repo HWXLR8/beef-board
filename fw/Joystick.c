@@ -82,17 +82,18 @@ int main(void)
 
 	// for buttons
 	// buttons to pins:
-	// BUTTON 1 : B0
-	// BUTTON 2 : B2
-	// BUTTON 3 : B4
-	// BUTTON 4 : B6
-	// BUTTON 5 : D0
-	// BUTTON 6 : D2
-	// BUTTON 7 : D4
-	// START    : D6
-	// VEFX     : C0
-	// EFFECT   : C2
-	// AUX      : C4
+	// <name>   : <input pin> : <LED pin>
+	// BUTTON 1 : B0 : B1
+	// BUTTON 2 : B2 : B3
+	// BUTTON 3 : B4 : B5
+	// BUTTON 4 : B6 : B7
+	// BUTTON 5 : D0 : D1
+	// BUTTON 6 : D2 : D3
+	// BUTTON 7 : D4 : D5
+	// START    : D6 : D7
+	// VEFX     : C0 : C1
+	// EFFECT   : C2 : C3
+	// AUX      : C4 : C5
 	DDRB &= 0b10101010;
 	DDRD &= 0b10101010;
 	DDRC &= 0b11101010;
