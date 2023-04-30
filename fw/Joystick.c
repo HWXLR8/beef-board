@@ -162,100 +162,120 @@ int main(void)
 		if (~PINB & (1 << 2))
 		{
 			button |= (1 << 1);
+			if (freemode) PORTB |= (1 << 3);
 		}
 		else
 		{
 			button &= ~(1 << 1);
+			if (freemode) PORTB &= ~(1 << 3);
 		}
 
 		// BUTTON 3 : B4 : B5
 		if (~PINB & (1 << 4))
 		{
 			button |= (1 << 2);
+			if (freemode) PORTB |= (1 << 5);
 		}
 		else
 		{
 			button &= ~(1 << 2);
+			if (freemode) PORTB &= ~(1 << 5);
 		}
 
 		// BUTTON 4 : B6 : B7
 		if (~PINB & (1 << 6))
 		{
 			button |= (1 << 3);
+			if (freemode) PORTB |= (1 << 7);
 		}
 		else
 		{
 			button &= ~(1 << 3);
+			if (freemode) PORTB &= ~(1 << 7);
 		}
 
 		// BUTTON 5 : D0 : D1
 		if (~PIND & (1 << 0))
 		{
 			button |= (1 << 4);
+			if (freemode) PORTD |= (1 << 1);
 		}
 		else
 		{
 			button &= ~(1 << 4);
+			if (freemode) PORTD &= ~(1 << 1);
 		}
 
 		// BUTTON 6 : D2 : D3
 		if (~PIND & (1 << 2))
 		{
 			button |= (1 << 5);
+			if (freemode) PORTD |= (1 << 3);
 		}
 		else
 		{
 			button &= ~(1 << 5);
+			if (freemode) PORTD &= ~(1 << 3);
 		}
 
 		// BUTTON 7 : D4 : D5
 		if (~PIND & (1 << 4))
 		{
 			button |= (1 << 6);
+			if (freemode) PORTD |= (1 << 5);
 		}
 		else
 		{
 			button &= ~(1 << 6);
+			if (freemode) PORTD &= ~(1 << 5);
 		}
 
 		// START : D6 : D7
 		if (~PIND & (1 << 6))
 		{
 			button |= (1 << 7);
+			if (freemode) PORTD |= (1 << 7);
 		}
 		else
 		{
 			button &= ~(1 << 7);
+			if (freemode) PORTD &= ~(1 << 7);
 		}
 
 		// VEFX : C0 : C1
 		if (~PINC & (1 << 0))
 		{
 			button |= (1 << 8);
+			if (freemode) PORTC |= (1 << 1);
 		}
 		else
 		{
 			button &= ~(1 << 8);
+			if (freemode) PORTC &= ~(1 << 1);
 		}
 
 		// EFFECT : C2 : C3
 		if (~PINC & (1 << 2))
 		{
 			button |= (1 << 9);
+			if (freemode) PORTC |= (1 << 3);
 		}
 		else
 		{
 			button &= ~(1 << 9);
+			if (freemode) PORTC &= ~(1 << 3);
 		}
 
 		// AUX : C4 : C5
 		if (~PINC & (1 << 4))
 		{
 			button |= (1 << 10);
+			if (freemode) PORTC |= (1 << 5);
 		}
 		else
 		{
 			button &= ~(1 << 10);
+			if (freemode) PORTC &= ~(1 << 5);
 		}
 	}
 }
