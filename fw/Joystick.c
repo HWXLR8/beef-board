@@ -35,6 +35,9 @@
  */
 
 #include "Joystick.h"
+#define BOOL char
+#define FALSE 0
+#define TRUE 1
 
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -110,6 +113,11 @@ int main(void)
 
 	int8_t prev = -1;
 	int8_t curr = -1;
+
+	// flag to represent whether the LEDs are controlled by host or not
+	// when not controlled by host, LEDs light up while the corresponding button is held
+	BOOL freemode = TRUE;
+
 	GlobalInterruptEnable();
 
 	for (;;)
@@ -138,17 +146,19 @@ int main(void)
 		}
 		prev = curr;
 
-		// BUTTON 1 : B0
+		// BUTTON 1 : B0 : B1
 		if (~PINB & (1 << 0))
 		{
 			button |= (1 << 0);
+			if (freemode) PORTB |= (1 << 0);
 		}
 		else
 		{
 			button &= ~(1 << 0);
+			if (freemode) PORTB &= ~(1 << 0);
 		}
 
-		// BUTTON 2 : B2
+		// BUTTON 2 : B2 : B3
 		if (~PINB & (1 << 2))
 		{
 			button |= (1 << 1);
@@ -158,7 +168,7 @@ int main(void)
 			button &= ~(1 << 1);
 		}
 
-		// BUTTON 3 : B4
+		// BUTTON 3 : B4 : B5
 		if (~PINB & (1 << 4))
 		{
 			button |= (1 << 2);
@@ -168,7 +178,7 @@ int main(void)
 			button &= ~(1 << 2);
 		}
 
-		// BUTTON 4 : B6
+		// BUTTON 4 : B6 : B7
 		if (~PINB & (1 << 6))
 		{
 			button |= (1 << 3);
@@ -178,7 +188,7 @@ int main(void)
 			button &= ~(1 << 3);
 		}
 
-		// BUTTON 5 : D0
+		// BUTTON 5 : D0 : D1
 		if (~PIND & (1 << 0))
 		{
 			button |= (1 << 4);
@@ -188,7 +198,7 @@ int main(void)
 			button &= ~(1 << 4);
 		}
 
-		// BUTTON 6 : D2
+		// BUTTON 6 : D2 : D3
 		if (~PIND & (1 << 2))
 		{
 			button |= (1 << 5);
@@ -198,7 +208,7 @@ int main(void)
 			button &= ~(1 << 5);
 		}
 
-		// BUTTON 7 : D4
+		// BUTTON 7 : D4 : D5
 		if (~PIND & (1 << 4))
 		{
 			button |= (1 << 6);
@@ -208,7 +218,7 @@ int main(void)
 			button &= ~(1 << 6);
 		}
 
-		// START : D6
+		// START : D6 : D7
 		if (~PIND & (1 << 6))
 		{
 			button |= (1 << 7);
@@ -218,7 +228,7 @@ int main(void)
 			button &= ~(1 << 7);
 		}
 
-		// VEFX : C0
+		// VEFX : C0 : C1
 		if (~PINC & (1 << 0))
 		{
 			button |= (1 << 8);
@@ -228,7 +238,7 @@ int main(void)
 			button &= ~(1 << 8);
 		}
 
-		// EFFECT : C2
+		// EFFECT : C2 : C3
 		if (~PINC & (1 << 2))
 		{
 			button |= (1 << 9);
@@ -238,7 +248,7 @@ int main(void)
 			button &= ~(1 << 9);
 		}
 
-		// AUX : C4
+		// AUX : C4 : C5
 		if (~PINC & (1 << 4))
 		{
 			button |= (1 << 10);
