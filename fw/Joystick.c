@@ -150,12 +150,12 @@ int main(void)
 		if (~PINB & (1 << 0))
 		{
 			button |= (1 << 0);
-			if (freemode) PORTB |= (1 << 0);
+			if (freemode) PORTB |= (1 << 1);
 		}
 		else
 		{
 			button &= ~(1 << 0);
-			if (freemode) PORTB &= ~(1 << 0);
+			if (freemode) PORTB &= ~(1 << 1);
 		}
 
 		// BUTTON 2 : B2 : B3
