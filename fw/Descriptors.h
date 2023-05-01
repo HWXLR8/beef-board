@@ -53,7 +53,8 @@
 			// Joystick HID Interface
 			USB_Descriptor_Interface_t            HID_Interface;
 			USB_HID_Descriptor_HID_t              HID_JoystickHID;
-	        USB_Descriptor_Endpoint_t             HID_ReportINEndpoint;
+	    USB_Descriptor_Endpoint_t             HID_ReportINEndpoint;
+			USB_Descriptor_Endpoint_t             HID_ReportOUTEndpoint;
 		} USB_Descriptor_Configuration_t;
 
 		/** Enum for the device interface descriptor IDs within the device. Each interface descriptor
