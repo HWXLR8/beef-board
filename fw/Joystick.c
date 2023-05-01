@@ -327,9 +327,14 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 {
 	bool ConfigSuccess = true;
 
-	ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
+	//ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
 
-	USB_Device_EnableSOFEvents();
+	//USB_Device_EnableSOFEvents();
+	
+	// not sure if this does anything
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+
 }
 
 /** Event handler for the library USB Control Request reception event. */
