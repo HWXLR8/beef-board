@@ -53,7 +53,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 				.InterfaceNumber              = INTERFACE_ID_Joystick,
 				.ReportINEndpoint             =
 					{
-						.Address              = JOYSTICK_EPADDR,
+						.Address              = JOYSTICK_IN_EPADDR,
 						.Size                 = JOYSTICK_EPSIZE,
 						.Banks                = 1,
 					},
