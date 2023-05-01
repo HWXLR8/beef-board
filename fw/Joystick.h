@@ -60,6 +60,18 @@
 			uint16_t Button; /**< Bit mask of the currently pressed joystick buttons */
 		} USB_JoystickReport_Data_t;
 
+	/* The Output struct. This is the report that comes into the board. */
+	// (copied directly from USBemani-legacy)
+ 		typedef struct 
+		{
+ 			// Our lights. 16 bits for 16 lights, which gets passed to Lights_PushData().
+ 			uint16_t Lights;
+ 			// Our configuration bytes. One byte for commands, one byte for data. We will use this data to adjust our configuration.
+ 			// Byte 0 will be the command, byte 1 will be the data.
+ 			uint8_t  Command;
+ 			uint8_t  Data;
+ 		} Output_t;
+
 	/* Function Prototypes: */
 		void SetupHardware(void);
 

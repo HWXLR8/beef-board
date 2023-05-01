@@ -70,9 +70,9 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 	.Protocol               = USB_CSCP_NoDeviceProtocol,
 
 	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
-
-	.VendorID               = 0x03EB,
-	.ProductID              = 0x2043,
+	// official konami infinitas controller VID/PID
+	.VendorID               = 0x1CCF,
+	.ProductID              = 0x8048,
 	.ReleaseNumber          = VERSION_BCD(0,0,1),
 
 	.ManufacturerStrIndex   = STRING_ID_Manufacturer,
@@ -100,8 +100,8 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
 
 			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
-
-			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
+			// as in usbemani, not confident with this change
+			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(500) 
 		},
 
 	.HID_Interface =
@@ -111,7 +111,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.InterfaceNumber        = INTERFACE_ID_Joystick,
 			.AlternateSetting       = 0x00,
 
-			.TotalEndpoints         = 1,
+			.TotalEndpoints         = 2,
 
 			.Class                  = HID_CSCP_HIDClass,
 			.SubClass               = HID_CSCP_NonBootSubclass,
@@ -138,7 +138,16 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.EndpointAddress        = JOYSTICK_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
-			.PollingIntervalMS      = 0x05
+			.PollingIntervalMS      = 0x01 // as in usbemani
+		}
+	.HID_ReportOUTEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = JOYSTICK_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = JOYSTICK_EPADDR,
+			.PollingIntervalMS      = 0x01 // as in usbemani
 		}
 };
 

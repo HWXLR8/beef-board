@@ -71,6 +71,11 @@ int8_t turntablePosition = 0;
 // bit-field for the buttons
 // first 11 bits map to the state of each button
 uint16_t button = 0;
+
+// flag to represent whether the LEDs are controlled by host or not
+// when not controlled by host, LEDs light up while the corresponding button is held
+BOOL freemode = TRUE;
+
 int main(void)
 {
 	SetupHardware();
@@ -111,15 +116,20 @@ int main(void)
 	PORTC |= 0b00010101;
 	PORTC &= 0b11010101;
 
+
 	int8_t prev = -1;
 	int8_t curr = -1;
 
-	// flag to represent whether the LEDs are controlled by host or not
-	// when not controlled by host, LEDs light up while the corresponding button is held
-	BOOL freemode = TRUE;
 
 	GlobalInterruptEnable();
 
+	// hardcoding pin B1 to low 
+	PORTB &= ~(1 << 1);
+
+	// set pin B1 to high if CALLBACK_HID_Device_ProcessHIDReport() is called
+	// we currently have it set so it sets freemode to FALSE when 
+	// CALLBACK_HID_Device_ProcessHIDReport() is called
+	if (!freemode) PORTB |= (1 << 1);
 	for (;;)
 	{
 		HID_Device_USBTask(&Joystick_HID_Interface);
@@ -374,4 +384,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize)
 {
 	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
+	uint8_t* LEDReport = (uint8_t*)ReportData;
+
+	freemode = FALSE;
 }
