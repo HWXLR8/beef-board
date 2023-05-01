@@ -110,7 +110,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.InterfaceNumber        = INTERFACE_ID_Joystick,
 			.AlternateSetting       = 0x00,
-
+			// 2 endpoints, 1 for in, 1 for out
 			.TotalEndpoints         = 2,
 
 			.Class                  = HID_CSCP_HIDClass,
@@ -139,7 +139,8 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
 			.PollingIntervalMS      = 0x01 // as in usbemani
-		}
+		},
+		
 	.HID_ReportOUTEndpoint =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
