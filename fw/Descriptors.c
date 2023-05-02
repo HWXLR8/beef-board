@@ -53,22 +53,15 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] =
 	 *   Buttons: 16
 	 */
 	HID_DESCRIPTOR_JOYSTICK(-128, 127, -1, 1, 16)
-		// LED Output reports.
-		// LEDs are broken up a number of ways. We have an ordinal...
 	    HID_RI_USAGE_PAGE(8, 0x0A),
-	    // ...an instance (this is Instance 1)...
 	    HID_RI_USAGE(8, 1),
-	    // ...a logical collection...
 	    HID_RI_COLLECTION(8, 0x02),
-	    	// And an LED, a Generic Indicator.
 	    	HID_RI_USAGE_PAGE(8, 0x08),
 	    	HID_RI_USAGE(8, 0x4B),
 	    	HID_RI_REPORT_SIZE(8, 1),
 	    	HID_RI_REPORT_COUNT(8, 1),
 	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
 	    HID_RI_END_COLLECTION(0),
-	    // We have a total of 16 LEDs, so 16 instances. This will be a while...
-	    // There is most likely a much better way to handle this programatically. However, I have not, and most likely will not, have an opportunity to revisit this.
 	    HID_RI_USAGE(8, 2),
 	    HID_RI_COLLECTION(8, 0x02),
 	    	HID_RI_USAGE_PAGE(8, 0x08),
@@ -189,7 +182,6 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] =
 	    	HID_RI_REPORT_COUNT(8, 1),
 	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
 	    HID_RI_END_COLLECTION(0),
-	    // An empty 16 bits. We hold our configuration report here.
 	    HID_RI_REPORT_SIZE(8, 8),
 		HID_RI_REPORT_COUNT(8, 2),
 		HID_RI_OUTPUT(8, HID_IOF_CONSTANT),
@@ -241,7 +233,6 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
 
 			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
-			// as in usbemani, not confident with this change
 			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(500)
 		},
 
@@ -279,7 +270,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.EndpointAddress        = JOYSTICK_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
-			.PollingIntervalMS      = 0x01 // as in usbemani
+			.PollingIntervalMS      = 0x01 
 		},
 
 	.HID_ReportOUTEndpoint =
@@ -289,7 +280,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.EndpointAddress        = JOYSTICK_OUT_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
-			.PollingIntervalMS      = 0x01 // as in usbemani
+			.PollingIntervalMS      = 0x01 
 		}
 };
 

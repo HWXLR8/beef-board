@@ -59,14 +59,12 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 				.PrevReportINBufferSize       = sizeof(PrevJoystickHIDReportBuffer),
 			},
 	};
-	
+
 // not sure if using global variables in this manner will lead to problems down the line
 int8_t turntablePosition = 0;
 // bit-field for the buttons
 // first 11 bits map to the state of each button
 uint16_t button = 0;
-// struct from usbemani-legacy
-Settings_Lights_t *Lights;
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding button is held
 bool reactiveLightingMode = true;
