@@ -60,7 +60,6 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 			},
 	};
 
-// not sure if using global variables in this manner will lead to problems down the line
 int8_t turntablePosition = 0;
 // bit-field for the buttons
 // first 11 bits map to the state of each button
@@ -74,9 +73,6 @@ bool reactiveLightingMode = true;
  */
 int main(void)
 {
-	MCUSR &= ~(1 << WDRF);
-	wdt_disable();
-
 	SetupHardware();
 	USB_Init();
 	// pin setup
@@ -102,10 +98,6 @@ int main(void)
 	// VEFX     : C0 : C1
 	// EFFECT   : C2 : C3
 	// AUX      : C4 : C5
-
-	// leaving this comment since I am noob at working with bit-fields
-	// using &= and |= for DDRC and PORTC should achieve an assignment of 
-	// DDR? = 0bXXYYYYYY where the XX bits are unchanged from whatever they previously were
 	DDRB  = 0b10101010;
 	DDRD  = 0b10101010;
 	DDRC &= 0b11101010;
@@ -323,11 +315,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 {
 	bool ConfigSuccess = true;
 
-	// ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
-
-	//USB_Device_EnableSOFEvents();
-	
-	// not sure if this does anything
+	/* Setup HID Report Endpoints */
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 }
