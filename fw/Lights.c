@@ -55,7 +55,7 @@ void Lights_Init(void) {
 
 
 void Lights_SetState(uint16_t OutputData) {
-  	// buttons to pins:
+  // buttons to pins:
 	// <name>   : <input pin> : <LED pin>
 	// BUTTON 1 : B0 : B1
   if (OutputData & (1 << 0)) {

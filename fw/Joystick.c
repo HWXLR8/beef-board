@@ -37,10 +37,7 @@
 #include "Joystick.h"
 #include "Lights.h"
 #include "Config.h"
-#define BOOL char
-#define FALSE 0
-#define TRUE 1
-Settings_Lights_t *Lights;
+
 
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -66,24 +63,26 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 	};
 
 
-/** Main program entry point. This routine contains the overall program flow, including initial
- *  setup of all components and the main program loop.
- */
 // not sure if using global variables in this manner will lead to problems down the line
 int8_t turntablePosition = 0;
 // bit-field for the buttons
 // first 11 bits map to the state of each button
 uint16_t button = 0;
-
+// struct from usbemani-legacy
+Settings_Lights_t *Lights;
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding button is held
-BOOL freemode = TRUE;
+bool reactiveLightingMode = true;
 
+/** Main program entry point. This routine contains the overall program flow, including initial
+ *  setup of all components and the main program loop.
+ */
 int main(void)
 {
 	MCUSR &= ~(1 << WDRF);
 	wdt_disable();
 	
+	// it is unclear which of these calls taken from usbemani-legacy are necessary
 	Config_Init();
 	Config_AddressLights(&Lights);
 
@@ -133,12 +132,10 @@ int main(void)
 
 	GlobalInterruptEnable();
 
-	// hardcoding pin B1 to low 
-	// PORTB &= ~(1 << 1);
-
 	for (;;)
 	{
 		HID_Device_USBTask(&Joystick_HID_Interface);
+		// our HID_Task() only takes care of processing HID reports
 		HID_Task();
 		USB_USBTask();
 
@@ -167,132 +164,132 @@ int main(void)
 		if (~PINB & (1 << 0))
 		{
 			button |= (1 << 0);
-			if (freemode) PORTB |= (1 << 1);
+			if (reactiveLightingMode) PORTB |= (1 << 1);
 		}
 		else
 		{
 			button &= ~(1 << 0);
-			if (freemode) PORTB &= ~(1 << 1);
+			if (reactiveLightingMode) PORTB &= ~(1 << 1);
 		}
 
 		// BUTTON 2 : B2 : B3
 		if (~PINB & (1 << 2))
 		{
 			button |= (1 << 1);
-			if (freemode) PORTB |= (1 << 3);
+			if (reactiveLightingMode) PORTB |= (1 << 3);
 		}
 		else
 		{
 			button &= ~(1 << 1);
-			if (freemode) PORTB &= ~(1 << 3);
+			if (reactiveLightingMode) PORTB &= ~(1 << 3);
 		}
 
 		// BUTTON 3 : B4 : B5
 		if (~PINB & (1 << 4))
 		{
 			button |= (1 << 2);
-			if (freemode) PORTB |= (1 << 5);
+			if (reactiveLightingMode) PORTB |= (1 << 5);
 		}
 		else
 		{
 			button &= ~(1 << 2);
-			if (freemode) PORTB &= ~(1 << 5);
+			if (reactiveLightingMode) PORTB &= ~(1 << 5);
 		}
 
 		// BUTTON 4 : B6 : B7
 		if (~PINB & (1 << 6))
 		{
 			button |= (1 << 3);
-			if (freemode) PORTB |= (1 << 7);
+			if (reactiveLightingMode) PORTB |= (1 << 7);
 		}
 		else
 		{
 			button &= ~(1 << 3);
-			if (freemode) PORTB &= ~(1 << 7);
+			if (reactiveLightingMode) PORTB &= ~(1 << 7);
 		}
 
 		// BUTTON 5 : D0 : D1
 		if (~PIND & (1 << 0))
 		{
 			button |= (1 << 4);
-			if (freemode) PORTD |= (1 << 1);
+			if (reactiveLightingMode) PORTD |= (1 << 1);
 		}
 		else
 		{
 			button &= ~(1 << 4);
-			if (freemode) PORTD &= ~(1 << 1);
+			if (reactiveLightingMode) PORTD &= ~(1 << 1);
 		}
 
 		// BUTTON 6 : D2 : D3
 		if (~PIND & (1 << 2))
 		{
 			button |= (1 << 5);
-			if (freemode) PORTD |= (1 << 3);
+			if (reactiveLightingMode) PORTD |= (1 << 3);
 		}
 		else
 		{
 			button &= ~(1 << 5);
-			if (freemode) PORTD &= ~(1 << 3);
+			if (reactiveLightingMode) PORTD &= ~(1 << 3);
 		}
 
 		// BUTTON 7 : D4 : D5
 		if (~PIND & (1 << 4))
 		{
 			button |= (1 << 6);
-			if (freemode) PORTD |= (1 << 5);
+			if (reactiveLightingMode) PORTD |= (1 << 5);
 		}
 		else
 		{
 			button &= ~(1 << 6);
-			if (freemode) PORTD &= ~(1 << 5);
+			if (reactiveLightingMode) PORTD &= ~(1 << 5);
 		}
 
 		// START : D6 : D7
 		if (~PIND & (1 << 6))
 		{
 			button |= (1 << 7);
-			if (freemode) PORTD |= (1 << 7);
+			if (reactiveLightingMode) PORTD |= (1 << 7);
 		}
 		else
 		{
 			button &= ~(1 << 7);
-			if (freemode) PORTD &= ~(1 << 7);
+			if (reactiveLightingMode) PORTD &= ~(1 << 7);
 		}
 
 		// VEFX : C0 : C1
 		if (~PINC & (1 << 0))
 		{
 			button |= (1 << 8);
-			if (freemode) PORTC |= (1 << 1);
+			if (reactiveLightingMode) PORTC |= (1 << 1);
 		}
 		else
 		{
 			button &= ~(1 << 8);
-			if (freemode) PORTC &= ~(1 << 1);
+			if (reactiveLightingMode) PORTC &= ~(1 << 1);
 		}
 
 		// EFFECT : C2 : C3
 		if (~PINC & (1 << 2))
 		{
 			button |= (1 << 9);
-			if (freemode) PORTC |= (1 << 3);
+			if (reactiveLightingMode) PORTC |= (1 << 3);
 		}
 		else
 		{
 			button &= ~(1 << 9);
-			if (freemode) PORTC &= ~(1 << 3);
+			if (reactiveLightingMode) PORTC &= ~(1 << 3);
 		}
 
 		// AUX : C4 : C5
 		if (~PINC & (1 << 4))
 		{
 			button |= (1 << 10);
-			if (freemode) PORTC |= (1 << 5);
+			if (reactiveLightingMode) PORTC |= (1 << 5);
 		}
 		else
 		{
 			button &= ~(1 << 10);
-			if (freemode) PORTC &= ~(1 << 5);
+			if (reactiveLightingMode) PORTC &= ~(1 << 5);
 		}
 	}
 }
@@ -321,7 +318,7 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 	USB_Init();
-	freemode = TRUE;
+	reactiveLightingMode = true;
 }
 
 /** Event handler for the library USB Connection event. */
@@ -379,7 +376,7 @@ void ProcessGenericHIDReport(Output_t* ReportData)
 		function is called each time the host has sent a new report. DataArray is an array
 		holding the report sent from the host.
 	*/
-	freemode = FALSE;
+	reactiveLightingMode = false;
 
 	// If we receive a reset command, we need to push back to bootloader mode.
 	if ((ReportData->Command == 0xF5) && (ReportData->Data == 0x73)) {
@@ -485,26 +482,4 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize)
 {
 	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
-	uint8_t* LEDReport = (uint8_t*)ReportData;
-
-	// light up pin B1
-	// if (*LEDReport & 0x01)
-	// {
-	// 	PORTB |= (1 << 1);
-	// }
-	// else
-	// {
-	// 	PORTB &= ~(1 << 1);
-	// }
-	// // light up pin B3
-	// if (*LEDReport & 0x02)
-	// { 
-	// 	PORTB |= (1 << 3);
-	// }
-	// else
-	// {
-	// 	PORTB &= ~(1 << 3);
-	// }
-
-	// freemode = FALSE;
 }
