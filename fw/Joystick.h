@@ -72,6 +72,24 @@
  			uint8_t  Data;
  		} Output_t;
 
+		/** Light inversion. Used to invert the output of our lights. Stored in EEPROM and loaded at startup. */
+		typedef enum {
+				L_NoInvert = 0x00,
+				L_InvertTT = 0x01,
+		} LIGHTS_TRANSFORM;
+		/** Light connection. Used to define other methods of handling LEDs, such as WS2811. */
+		typedef enum {
+				L_Direct = 0x00,
+				L_WS28XX = 0x01,
+				L_OWLED  = 0x02
+		} LIGHTS_COMM;
+	/** Lights structure. Holds the turntable inversion, the communication method, and if lighting is being controlled via USB. */
+		typedef struct {
+				LIGHTS_TRANSFORM  LightsInvertTT;
+				LIGHTS_COMM       LightsComm;
+				volatile uint16_t LightsAssert;
+		} Settings_Lights_t;
+
 	/* Function Prototypes: */
 		void SetupHardware(void);
 		void HID_Task(void);
@@ -84,6 +102,8 @@
 
 		void ProcessGenericHIDReport(Output_t* ReportData);
 
+		void Lights_SetState(uint16_t OutputData);
+
 		bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 		                                         uint8_t* const ReportID,
 		                                         const uint8_t ReportType,
@@ -94,5 +114,7 @@
 		                                          const uint8_t ReportType,
 		                                          const void* ReportData,
 		                                          const uint16_t ReportSize);
+
+			
 
 #endif

@@ -35,8 +35,6 @@
  */
 
 #include "Joystick.h"
-#include "Lights.h"
-#include "Config.h"
 
 
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
@@ -61,8 +59,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 				.PrevReportINBufferSize       = sizeof(PrevJoystickHIDReportBuffer),
 			},
 	};
-
-
+	
 // not sure if using global variables in this manner will lead to problems down the line
 int8_t turntablePosition = 0;
 // bit-field for the buttons
@@ -81,10 +78,6 @@ int main(void)
 {
 	MCUSR &= ~(1 << WDRF);
 	wdt_disable();
-	
-	// it is unclear which of these calls taken from usbemani-legacy are necessary
-	Config_Init();
-	Config_AddressLights(&Lights);
 
 	SetupHardware();
 	USB_Init();
@@ -378,40 +371,6 @@ void ProcessGenericHIDReport(Output_t* ReportData)
 	*/
 	reactiveLightingMode = false;
 
-	// If we receive a reset command, we need to push back to bootloader mode.
-	if ((ReportData->Command == 0xF5) && (ReportData->Data == 0x73)) {
-		// If USB is used, detach from the bus and reset it
-		USB_Disable();
-
-		// Disable all interrupts
-		cli();
-
-		// Wait two seconds for the USB detachment to register on the host.
-		Delay_MS(2000);
-
-		// Perform a watchdog reset, which will kick us back to the bootloader.
-		wdt_enable(WDTO_250MS);
-		for (;;);
-	}
-
-	else if (ReportData->Command == 0xF1) {
-		Config_Identify();
-		Config_SaveEEPROM();
-		SetupHardware();
-	}
-	
-	else if (ReportData->Command == 0xF0) {
-		Config_Identify();
-		SetupHardware();
-	}
-
-	// Otherwise, if the output report contains, well, anything (not 0x00), we'll parse it.
-	else if (ReportData->Command >= 0x40) {
-		Config_UpdateSettings(ReportData->Command, ReportData->Data);
-	}
-
-	// We need to reset our timeout for the lights.
-	Lights->LightsAssert = 1000;
 	// We also need to forward the lighting data over.
 	Lights_SetState(ReportData->Lights);
 }
@@ -482,4 +441,75 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize)
 {
 	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
+}
+
+void Lights_SetState(uint16_t OutputData) {
+  // buttons to pins:
+	// <name>   : <input pin> : <LED pin>
+	// BUTTON 1 : B0 : B1
+  if (OutputData & (1 << 0)) {
+    PORTB |= (1 << 1);
+  } else {
+    PORTB &= ~(1 << 1);
+  }
+	// BUTTON 2 : B2 : B3
+  if (OutputData & (1 << 1)) {
+    PORTB |= (1 << 3);
+  } else {
+    PORTB &= ~(1 << 3);
+  }
+	// BUTTON 3 : B4 : B5
+  if (OutputData & (1 << 2)) {
+    PORTB |= (1 << 5);
+  } else {
+    PORTB &= ~(1 << 5);
+  }
+	// BUTTON 4 : B6 : B7
+  if (OutputData & (1 << 3)) {
+    PORTB |= (1 << 7);
+  } else {
+    PORTB &= ~(1 << 7);
+  }
+	// BUTTON 5 : D0 : D1
+  if (OutputData & (1 << 4)) {
+    PORTD |= (1 << 1);
+  } else {
+    PORTD &= ~(1 << 1);
+  }
+	// BUTTON 6 : D2 : D3
+  if (OutputData & (1 << 5)) {
+    PORTD |= (1 << 3);
+  } else {
+    PORTD &= ~(1 << 3);
+  }
+	// BUTTON 7 : D4 : D5
+  if (OutputData & (1 << 6)) {
+    PORTD |= (1 << 5);
+  } else {
+    PORTD &= ~(1 << 5);
+  }
+	// START    : D6 : D7
+  if (OutputData & (1 << 7)) {
+    PORTD |= (1 << 7);
+  } else {
+    PORTD &= ~(1 << 7);
+  }
+	// VEFX     : C0 : C1
+  if (OutputData & (1 << 8)) {
+    PORTC |= (1 << 1);
+  } else {
+    PORTC &= ~(1 << 1);
+  }
+	// EFFECT   : C2 : C3
+  if (OutputData & (1 << 9)) {
+    PORTC |= (1 << 3);
+  } else {
+    PORTC &= ~(1 << 3);
+  }
+	// AUX      : C4 : C5
+  if (OutputData & (1 << 10)) {
+    PORTC |= (1 << 5);
+  } else {
+    PORTC &= ~(1 << 5);
+  }
 }
