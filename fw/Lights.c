@@ -47,7 +47,7 @@ void Lights_Init(void) {
   // * PB4-PB7 (PB0-PB3 are the SPI bus used for PS2)
 
   // For setup, we only configure the latching pin.
-  DDRF |= 0x80;
+  //DDRF |= 0x80;
 
 	// Since setup is done, we can re-enable interrupts.
 	sei();
@@ -55,29 +55,72 @@ void Lights_Init(void) {
 
 
 void Lights_SetState(uint16_t OutputData) {
-  // USBemani boards have an onboard LED at PE6.
-  // We'll turn it on any time there's a light turned on.
-  if(OutputData) {
-    DDRE  |=  0x40;
-    PORTE |=  0x40;
+  	// buttons to pins:
+	// <name>   : <input pin> : <LED pin>
+	// BUTTON 1 : B0 : B1
+  if (OutputData & (1 << 0)) {
+    PORTB |= (1 << 1);
   } else {
-    DDRE  &= ~0x40;
-    PORTE &= ~0x40;
+    PORTB &= ~(1 << 1);
   }
-
-  // For lighting, we'll switch to output mode.
-	L07_DDR  |=  0xFF;
-	L8F_DDR  |=  0xF0;
-  // Clear the pins we'll be setting first, then set them to the desired output.
-  L07_PORT  = (L07_PORT & ~0xFF) |  (OutputData &   0xFF);
-  L8F_PORT  = (L8F_PORT & ~0xF0) | ((OutputData & 0x0F00) >> 4);
-	// L07_PORT &= ~0xFF;
-	// L8F_PORT &= ~0xF0;
-	// L07_PORT |= (OutputData & 0xFF);
-	// L8F_PORT |= (OutputData & 0x0F00) >> 4;
-
-  // Send a pulse to the latch. This only takes a brief moment of time.
-	PORTF |=  0x80;
-	asm volatile("nop\n");
-	PORTF &= ~0x80;
+	// BUTTON 2 : B2 : B3
+  if (OutputData & (1 << 1)) {
+    PORTB |= (1 << 3);
+  } else {
+    PORTB &= ~(1 << 3);
+  }
+	// BUTTON 3 : B4 : B5
+  if (OutputData & (1 << 2)) {
+    PORTB |= (1 << 5);
+  } else {
+    PORTB &= ~(1 << 5);
+  }
+	// BUTTON 4 : B6 : B7
+  if (OutputData & (1 << 3)) {
+    PORTB |= (1 << 7);
+  } else {
+    PORTB &= ~(1 << 7);
+  }
+	// BUTTON 5 : D0 : D1
+  if (OutputData & (1 << 4)) {
+    PORTD |= (1 << 1);
+  } else {
+    PORTD &= ~(1 << 1);
+  }
+	// BUTTON 6 : D2 : D3
+  if (OutputData & (1 << 5)) {
+    PORTD |= (1 << 3);
+  } else {
+    PORTD &= ~(1 << 3);
+  }
+	// BUTTON 7 : D4 : D5
+  if (OutputData & (1 << 6)) {
+    PORTD |= (1 << 5);
+  } else {
+    PORTD &= ~(1 << 5);
+  }
+	// START    : D6 : D7
+  if (OutputData & (1 << 7)) {
+    PORTD |= (1 << 7);
+  } else {
+    PORTD &= ~(1 << 7);
+  }
+	// VEFX     : C0 : C1
+  if (OutputData & (1 << 8)) {
+    PORTC |= (1 << 1);
+  } else {
+    PORTC &= ~(1 << 1);
+  }
+	// EFFECT   : C2 : C3
+  if (OutputData & (1 << 9)) {
+    PORTC |= (1 << 3);
+  } else {
+    PORTC &= ~(1 << 3);
+  }
+	// AUX      : C4 : C5
+  if (OutputData & (1 << 10)) {
+    PORTC |= (1 << 5);
+  } else {
+    PORTC &= ~(1 << 5);
+  }
 }
