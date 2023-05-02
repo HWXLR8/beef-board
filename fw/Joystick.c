@@ -36,6 +36,7 @@
 
 #include "Joystick.h"
 
+
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
 
@@ -50,7 +51,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 				.InterfaceNumber              = INTERFACE_ID_Joystick,
 				.ReportINEndpoint             =
 					{
-						.Address              = JOYSTICK_EPADDR,
+						.Address              = JOYSTICK_IN_EPADDR,
 						.Size                 = JOYSTICK_EPSIZE,
 						.Banks                = 1,
 					},
@@ -59,6 +60,13 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 			},
 	};
 
+int8_t turntablePosition = 0;
+// bit-field for the buttons
+// first 11 bits map to the state of each button
+uint16_t button = 0;
+// flag to represent whether the LEDs are controlled by host or not
+// when not controlled by host, LEDs light up while the corresponding button is held
+bool reactiveLightingMode = true;
 
 /** Main program entry point. This routine contains the overall program flow, including initial
  *  setup of all components and the main program loop.
@@ -66,24 +74,205 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface =
 int main(void)
 {
 	SetupHardware();
-
+	USB_Init();
 	// pin setup
-	DDRB = 0b00000010; // PB1 output, all else inputs
-	PORTB =0b00000001;
+
+	// for turntable
+	// we will set pins F0 and F1 as inputs to the
+	// photo interrupters
+	// idk what F2-F7 are used for atm
+	DDRF  &= 0b11111100;
+	PORTF |= 0b00000011;
+
+	// for buttons
+	// buttons to pins:
+	// <name>   : <input pin> : <LED pin>
+	// BUTTON 1 : B0 : B1
+	// BUTTON 2 : B2 : B3
+	// BUTTON 3 : B4 : B5
+	// BUTTON 4 : B6 : B7
+	// BUTTON 5 : D0 : D1
+	// BUTTON 6 : D2 : D3
+	// BUTTON 7 : D4 : D5
+	// START    : D6 : D7
+	// VEFX     : C0 : C1
+	// EFFECT   : C2 : C3
+	// AUX      : C4 : C5
+	DDRB  = 0b10101010;
+	DDRD  = 0b10101010;
+	DDRC &= 0b11101010;
+	DDRC |= 0b00101010;
+
+	PORTB  = 0b01010101;
+	PORTD  = 0b01010101;
+	PORTC |= 0b00010101;
+	PORTC &= 0b11010101;
+
+
+	int8_t prev = -1;
+	int8_t curr = -1;
+
 
 	GlobalInterruptEnable();
 
 	for (;;)
 	{
 		HID_Device_USBTask(&Joystick_HID_Interface);
+		// our HID_Task() only takes care of processing HID reports
+		HID_Task();
 		USB_USBTask();
 
-		if ( (PINB & (1 << PINB0)) == (1 << PINB0) ) {
-		  // pin is high
-		  PORTB = 0b00000001;
-		} else {
-		  // pin is low
-		  PORTB = 0b00000011;
+		/*---------------------turntable logic---------------------*/
+		// curr is binary number ab
+		// where a is the signal of F0
+		// and   b is the signal of F1
+		// e.g. when F0 == 1 and F1 == 0, then curr == 0b10
+		int8_t a = PINF & (1 << 0) ? 1 : 0;
+		int8_t b = PINF & (1 << 1) ? 1 : 0;
+		curr = (a << 1) | b;
+
+		if (prev == 3 && curr == 1 || prev == 1 && curr == 0 ||
+				prev == 0 && curr == 2 || prev == 2 && curr == 3)
+		{
+			turntablePosition++;
+		}
+		else if (prev == 1 && curr == 3 || prev == 0 && curr == 1 ||
+						 prev == 2 && curr == 0 || prev == 3 && curr == 2)
+		{
+			turntablePosition--;
+		}
+		prev = curr;
+
+		// BUTTON 1 : B0 : B1
+		if (~PINB & (1 << 0))
+		{
+			button |= (1 << 0);
+			if (reactiveLightingMode) PORTB |= (1 << 1);
+		}
+		else
+		{
+			button &= ~(1 << 0);
+			if (reactiveLightingMode) PORTB &= ~(1 << 1);
+		}
+
+		// BUTTON 2 : B2 : B3
+		if (~PINB & (1 << 2))
+		{
+			button |= (1 << 1);
+			if (reactiveLightingMode) PORTB |= (1 << 3);
+		}
+		else
+		{
+			button &= ~(1 << 1);
+			if (reactiveLightingMode) PORTB &= ~(1 << 3);
+		}
+
+		// BUTTON 3 : B4 : B5
+		if (~PINB & (1 << 4))
+		{
+			button |= (1 << 2);
+			if (reactiveLightingMode) PORTB |= (1 << 5);
+		}
+		else
+		{
+			button &= ~(1 << 2);
+			if (reactiveLightingMode) PORTB &= ~(1 << 5);
+		}
+
+		// BUTTON 4 : B6 : B7
+		if (~PINB & (1 << 6))
+		{
+			button |= (1 << 3);
+			if (reactiveLightingMode) PORTB |= (1 << 7);
+		}
+		else
+		{
+			button &= ~(1 << 3);
+			if (reactiveLightingMode) PORTB &= ~(1 << 7);
+		}
+
+		// BUTTON 5 : D0 : D1
+		if (~PIND & (1 << 0))
+		{
+			button |= (1 << 4);
+			if (reactiveLightingMode) PORTD |= (1 << 1);
+		}
+		else
+		{
+			button &= ~(1 << 4);
+			if (reactiveLightingMode) PORTD &= ~(1 << 1);
+		}
+
+		// BUTTON 6 : D2 : D3
+		if (~PIND & (1 << 2))
+		{
+			button |= (1 << 5);
+			if (reactiveLightingMode) PORTD |= (1 << 3);
+		}
+		else
+		{
+			button &= ~(1 << 5);
+			if (reactiveLightingMode) PORTD &= ~(1 << 3);
+		}
+
+		// BUTTON 7 : D4 : D5
+		if (~PIND & (1 << 4))
+		{
+			button |= (1 << 6);
+			if (reactiveLightingMode) PORTD |= (1 << 5);
+		}
+		else
+		{
+			button &= ~(1 << 6);
+			if (reactiveLightingMode) PORTD &= ~(1 << 5);
+		}
+
+		// START : D6 : D7
+		if (~PIND & (1 << 6))
+		{
+			button |= (1 << 7);
+			if (reactiveLightingMode) PORTD |= (1 << 7);
+		}
+		else
+		{
+			button &= ~(1 << 7);
+			if (reactiveLightingMode) PORTD &= ~(1 << 7);
+		}
+
+		// VEFX : C0 : C1
+		if (~PINC & (1 << 0))
+		{
+			button |= (1 << 8);
+			if (reactiveLightingMode) PORTC |= (1 << 1);
+		}
+		else
+		{
+			button &= ~(1 << 8);
+			if (reactiveLightingMode) PORTC &= ~(1 << 1);
+		}
+
+		// EFFECT : C2 : C3
+		if (~PINC & (1 << 2))
+		{
+			button |= (1 << 9);
+			if (reactiveLightingMode) PORTC |= (1 << 3);
+		}
+		else
+		{
+			button &= ~(1 << 9);
+			if (reactiveLightingMode) PORTC &= ~(1 << 3);
+		}
+
+		// AUX : C4 : C5
+		if (~PINC & (1 << 4))
+		{
+			button |= (1 << 10);
+			if (reactiveLightingMode) PORTC |= (1 << 5);
+		}
+		else
+		{
+			button &= ~(1 << 10);
+			if (reactiveLightingMode) PORTC &= ~(1 << 5);
 		}
 	}
 }
@@ -112,6 +301,7 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 	USB_Init();
+	reactiveLightingMode = true;
 }
 
 /** Event handler for the library USB Connection event. */
@@ -125,22 +315,77 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 {
 	bool ConfigSuccess = true;
 
-	ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
-
-	USB_Device_EnableSOFEvents();
+	/* Setup HID Report Endpoints */
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 }
 
-/** Event handler for the library USB Control Request reception event. */
+
 void EVENT_USB_Device_ControlRequest(void)
 {
-	HID_Device_ProcessControlRequest(&Joystick_HID_Interface);
+	/* Handle HID Class specific requests */
+	switch (USB_ControlRequest.bRequest)
+	{
+		case HID_REQ_SetReport:
+			if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Output_t LightsData;
+
+				Endpoint_ClearSETUP();
+
+				/* Read the report data from the control endpoint */
+				Endpoint_Read_Control_Stream_LE(&LightsData, sizeof(LightsData));
+				Endpoint_ClearIN();
+
+				ProcessGenericHIDReport(&LightsData);
+			}
+
+			break;
+	}
 }
 
-/** Event handler for the USB device Start Of Frame event. */
-void EVENT_USB_Device_StartOfFrame(void)
+/** Function to process the last received report from the host.
+ *
+ *  \param[in] DataArray  Pointer to a buffer where the last received report has been stored
+ */
+void ProcessGenericHIDReport(Output_t* ReportData)
 {
-	HID_Device_MillisecondElapsed(&Joystick_HID_Interface);
+	/*
+		This is where you need to process reports sent from the host to the device. This
+		function is called each time the host has sent a new report. DataArray is an array
+		holding the report sent from the host.
+	*/
+	reactiveLightingMode = false;
+
+	// We also need to forward the lighting data over.
+	Lights_SetState(ReportData->Lights);
 }
+
+void HID_Task(void)
+{
+	Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
+
+	/* Check to see if a packet has been sent from the host */
+	if (Endpoint_IsOUTReceived())
+	{
+		/* Check to see if the packet contains data */
+		if (Endpoint_IsReadWriteAllowed())
+		{
+			/* Create a temporary buffer to hold the read in report from the host */
+			Output_t LightsData;
+
+			/* Read Generic Report Data */
+			Endpoint_Read_Stream_LE(&LightsData, sizeof(LightsData), NULL);
+
+			/* Process Generic Report Data */
+			ProcessGenericHIDReport(&LightsData);
+		}
+
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearOUT();
+	}
+}
+
 
 /** HID class driver callback function for the creation of HID reports to the host.
  *
@@ -160,10 +405,8 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 {
 	USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-	// button press
-	if (!(PINB & _BV(PB0))) {
-	  JoystickReport->Button |= (1 << 0);
-	}
+	JoystickReport->X = turntablePosition;
+	JoystickReport->Button = button;
 
 	*ReportSize = sizeof(USB_JoystickReport_Data_t);
 	return false;
@@ -184,4 +427,75 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize)
 {
 	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
+}
+
+void Lights_SetState(uint16_t OutputData) {
+  // buttons to pins:
+	// <name>   : <input pin> : <LED pin>
+	// BUTTON 1 : B0 : B1
+  if (OutputData & (1 << 0)) {
+    PORTB |= (1 << 1);
+  } else {
+    PORTB &= ~(1 << 1);
+  }
+	// BUTTON 2 : B2 : B3
+  if (OutputData & (1 << 1)) {
+    PORTB |= (1 << 3);
+  } else {
+    PORTB &= ~(1 << 3);
+  }
+	// BUTTON 3 : B4 : B5
+  if (OutputData & (1 << 2)) {
+    PORTB |= (1 << 5);
+  } else {
+    PORTB &= ~(1 << 5);
+  }
+	// BUTTON 4 : B6 : B7
+  if (OutputData & (1 << 3)) {
+    PORTB |= (1 << 7);
+  } else {
+    PORTB &= ~(1 << 7);
+  }
+	// BUTTON 5 : D0 : D1
+  if (OutputData & (1 << 4)) {
+    PORTD |= (1 << 1);
+  } else {
+    PORTD &= ~(1 << 1);
+  }
+	// BUTTON 6 : D2 : D3
+  if (OutputData & (1 << 5)) {
+    PORTD |= (1 << 3);
+  } else {
+    PORTD &= ~(1 << 3);
+  }
+	// BUTTON 7 : D4 : D5
+  if (OutputData & (1 << 6)) {
+    PORTD |= (1 << 5);
+  } else {
+    PORTD &= ~(1 << 5);
+  }
+	// START    : D6 : D7
+  if (OutputData & (1 << 7)) {
+    PORTD |= (1 << 7);
+  } else {
+    PORTD &= ~(1 << 7);
+  }
+	// VEFX     : C0 : C1
+  if (OutputData & (1 << 8)) {
+    PORTC |= (1 << 1);
+  } else {
+    PORTC &= ~(1 << 1);
+  }
+	// EFFECT   : C2 : C3
+  if (OutputData & (1 << 9)) {
+    PORTC |= (1 << 3);
+  } else {
+    PORTC &= ~(1 << 3);
+  }
+	// AUX      : C4 : C5
+  if (OutputData & (1 << 10)) {
+    PORTC |= (1 << 5);
+  } else {
+    PORTC &= ~(1 << 5);
+  }
 }

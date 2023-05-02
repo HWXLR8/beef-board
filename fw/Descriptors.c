@@ -46,13 +46,146 @@
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] =
 {
 	/* Use the HID class driver's standard Joystick report.
-	 *   Min X/Y/Z Axis values: -100
-	 *   Max X/Y/Z Axis values:  100
+	 *   Min X/Y/Z Axis values: -128
+	 *   Max X/Y/Z Axis values:  127
 	 *   Min physical X/Y/Z Axis values (used to determine resolution): -1
 	 *   Max physical X/Y/Z Axis values (used to determine resolution):  1
-	 *   Buttons: 2
+	 *   Buttons: 16
 	 */
-	HID_DESCRIPTOR_JOYSTICK(-100, 100, -1, 1, 2)
+	HID_DESCRIPTOR_JOYSTICK(-128, 127, -1, 1, 16)
+	    HID_RI_USAGE_PAGE(8, 0x0A),
+	    HID_RI_USAGE(8, 1),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 2),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 3),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 4),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 5),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 6),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 7),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 8),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_USAGE(8, 9),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 10),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 11),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 12),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 13),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 14),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 15),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+		HID_RI_USAGE(8, 16),
+	    HID_RI_COLLECTION(8, 0x02),
+	    	HID_RI_USAGE_PAGE(8, 0x08),
+	    	HID_RI_USAGE(8, 0x4B),
+	    	HID_RI_REPORT_SIZE(8, 1),
+	    	HID_RI_REPORT_COUNT(8, 1),
+	    	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+	    HID_RI_END_COLLECTION(0),
+	    HID_RI_REPORT_SIZE(8, 8),
+		HID_RI_REPORT_COUNT(8, 2),
+		HID_RI_OUTPUT(8, HID_IOF_CONSTANT),
+	HID_RI_END_COLLECTION(0),
 };
 
 /** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
@@ -70,9 +203,9 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 	.Protocol               = USB_CSCP_NoDeviceProtocol,
 
 	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
-
-	.VendorID               = 0x03EB,
-	.ProductID              = 0x2043,
+	// official konami infinitas controller VID/PID
+	.VendorID               = 0x1CCF,
+	.ProductID              = 0x8048,
 	.ReleaseNumber          = VERSION_BCD(0,0,1),
 
 	.ManufacturerStrIndex   = STRING_ID_Manufacturer,
@@ -100,8 +233,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
 
 			.ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
-
-			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
+			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(500)
 		},
 
 	.HID_Interface =
@@ -110,8 +242,8 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 
 			.InterfaceNumber        = INTERFACE_ID_Joystick,
 			.AlternateSetting       = 0x00,
-
-			.TotalEndpoints         = 1,
+			// 2 endpoints, 1 for in, 1 for out
+			.TotalEndpoints         = 2,
 
 			.Class                  = HID_CSCP_HIDClass,
 			.SubClass               = HID_CSCP_NonBootSubclass,
@@ -135,10 +267,20 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
 
-			.EndpointAddress        = JOYSTICK_EPADDR,
+			.EndpointAddress        = JOYSTICK_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
-			.PollingIntervalMS      = 0x05
+			.PollingIntervalMS      = 0x01 
+		},
+
+	.HID_ReportOUTEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = JOYSTICK_OUT_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = JOYSTICK_EPSIZE,
+			.PollingIntervalMS      = 0x01 
 		}
 };
 
@@ -152,13 +294,13 @@ const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARR
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"LUFA Library");
+const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"BEEF");
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(L"LUFA Joystick Demo");
+const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(L"BOARD");
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
  *  documentation) by the application code so that the address and size of a requested descriptor can be given
@@ -217,4 +359,3 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 	*DescriptorAddress = Address;
 	return Size;
 }
-
