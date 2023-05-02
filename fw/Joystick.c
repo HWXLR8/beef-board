@@ -35,9 +35,12 @@
  */
 
 #include "Joystick.h"
+#include "Lights.h"
+#include "Config.h"
 #define BOOL char
 #define FALSE 0
 #define TRUE 1
+Settings_Lights_t *Lights;
 
 /** Buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -78,7 +81,14 @@ BOOL freemode = TRUE;
 
 int main(void)
 {
+	MCUSR &= ~(1 << WDRF);
+	wdt_disable();
+	
+	Config_Init();
+	Config_AddressLights(&Lights);
+
 	SetupHardware();
+	USB_Init();
 	// pin setup
 
 	// for turntable
@@ -124,15 +134,12 @@ int main(void)
 	GlobalInterruptEnable();
 
 	// hardcoding pin B1 to low 
-	PORTB &= ~(1 << 1);
+	// PORTB &= ~(1 << 1);
 
-	// set pin B1 to high if CALLBACK_HID_Device_ProcessHIDReport() is called
-	// we currently have it set so it sets freemode to FALSE when 
-	// CALLBACK_HID_Device_ProcessHIDReport() is called
-	if (!freemode) PORTB |= (1 << 1);
 	for (;;)
 	{
 		HID_Device_USBTask(&Joystick_HID_Interface);
+		HID_Task();
 		USB_USBTask();
 
 		/*---------------------turntable logic---------------------*/
@@ -314,6 +321,7 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 	USB_Init();
+	freemode = TRUE;
 }
 
 /** Event handler for the library USB Connection event. */
@@ -327,27 +335,115 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 {
 	bool ConfigSuccess = true;
 
-	//ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
+	// ConfigSuccess &= HID_Device_ConfigureEndpoints(&Joystick_HID_Interface);
 
 	//USB_Device_EnableSOFEvents();
 	
 	// not sure if this does anything
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
-
 }
 
-/** Event handler for the library USB Control Request reception event. */
+
 void EVENT_USB_Device_ControlRequest(void)
 {
-	HID_Device_ProcessControlRequest(&Joystick_HID_Interface);
+	/* Handle HID Class specific requests */
+	switch (USB_ControlRequest.bRequest)
+	{
+		case HID_REQ_SetReport:
+			if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Output_t LightsData;
+
+				Endpoint_ClearSETUP();
+
+				/* Read the report data from the control endpoint */
+				Endpoint_Read_Control_Stream_LE(&LightsData, sizeof(LightsData));
+				Endpoint_ClearIN();
+
+				ProcessGenericHIDReport(&LightsData);
+			}
+
+			break;
+	}
 }
 
-/** Event handler for the USB device Start Of Frame event. */
-void EVENT_USB_Device_StartOfFrame(void)
+/** Function to process the last received report from the host.
+ *
+ *  \param[in] DataArray  Pointer to a buffer where the last received report has been stored
+ */
+void ProcessGenericHIDReport(Output_t* ReportData)
 {
-	HID_Device_MillisecondElapsed(&Joystick_HID_Interface);
+	/*
+		This is where you need to process reports sent from the host to the device. This
+		function is called each time the host has sent a new report. DataArray is an array
+		holding the report sent from the host.
+	*/
+	freemode = FALSE;
+
+	// If we receive a reset command, we need to push back to bootloader mode.
+	if ((ReportData->Command == 0xF5) && (ReportData->Data == 0x73)) {
+		// If USB is used, detach from the bus and reset it
+		USB_Disable();
+
+		// Disable all interrupts
+		cli();
+
+		// Wait two seconds for the USB detachment to register on the host.
+		Delay_MS(2000);
+
+		// Perform a watchdog reset, which will kick us back to the bootloader.
+		wdt_enable(WDTO_250MS);
+		for (;;);
+	}
+
+	else if (ReportData->Command == 0xF1) {
+		Config_Identify();
+		Config_SaveEEPROM();
+		SetupHardware();
+	}
+	
+	else if (ReportData->Command == 0xF0) {
+		Config_Identify();
+		SetupHardware();
+	}
+
+	// Otherwise, if the output report contains, well, anything (not 0x00), we'll parse it.
+	else if (ReportData->Command >= 0x40) {
+		Config_UpdateSettings(ReportData->Command, ReportData->Data);
+	}
+
+	// We need to reset our timeout for the lights.
+	Lights->LightsAssert = 1000;
+	// We also need to forward the lighting data over.
+	Lights_SetState(ReportData->Lights);
 }
+
+void HID_Task(void)
+{
+	Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
+
+	/* Check to see if a packet has been sent from the host */
+	if (Endpoint_IsOUTReceived())
+	{
+		/* Check to see if the packet contains data */
+		if (Endpoint_IsReadWriteAllowed())
+		{
+			/* Create a temporary buffer to hold the read in report from the host */
+			Output_t LightsData;
+
+			/* Read Generic Report Data */
+			Endpoint_Read_Stream_LE(&LightsData, sizeof(LightsData), NULL);
+
+			/* Process Generic Report Data */
+			ProcessGenericHIDReport(&LightsData);
+		}
+
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearOUT();
+	}
+}
+
 
 /** HID class driver callback function for the creation of HID reports to the host.
  *
@@ -391,5 +487,24 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 	uint8_t* LEDReport = (uint8_t*)ReportData;
 
-	freemode = FALSE;
+	// light up pin B1
+	// if (*LEDReport & 0x01)
+	// {
+	// 	PORTB |= (1 << 1);
+	// }
+	// else
+	// {
+	// 	PORTB &= ~(1 << 1);
+	// }
+	// // light up pin B3
+	// if (*LEDReport & 0x02)
+	// { 
+	// 	PORTB |= (1 << 3);
+	// }
+	// else
+	// {
+	// 	PORTB &= ~(1 << 3);
+	// }
+
+	// freemode = FALSE;
 }

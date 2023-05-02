@@ -52,43 +52,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] =
 	 *   Max physical X/Y/Z Axis values (used to determine resolution):  1
 	 *   Buttons: 16
 	 */
-	/* HID_DESCRIPTOR_JOYSTICK(-128, 127, -1, 1, 16) */
-	HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
-	HID_RI_USAGE(8, 0x04), /* Joystick */
-	HID_RI_COLLECTION(8, 0x01), /* Application */
-	    HID_RI_USAGE(8, 0x01), /* Pointer */
-	    HID_RI_COLLECTION(8, 0x00), /* Physical */
-			// X and Y axes.
-	        HID_RI_USAGE(8, 0x30),
-	        HID_RI_USAGE(8, 0x31),
-	        HID_RI_LOGICAL_MINIMUM(8, -100),
-	        HID_RI_LOGICAL_MAXIMUM(8, 100),
-	        HID_RI_REPORT_COUNT(8, 0x02),
-	        HID_RI_REPORT_SIZE(8, 0x08),
-	        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-	        // Dial and slider axes.
-	        // Per Tau, we need to be able to alter the maximum value for the dial and slider, so Bemanitools can do scaling.
-	        HID_RI_USAGE(8, 0x37),
-	        HID_RI_USAGE(8, 0x36),
-	        HID_RI_LOGICAL_MINIMUM(16, 0),
-			// This value is altered in later code.
-	        HID_RI_LOGICAL_MAXIMUM(16, 255), // [32] should be the editable value. [33] is the 8 bits over 256.
-	        HID_RI_REPORT_COUNT(8, 0x02),
-	        HID_RI_REPORT_SIZE(8, 0x08),
-	        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_WRAP | HID_IOF_NO_PREFERRED_STATE),
-	    HID_RI_END_COLLECTION(0),
-	    // Buttons.
-	    HID_RI_USAGE_PAGE(8, 0x09),
-	    HID_RI_USAGE_MINIMUM(8, 1),
-	    HID_RI_USAGE_MAXIMUM(8, 11),
-	    HID_RI_LOGICAL_MINIMUM(8, 0x00),
-	    HID_RI_LOGICAL_MAXIMUM(8, 0x01),
-	    HID_RI_REPORT_SIZE(8, 1),
-	    HID_RI_REPORT_COUNT(8, 11),
-	    HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-	   	HID_RI_REPORT_SIZE(8, 0x05),
-	    HID_RI_REPORT_COUNT(8, 0x01),
-	    HID_RI_INPUT(8, HID_IOF_CONSTANT),
+	HID_DESCRIPTOR_JOYSTICK(-128, 127, -1, 1, 16)
 		// LED Output reports.
 		// LEDs are broken up a number of ways. We have an ordinal...
 	    HID_RI_USAGE_PAGE(8, 0x0A),
