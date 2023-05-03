@@ -17,7 +17,7 @@ BOARD        = BOARD_NONE
 F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
-TARGET       = Joystick
+TARGET       = beef
 SRC          = $(TARGET).c Descriptors.c $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = LUFA
 CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/
@@ -44,4 +44,4 @@ include $(DMBS_PATH)/atprogram.mk
 
 .PHONY: flash
 flash:
-	sudo avrdude -c flip1 -p usb1286 -U flash:w:Joystick.hex
+	sudo avrdude -c flip1 -p usb1286 -U flash:w:beef.hex
