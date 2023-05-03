@@ -1,4 +1,5 @@
-// Copyright 2021  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+// Copyright 2021 Dean Camera (dean [at] fourwalledcubicle [dot] com)
+// Copyright 2023 supervaka, HWXLR8
 
 #include "beef.h"
 
