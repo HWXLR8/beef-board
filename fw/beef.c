@@ -4,30 +4,26 @@
 #include "beef.h"
 
 button_pins buttons[] = {
-  // PIN : PORT : [button no] : [input pin] : [LED pin]
-	// BUTTON 1 : B0 : B1
-  { &PINB, &PORTB, 0, 0, 1 },
-	// BUTTON 2 : B2 : B3
-  { &PINB, &PORTB, 1, 2, 3 },
-	// BUTTON 3 : B4 : B5
-  { &PINB, &PORTB, 2, 4, 5 },
-	// BUTTON 4 : B6 : B7
-  { &PINB, &PORTB, 3, 6, 7 },
-	// BUTTON 5 : D0 : D1
-  { &PIND, &PORTD, 4, 0, 1 },
-	// BUTTON 6 : D2 : D3
-  { &PIND, &PORTD, 5, 2, 3 },
-	// BUTTON 7 : D4 : D5
-  { &PIND, &PORTD, 6, 4, 5 },
-	// BUTTON 8 : D6 : D7
-  { &PIND, &PORTD, 7, 6, 7 },
-	// BUTTON 9 : C0 : C1
-  { &PINC, &PORTC, 8, 0, 1 },
-	// BUTTON 10: C2 : C3
-  { &PINC, &PORTC, 9, 2, 3 },
-	// BUTTON 11: C4 : C5
-  { &PINC, &PORTC, 10, 4, 5 },
+  // PIN : PORT : [button no] : [input pin] : [LED pin]  
+  { &PINB, &PORTB, 0, 0, 1 },  // BUTTON 1 : B0 : B1  
+  { &PINB, &PORTB, 1, 2, 3 },  // BUTTON 2 : B2 : B3  
+  { &PINB, &PORTB, 2, 4, 5 },  // BUTTON 3 : B4 : B5  
+  { &PINB, &PORTB, 3, 6, 7 },  // BUTTON 4 : B6 : B7  
+  { &PIND, &PORTD, 4, 0, 1 },  // BUTTON 5 : D0 : D1  
+  { &PIND, &PORTD, 5, 2, 3 },  // BUTTON 6 : D2 : D3  
+  { &PIND, &PORTD, 6, 4, 5 },  // BUTTON 7 : D4 : D5  
+  { &PIND, &PORTD, 7, 6, 7 },  // BUTTON 8 : D6 : D7  
+  { &PINC, &PORTC, 8, 0, 1 },  // BUTTON 9 : C0 : C1  
+  { &PINC, &PORTC, 9, 2, 3 },  // BUTTON 10: C2 : C3
+  { &PINC, &PORTC, 10, 4, 5 }, // BUTTON 11: C4 : C5 
 };
+
+// this assumes that the pins to the 2 DATA lines are on the same port
+// will need to refactor if this is not the case
+// e.g. if a_pin is on F0 and b_pin is on D0
+// PIN : [a_pin] : [b_pin] : [prev] : [tt_position] 
+tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
+// tt_pins tt_y = { &PIN?, ?, ?, -1, 0 };
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -49,69 +45,65 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
   },
 };
 
-int8_t tt_position_x = 0;
-// int8_t tt_position_y = 0;
-
 // bit-field storing button state. bits 0-10 map to buttons 1-11
-uint16_t button = 0;
+uint16_t button_state = 0;
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
 bool reactive_led = true;
 
 int main(void) {
-	SetupHardware();
-	USB_Init();
+  SetupHardware();
+  USB_Init();
 
-	// TT_x wired to F0/F1
-	DDRF  &= 0b11111100;
-	PORTF |= 0b00000011;
+  // tt_x DATA lines wired to F0/F1
+  DDRF  &= 0b11111100;
+  PORTF |= 0b00000011;
 
-	// buttons mapping:
-	// <name>   : [input pin] : [LED pin]
-	// BUTTON 1 : B0 : B1
-	// BUTTON 2 : B2 : B3
-	// BUTTON 3 : B4 : B5
-	// BUTTON 4 : B6 : B7
-	// BUTTON 5 : D0 : D1
-	// BUTTON 6 : D2 : D3
-	// BUTTON 7 : D4 : D5
-	// BUTTON 8 : D6 : D7
-	// BUTTON 9 : C0 : C1
-	// BUTTON 10: C2 : C3
-	// BUTTON 11: C4 : C5
+  // buttons mapping:
+  // <name>   : [input pin] : [LED pin]
+  // BUTTON 1 : B0 : B1
+  // BUTTON 2 : B2 : B3
+  // BUTTON 3 : B4 : B5
+  // BUTTON 4 : B6 : B7
+  // BUTTON 5 : D0 : D1
+  // BUTTON 6 : D2 : D3
+  // BUTTON 7 : D4 : D5
+  // BUTTON 8 : D6 : D7
+  // BUTTON 9 : C0 : C1
+  // BUTTON 10: C2 : C3
+  // BUTTON 11: C4 : C5
 
-	DDRB  = 0b10101010;
-	DDRD  = 0b10101010;
-	DDRC &= 0b11101010;
-	DDRC |= 0b00101010;
+  DDRB  = 0b10101010;
+  DDRD  = 0b10101010;
+  DDRC &= 0b11101010;
+  DDRC |= 0b00101010;
 
-	PORTB  = 0b01010101;
-	PORTD  = 0b01010101;
-	PORTC |= 0b00010101;
-	PORTC &= 0b11010101;
+  PORTB  = 0b01010101;
+  PORTD  = 0b01010101;
+  PORTC |= 0b00010101;
+  PORTC &= 0b11010101;
 
-	int8_t prev_x = -1;
-  // int8_t prev_y = -1;
+  GlobalInterruptEnable();
 
-	GlobalInterruptEnable();
+  while (1) {
+    HID_Device_USBTask(&Joystick_HID_Interface);
+    HID_Task();
+    USB_USBTask();
 
-	while (1) {
-	  HID_Device_USBTask(&Joystick_HID_Interface);
-	  HID_Task();
-	  USB_USBTask();
+    
+    process_tt(tt_x.PIN, tt_x.a_pin, tt_x.b_pin, &tt_x.prev, &tt_x.tt_position);
+    // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
 
-	  process_tt(&PINF, &prev_x, &tt_position_x);
-    // process_tt(&PIN?, &prev_y, &tt_position_y); 
-		
-		for (int i = 0; i < 11; ++i) {
-			process_button(buttons[i].pin, 
-                     buttons[i].port, 
+    
+    for (int i = 0; i < 11; ++i) {
+      process_button(buttons[i].PIN, 
+                     buttons[i].PORT,
                      buttons[i].button_number, 
                      buttons[i].input_pin, 
                      buttons[i].led_pin); 
-		}
-	}
+    }
+  }
 }
 
 // configure board hardware and chip peripherals
@@ -157,7 +149,7 @@ void EVENT_USB_Device_ControlRequest(void) {
         Endpoint_ClearIN();
 
         ProcessGenericHIDReport(led_state);
-	    }
+      }
     break;
   }
 }
@@ -200,9 +192,9 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize) {
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-  JoystickReport->X = tt_position_x;
-  // JoystickReport->Y = tt_position_y;
-  JoystickReport->Button = button; 
+  JoystickReport->X = tt_x.tt_position;
+  // JoystickReport->Y = tt_y.tt_position;
+  JoystickReport->Button = button_state; 
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;
@@ -220,11 +212,11 @@ void set_led(volatile uint8_t* PORT,
              uint8_t button_number, 
              uint8_t led_pin, 
              uint16_t led_state) {
-	if (led_state & (1 << button_number)) {
-		*PORT |= (1 << led_pin);
-	} else {
-		*PORT &= ~(1 << led_pin);
-	}
+  if (led_state & (1 << button_number)) {
+    *PORT |= (1 << led_pin);
+  } else {
+    *PORT &= ~(1 << led_pin);
+  }
 }
 
 void process_button(volatile uint8_t* PIN, 
@@ -232,24 +224,28 @@ void process_button(volatile uint8_t* PIN,
                     uint8_t button_number, 
                     uint8_t input_pin, 
                     uint8_t led_pin) {
-	if (~*PIN & (1 << input_pin)) {
-		button |= (1 << button_number);
-		if (reactive_led) *PORT |= (1 << led_pin);
-	} else {
-		button &= ~(1 << button_number);
-		if (reactive_led) *PORT &= ~(1 << led_pin);
-	}
+  if (~*PIN & (1 << input_pin)) {
+    button_state |= (1 << button_number);
+    if (reactive_led) *PORT |= (1 << led_pin);
+  } else {
+    button_state &= ~(1 << button_number);
+    if (reactive_led) *PORT &= ~(1 << led_pin);
+  }
 }
 
-void process_tt(volatile uint8_t* PIN, int8_t* prev, int8_t* tt_position) {
-  // TT logic
-  // assuming TT_x wired to F0/F1
+void process_tt(volatile uint8_t* PIN, 
+                uint8_t a_pin, 
+                uint8_t b_pin,
+                int8_t* prev, 
+                int8_t* tt_position) {
+  // tt logic
+  // example where tt_x wired to F0/F1:
   // curr is binary number ab
   // where a is the signal of F0
   // and b is the signal of F1
-  // e.g. when F0 == 1 and F1 == 0, then curr == 0b10
-  int8_t a = *PIN & (1 << 0) ? 1 : 0;
-  int8_t b = *PIN & (1 << 1) ? 1 : 0;
+  // therefore when F0 == 1 and F1 == 0, then curr == 0b10
+  int8_t a = *PIN & (1 << a_pin) ? 1 : 0;
+  int8_t b = *PIN & (1 << b_pin) ? 1 : 0;
   int8_t curr = (a << 1) | b;
 
   if (*prev == 3 && curr == 1 ||
@@ -268,7 +264,7 @@ void process_tt(volatile uint8_t* PIN, int8_t* prev, int8_t* tt_position) {
 
 void update_lighting(uint16_t led_state) {
   for (int i = 0; i < 11; ++i) {
-    set_led(buttons[i].port, 
+    set_led(buttons[i].PORT, 
             buttons[i].button_number, 
             buttons[i].led_pin, 
             led_state);  
