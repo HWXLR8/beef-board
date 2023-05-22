@@ -48,16 +48,26 @@ void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 void EVENT_USB_Device_StartOfFrame(void);
 void ProcessGenericHIDReport(Output_t* ReportData);
-void set_led(volatile uint8_t* PORTx, uint8_t button_number, uint8_t led_pin, uint16_t OutputData);
-void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t button_number, uint8_t input_pin, uint8_t led_pin);
+void set_led(volatile uint8_t* PORT, 
+						 uint8_t button_number, 
+						 uint8_t led_pin, 
+						 uint16_t OutputData);
+void process_button(volatile uint8_t* PIN, 
+										volatile uint8_t* PORT, 
+										uint8_t button_number, 
+										uint8_t input_pin, 
+										uint8_t led_pin);
+void process_tt(volatile uint8_t* PINx, 
+								int8_t* prev, 
+								int8_t* tt_position);
 void Lights_SetState(uint16_t OutputData);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-					 uint8_t* const ReportID,
-					 const uint8_t ReportType,
-					 void* ReportData,
-					 uint16_t* const ReportSize);
+																				 uint8_t* const ReportID,
+																				 const uint8_t ReportType,
+																				 void* ReportData,
+																				 uint16_t* const ReportSize);
 void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-					  const uint8_t ReportID,
-					  const uint8_t ReportType,
-					  const void* ReportData,
-					  const uint16_t ReportSize);
+																					const uint8_t ReportID,
+																					const uint8_t ReportType,
+																					const void* ReportData,
+																					const uint16_t ReportSize); 

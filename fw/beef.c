@@ -29,7 +29,6 @@ button_pins buttons[] = {
   { &PINC, &PORTC, 10, 4, 5 },
 };
 
-
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
 
@@ -50,7 +49,9 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
   },
 };
 
-int8_t turntablePosition = 0;
+int8_t tt_position_x = 0;
+// int8_t tt_position_y = 0;
+
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 uint16_t button = 0;
 // flag to represent whether the LEDs are controlled by host or not
@@ -62,7 +63,7 @@ int main(void) {
 	SetupHardware();
 	USB_Init();
 
-	// TT wired to F0/F1
+	// TT_x wired to F0/F1
 	DDRF  &= 0b11111100;
 	PORTF |= 0b00000011;
 
@@ -90,8 +91,8 @@ int main(void) {
 	PORTC |= 0b00010101;
 	PORTC &= 0b11010101;
 
-	int8_t prev = -1;
-	int8_t curr = -1;
+	int8_t prev_x = -1;
+  // int8_t prev_y = -1;
 
 	GlobalInterruptEnable();
 
@@ -100,36 +101,15 @@ int main(void) {
 	  HID_Task();
 	  USB_USBTask();
 
-	  // TT logic
-	  // curr is binary number ab
-	  // where a is the signal of F0
-	  // and b is the signal of F1
-	  // e.g. when F0 == 1 and F1 == 0, then curr == 0b10
-	  int8_t a = PINF & (1 << 0) ? 1 : 0;
-	  int8_t b = PINF & (1 << 1) ? 1 : 0;
-	  curr = (a << 1) | b;
-
-	  if (prev == 3 && curr == 1 ||
-	      prev == 1 && curr == 0 ||
-	      prev == 0 && curr == 2 ||
-	      prev == 2 && curr == 3) {
-	    turntablePosition++;
-	  } else if (prev == 1 && curr == 3 ||
-		     prev == 0 && curr == 1 ||
-		     prev == 2 && curr == 0 ||
-		     prev == 3 && curr == 2) {
-	    turntablePosition--;
-	  }
-	  prev = curr;
+	  process_tt(&PINF, &prev_x, &tt_position_x);
+    // process_tt(&PIN?, &prev_y, &tt_position_y); 
 		
 		for (int i = 0; i < 11; i++) {
-			process_button(
-        buttons[i].pin, 
-        buttons[i].port, 
-        buttons[i].button_number, 
-        buttons[i].input_pin, 
-        buttons[i].led_pin
-      );
+			process_button(buttons[i].pin, 
+                     buttons[i].port, 
+                     buttons[i].button_number, 
+                     buttons[i].input_pin, 
+                     buttons[i].led_pin); 
 		}
 	}
 }
@@ -221,8 +201,9 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize) {
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-  JoystickReport->X = turntablePosition;
-  JoystickReport->Button = button;
+  JoystickReport->X = tt_position_x;
+  // JoystickReport->Y = tt_position_y;
+  JoystickReport->Button = button; 
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;
@@ -236,31 +217,61 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
   // Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 }
 
-void set_led(volatile uint8_t* PORTx, uint8_t button_number, uint8_t led_pin, uint16_t OutputData) {
+void set_led(volatile uint8_t* PORT, 
+             uint8_t button_number, 
+             uint8_t led_pin, 
+             uint16_t OutputData) {
 	if (OutputData & (1 << button_number)) {
-		*PORTx |= (1 << led_pin);
+		*PORT |= (1 << led_pin);
 	} else {
-		*PORTx &= ~(1 << led_pin);
+		*PORT &= ~(1 << led_pin);
 	}
 }
 
-void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t button_number, uint8_t input_pin, uint8_t led_pin) {
-	if (~*PINx & (1 << input_pin)) {
+void process_button(volatile uint8_t* PIN, 
+                    volatile uint8_t* PORT, 
+                    uint8_t button_number, 
+                    uint8_t input_pin, 
+                    uint8_t led_pin) {
+	if (~*PIN & (1 << input_pin)) {
 		button |= (1 << button_number);
-		if (reactiveLightingMode) *PORTx |= (1 << led_pin);
+		if (reactiveLightingMode) *PORT |= (1 << led_pin);
 	} else {
 		button &= ~(1 << button_number);
-		if (reactiveLightingMode) *PORTx &= ~(1 << led_pin);
+		if (reactiveLightingMode) *PORT &= ~(1 << led_pin);
 	}
+}
+
+void process_tt(volatile uint8_t* PIN, int8_t* prev, int8_t* tt_position) {
+  // TT logic
+  // assuming TT_x wired to F0/F1
+  // curr is binary number ab
+  // where a is the signal of F0
+  // and b is the signal of F1
+  // e.g. when F0 == 1 and F1 == 0, then curr == 0b10
+  int8_t a = *PIN & (1 << 0) ? 1 : 0;
+  int8_t b = *PIN & (1 << 1) ? 1 : 0;
+  int8_t curr = (a << 1) | b;
+
+  if (*prev == 3 && curr == 1 ||
+      *prev == 1 && curr == 0 ||
+      *prev == 0 && curr == 2 ||
+      *prev == 2 && curr == 3) {
+    (*tt_position)++;
+  } else if (*prev == 1 && curr == 3 ||
+             *prev == 0 && curr == 1 ||
+             *prev == 2 && curr == 0 ||
+             *prev == 3 && curr == 2) {
+    (*tt_position)--;
+  }
+  *prev = curr;
 }
 
 void Lights_SetState(uint16_t OutputData) {
   for (int i = 0; i < 11; i++) {
-    set_led(
-      buttons[i].port, 
-      buttons[i].button_number, 
-      buttons[i].led_pin, 
-      OutputData
-    ); 
+    set_led(buttons[i].port, 
+            buttons[i].button_number, 
+            buttons[i].led_pin, 
+            OutputData); 
   }
 }
