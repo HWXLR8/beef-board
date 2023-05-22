@@ -24,12 +24,21 @@ typedef struct {
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
-// The OUT reprot structure
+// The OUT report structure
 typedef struct {
   uint16_t Lights; // 16 bits for 16 lights
   uint8_t  Command;
   uint8_t  Data;
 } Output_t;
+
+// To bundle each button to its respective pins
+typedef struct {
+	volatile uint8_t* pin;
+	volatile uint8_t* port;
+	uint8_t button_number;
+	uint8_t input_pin;
+	uint8_t led_pin;
+} button_pins;
 
 void SetupHardware(void);
 void HID_Task(void);
@@ -39,6 +48,7 @@ void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 void EVENT_USB_Device_StartOfFrame(void);
 void ProcessGenericHIDReport(Output_t* ReportData);
+void set_led(volatile uint8_t* PORTx, uint8_t button_number, uint8_t led_pin, uint16_t OutputData);
 void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t button_number, uint8_t input_pin, uint8_t led_pin);
 void Lights_SetState(uint16_t OutputData);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,

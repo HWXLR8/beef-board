@@ -3,14 +3,6 @@
 
 #include "beef.h"
 
-typedef struct {
-	volatile uint8_t* pin;
-	volatile uint8_t* port;
-	uint8_t button_number;
-	uint8_t input_pin;
-	uint8_t led_pin;
-} button_pins;
-
 button_pins buttons[] = {
   // PIN : PORT : [button no] : [input pin] : [LED pin]
 	// BUTTON 1 : B0 : B1
@@ -131,7 +123,13 @@ int main(void) {
 	  prev = curr;
 		
 		for (int i = 0; i < 11; i++) {
-			process_button(buttons[i].pin, buttons[i].port, buttons[i].button_number, buttons[i].input_pin, buttons[i].led_pin);
+			process_button(
+        buttons[i].pin, 
+        buttons[i].port, 
+        buttons[i].button_number, 
+        buttons[i].input_pin, 
+        buttons[i].led_pin
+      );
 		}
 	}
 }
@@ -234,13 +232,12 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportID,
                                           const uint8_t ReportType,
                                           const void* ReportData,
-                                          const uint16_t ReportSize)
-{
+                                          const uint16_t ReportSize) {
   // Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 }
 
-void set_led(volatile uint8_t* PORTx, uint8_t button_no, uint8_t led_pin, uint16_t OutputData) {
-	if (OutputData & (1 << button_no)) {
+void set_led(volatile uint8_t* PORTx, uint8_t button_number, uint8_t led_pin, uint16_t OutputData) {
+	if (OutputData & (1 << button_number)) {
 		*PORTx |= (1 << led_pin);
 	} else {
 		*PORTx &= ~(1 << led_pin);
@@ -248,7 +245,7 @@ void set_led(volatile uint8_t* PORTx, uint8_t button_no, uint8_t led_pin, uint16
 }
 
 void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t button_number, uint8_t input_pin, uint8_t led_pin) {
-	if (~*PINx & (1 << button_number)) {
+	if (~*PINx & (1 << input_pin)) {
 		button |= (1 << button_number);
 		if (reactiveLightingMode) *PORTx |= (1 << led_pin);
 	} else {
@@ -258,76 +255,12 @@ void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t but
 }
 
 void Lights_SetState(uint16_t OutputData) {
-  // for (int i = 0; i < 11; i++) {
-  //   set_led(buttons[i].port, buttons[i].button_number, buttons[i].led_pin, OutputData);
-  // }
-
-  // buttons to pins:
-  // <name>   : <input pin> : <LED pin>
-  // BUTTON 1 : B0 : B1
-  if (OutputData & (1 << 0)) {
-    PORTB |= (1 << 1);
-  } else {
-    PORTB &= ~(1 << 1);
-  }
-  // BUTTON 2 : B2 : B3
-  if (OutputData & (1 << 1)) {
-    PORTB |= (1 << 3);
-  } else {
-    PORTB &= ~(1 << 3);
-  }
-  // BUTTON 3 : B4 : B5
-  if (OutputData & (1 << 2)) {
-    PORTB |= (1 << 5);
-  } else {
-    PORTB &= ~(1 << 5);
-  }
-  // BUTTON 4 : B6 : B7
-  if (OutputData & (1 << 3)) {
-    PORTB |= (1 << 7);
-  } else {
-    PORTB &= ~(1 << 7);
-  }
-  // BUTTON 5 : D0 : D1
-  if (OutputData & (1 << 4)) {
-    PORTD |= (1 << 1);
-  } else {
-    PORTD &= ~(1 << 1);
-  }
-  // BUTTON 6 : D2 : D3
-  if (OutputData & (1 << 5)) {
-    PORTD |= (1 << 3);
-  } else {
-    PORTD &= ~(1 << 3);
-  }
-  // BUTTON 7 : D4 : D5
-  if (OutputData & (1 << 6)) {
-    PORTD |= (1 << 5);
-  } else {
-    PORTD &= ~(1 << 5);
-  }
-  // BUTTON 8 : D6 : D7
-  if (OutputData & (1 << 7)) {
-    PORTD |= (1 << 7);
-  } else {
-    PORTD &= ~(1 << 7);
-  }
-  // BUTTON 9 : C0 : C1
-  if (OutputData & (1 << 8)) {
-    PORTC |= (1 << 1);
-  } else {
-    PORTC &= ~(1 << 1);
-  }
-  // BUTTON 10: C2 : C3
-  if (OutputData & (1 << 9)) {
-    PORTC |= (1 << 3);
-  } else {
-    PORTC &= ~(1 << 3);
-  }
-  // BUTTON 11: C4 : C5
-  if (OutputData & (1 << 10)) {
-    PORTC |= (1 << 5);
-  } else {
-    PORTC &= ~(1 << 5);
+  for (int i = 0; i < 11; i++) {
+    set_led(
+      buttons[i].port, 
+      buttons[i].button_number, 
+      buttons[i].led_pin, 
+      OutputData
+    ); 
   }
 }
