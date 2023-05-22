@@ -57,7 +57,7 @@ uint16_t button = 0;
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
-bool reactiveLightingMode = true;
+bool reactive_led = true;
 
 int main(void) {
 	SetupHardware();
@@ -104,7 +104,7 @@ int main(void) {
 	  process_tt(&PINF, &prev_x, &tt_position_x);
     // process_tt(&PIN?, &prev_y, &tt_position_y); 
 		
-		for (int i = 0; i < 11; i++) {
+		for (int i = 0; i < 11; ++i) {
 			process_button(buttons[i].pin, 
                      buttons[i].port, 
                      buttons[i].button_number, 
@@ -125,7 +125,7 @@ void SetupHardware(void) {
 
   // hardware init
   USB_Init();
-  reactiveLightingMode = true;
+  reactive_led = true;
 }
 
 // event handler for USB connection event
@@ -148,27 +148,26 @@ void EVENT_USB_Device_ControlRequest(void) {
   switch (USB_ControlRequest.bRequest) {
     case HID_REQ_SetReport:
       if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE)) {
-	  Output_t LightsData;
+        uint16_t led_state;
 
-	  Endpoint_ClearSETUP();
+        Endpoint_ClearSETUP();
 
-	  // read report data from the control endpoint
-	  Endpoint_Read_Control_Stream_LE(&LightsData, sizeof(LightsData));
-	  Endpoint_ClearIN();
+        // read report data from the control endpoint
+        Endpoint_Read_Control_Stream_LE(&led_state, sizeof(led_state));
+        Endpoint_ClearIN();
 
-	  ProcessGenericHIDReport(&LightsData);
-	}
-
-      break;
-    }
+        ProcessGenericHIDReport(led_state);
+	    }
+    break;
+  }
 }
 
 // process last received report from the host.
-void ProcessGenericHIDReport(Output_t* ReportData) {
-  reactiveLightingMode = false;
+void ProcessGenericHIDReport(uint16_t led_state) {
+  reactive_led = false;
 
   //forward the lighting data
-  Lights_SetState(ReportData->Lights);
+  update_lighting(led_state);
 }
 
 void HID_Task(void) {
@@ -179,13 +178,13 @@ void HID_Task(void) {
     // check if packet contains data
     if (Endpoint_IsReadWriteAllowed()) {
       //temp buffer to hold the read in report from the host
-      Output_t LightsData;
+      uint16_t led_state;
 
       // read generic report data
-      Endpoint_Read_Stream_LE(&LightsData, sizeof(LightsData), NULL);
+      Endpoint_Read_Stream_LE(&led_state, sizeof(led_state), NULL);
 
       // process generic report data
-      ProcessGenericHIDReport(&LightsData);
+      ProcessGenericHIDReport(led_state);
     }
 
     // finalize the stream transfer to send the last packet
@@ -220,8 +219,8 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 void set_led(volatile uint8_t* PORT, 
              uint8_t button_number, 
              uint8_t led_pin, 
-             uint16_t OutputData) {
-	if (OutputData & (1 << button_number)) {
+             uint16_t led_state) {
+	if (led_state & (1 << button_number)) {
 		*PORT |= (1 << led_pin);
 	} else {
 		*PORT &= ~(1 << led_pin);
@@ -235,10 +234,10 @@ void process_button(volatile uint8_t* PIN,
                     uint8_t led_pin) {
 	if (~*PIN & (1 << input_pin)) {
 		button |= (1 << button_number);
-		if (reactiveLightingMode) *PORT |= (1 << led_pin);
+		if (reactive_led) *PORT |= (1 << led_pin);
 	} else {
 		button &= ~(1 << button_number);
-		if (reactiveLightingMode) *PORT &= ~(1 << led_pin);
+		if (reactive_led) *PORT &= ~(1 << led_pin);
 	}
 }
 
@@ -267,11 +266,11 @@ void process_tt(volatile uint8_t* PIN, int8_t* prev, int8_t* tt_position) {
   *prev = curr;
 }
 
-void Lights_SetState(uint16_t OutputData) {
-  for (int i = 0; i < 11; i++) {
+void update_lighting(uint16_t led_state) {
+  for (int i = 0; i < 11; ++i) {
     set_led(buttons[i].port, 
             buttons[i].button_number, 
             buttons[i].led_pin, 
-            OutputData); 
+            led_state);  
   }
 }
