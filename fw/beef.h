@@ -39,6 +39,7 @@ void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 void EVENT_USB_Device_StartOfFrame(void);
 void ProcessGenericHIDReport(Output_t* ReportData);
+void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t button_number, uint8_t input_pin, uint8_t led_pin);
 void Lights_SetState(uint16_t OutputData);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 					 uint8_t* const ReportID,

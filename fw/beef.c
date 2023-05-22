@@ -3,6 +3,41 @@
 
 #include "beef.h"
 
+typedef struct {
+	volatile uint8_t* pin;
+	volatile uint8_t* port;
+	uint8_t button_number;
+	uint8_t input_pin;
+	uint8_t led_pin;
+} button_pins;
+
+button_pins buttons[] = {
+  // PIN : PORT : [button no] : [input pin] : [LED pin]
+	// BUTTON 1 : B0 : B1
+  { &PINB, &PORTB, 0, 0, 1 },
+	// BUTTON 2 : B2 : B3
+  { &PINB, &PORTB, 1, 2, 3 },
+	// BUTTON 3 : B4 : B5
+  { &PINB, &PORTB, 2, 4, 5 },
+	// BUTTON 4 : B6 : B7
+  { &PINB, &PORTB, 3, 6, 7 },
+	// BUTTON 5 : D0 : D1
+  { &PIND, &PORTD, 4, 0, 1 },
+	// BUTTON 6 : D2 : D3
+  { &PIND, &PORTD, 5, 2, 3 },
+	// BUTTON 7 : D4 : D5
+  { &PIND, &PORTD, 6, 4, 5 },
+	// BUTTON 8 : D6 : D7
+  { &PIND, &PORTD, 7, 6, 7 },
+	// BUTTON 9 : C0 : C1
+  { &PINC, &PORTC, 8, 0, 1 },
+	// BUTTON 10: C2 : C3
+  { &PINC, &PORTC, 9, 2, 3 },
+	// BUTTON 11: C4 : C5
+  { &PINC, &PORTC, 10, 4, 5 },
+};
+
+
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
 
@@ -48,10 +83,11 @@ int main(void) {
 	// BUTTON 5 : D0 : D1
 	// BUTTON 6 : D2 : D3
 	// BUTTON 7 : D4 : D5
-	// START    : D6 : D7
-	// VEFX     : C0 : C1
-	// EFFECT   : C2 : C3
-	// AUX      : C4 : C5
+	// BUTTON 8 : D6 : D7
+	// BUTTON 9 : C0 : C1
+	// BUTTON 10: C2 : C3
+	// BUTTON 11: C4 : C5
+
 	DDRB  = 0b10101010;
 	DDRD  = 0b10101010;
 	DDRC &= 0b11101010;
@@ -93,105 +129,10 @@ int main(void) {
 	    turntablePosition--;
 	  }
 	  prev = curr;
-
-	  // BUTTON 1 : B0 : B1
-	  if (~PINB & (1 << 0)) {
-	    button |= (1 << 0);
-	    if (reactiveLightingMode) PORTB |= (1 << 1);
-	  } else {
-	    button &= ~(1 << 0);
-	    if (reactiveLightingMode) PORTB &= ~(1 << 1);
-	  }
-
-	  // BUTTON 2 : B2 : B3
-	  if (~PINB & (1 << 2)) {
-	    button |= (1 << 1);
-	    if (reactiveLightingMode) PORTB |= (1 << 3);
-	  } else {
-	    button &= ~(1 << 1);
-	    if (reactiveLightingMode) PORTB &= ~(1 << 3);
-	  }
-
-	  // BUTTON 3 : B4 : B5
-	  if (~PINB & (1 << 4)) {
-	    button |= (1 << 2);
-	    if (reactiveLightingMode) PORTB |= (1 << 5);
-	  } else {
-	    button &= ~(1 << 2);
-	    if (reactiveLightingMode) PORTB &= ~(1 << 5);
-	  }
-
-	  // BUTTON 4 : B6 : B7
-	  if (~PINB & (1 << 6)) {
-	    button |= (1 << 3);
-	    if (reactiveLightingMode) PORTB |= (1 << 7);
-	  } else {
-	    button &= ~(1 << 3);
-	    if (reactiveLightingMode) PORTB &= ~(1 << 7);
-	  }
-
-	  // BUTTON 5 : D0 : D1
-	  if (~PIND & (1 << 0)) {
-	    button |= (1 << 4);
-	    if (reactiveLightingMode) PORTD |= (1 << 1);
-	  } else {
-	    button &= ~(1 << 4);
-	    if (reactiveLightingMode) PORTD &= ~(1 << 1);
-	  }
-
-	  // BUTTON 6 : D2 : D3
-	  if (~PIND & (1 << 2)) {
-	    button |= (1 << 5);
-	    if (reactiveLightingMode) PORTD |= (1 << 3);
-	  } else {
-	    button &= ~(1 << 5);
-	    if (reactiveLightingMode) PORTD &= ~(1 << 3);
-	  }
-
-	  // BUTTON 7 : D4 : D5
-	  if (~PIND & (1 << 4)) {
-	    button |= (1 << 6);
-	    if (reactiveLightingMode) PORTD |= (1 << 5);
-	  } else {
-	    button &= ~(1 << 6);
-	    if (reactiveLightingMode) PORTD &= ~(1 << 5);
-	  }
-
-	  // START : D6 : D7
-	  if (~PIND & (1 << 6)) {
-	    button |= (1 << 7);
-	    if (reactiveLightingMode) PORTD |= (1 << 7);
-	  } else {
-	    button &= ~(1 << 7);
-	    if (reactiveLightingMode) PORTD &= ~(1 << 7);
-	  }
-
-	  // VEFX : C0 : C1
-	  if (~PINC & (1 << 0)) {
-	    button |= (1 << 8);
-	    if (reactiveLightingMode) PORTC |= (1 << 1);
-	  } else {
-	    button &= ~(1 << 8);
-	    if (reactiveLightingMode) PORTC &= ~(1 << 1);
-	  }
-
-	  // EFFECT : C2 : C3
-	  if (~PINC & (1 << 2)) {
-	    button |= (1 << 9);
-	    if (reactiveLightingMode) PORTC |= (1 << 3);
-	  } else {
-	    button &= ~(1 << 9);
-	    if (reactiveLightingMode) PORTC &= ~(1 << 3);
-	  }
-
-	  // AUX : C4 : C5
-	  if (~PINC & (1 << 4)) {
-	    button |= (1 << 10);
-	    if (reactiveLightingMode) PORTC |= (1 << 5);
-	  } else {
-	    button &= ~(1 << 10);
-	    if (reactiveLightingMode) PORTC &= ~(1 << 5);
-	  }
+		
+		for (int i = 0; i < 11; i++) {
+			process_button(buttons[i].pin, buttons[i].port, buttons[i].button_number, buttons[i].input_pin, buttons[i].led_pin);
+		}
 	}
 }
 
@@ -298,7 +239,29 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
   // Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 }
 
+void set_led(volatile uint8_t* PORTx, uint8_t button_no, uint8_t led_pin, uint16_t OutputData) {
+	if (OutputData & (1 << button_no)) {
+		*PORTx |= (1 << led_pin);
+	} else {
+		*PORTx &= ~(1 << led_pin);
+	}
+}
+
+void process_button(volatile uint8_t* PINx, volatile uint8_t* PORTx, uint8_t button_number, uint8_t input_pin, uint8_t led_pin) {
+	if (~*PINx & (1 << button_number)) {
+		button |= (1 << button_number);
+		if (reactiveLightingMode) *PORTx |= (1 << led_pin);
+	} else {
+		button &= ~(1 << button_number);
+		if (reactiveLightingMode) *PORTx &= ~(1 << led_pin);
+	}
+}
+
 void Lights_SetState(uint16_t OutputData) {
+  // for (int i = 0; i < 11; i++) {
+  //   set_led(buttons[i].port, buttons[i].button_number, buttons[i].led_pin, OutputData);
+  // }
+
   // buttons to pins:
   // <name>   : <input pin> : <LED pin>
   // BUTTON 1 : B0 : B1
@@ -343,25 +306,25 @@ void Lights_SetState(uint16_t OutputData) {
   } else {
     PORTD &= ~(1 << 5);
   }
-  // START    : D6 : D7
+  // BUTTON 8 : D6 : D7
   if (OutputData & (1 << 7)) {
     PORTD |= (1 << 7);
   } else {
     PORTD &= ~(1 << 7);
   }
-  // VEFX     : C0 : C1
+  // BUTTON 9 : C0 : C1
   if (OutputData & (1 << 8)) {
     PORTC |= (1 << 1);
   } else {
     PORTC &= ~(1 << 1);
   }
-  // EFFECT   : C2 : C3
+  // BUTTON 10: C2 : C3
   if (OutputData & (1 << 9)) {
     PORTC |= (1 << 3);
   } else {
     PORTC &= ~(1 << 3);
   }
-  // AUX      : C4 : C5
+  // BUTTON 11: C4 : C5
   if (OutputData & (1 << 10)) {
     PORTC |= (1 << 5);
   } else {
