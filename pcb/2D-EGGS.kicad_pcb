@@ -9446,10 +9446,10 @@
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp b2f29ef8-6e23-4d74-b488-ff3c611a00af))
   (gr_line (start 82.454 111.212) (end 166.454 111.212)
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp b89c7c02-116c-4801-927e-ee4cbe10fe60))
-  (gr_text "WASS3P VRASNA EXPAND CRYTO UOHH B33F EX MJM" (at 153.924 90.932) (layer "B.SilkS") (tstamp c7191496-a931-4365-955a-d41867b084e7)
+  (gr_text "WASS3P VRASNA EXPAND CRYTO UOHH B33F EX MJM" (at 153.67 90.932) (layer "B.SilkS") (tstamp c7191496-a931-4365-955a-d41867b084e7)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom mirror))
   )
-  (gr_text "JLCJLCJLCJLC" (at 102.108 33.782) (layer "F.SilkS") (tstamp 3ab2daa3-3e64-4022-811b-57973a8cd05d)
+  (gr_text "JLCJLCJLCJLC" (at 36.322 52.578) (layer "F.SilkS") (tstamp 3ab2daa3-3e64-4022-811b-57973a8cd05d)
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom))
   )
 
