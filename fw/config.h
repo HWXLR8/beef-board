@@ -7,6 +7,7 @@
 
 // https://stackoverflow.com/questions/24751387/can-i-comment-multi-line-macros
 #define CONFIG_ALL_HW_PIN { \
+  /* BUTTON_NO : INPUT_PIN : LED_PIN */ \
   CONFIG_HW_PIN(B0, B1),  /* BUTTON 1 : B0 : B1 */ \
   CONFIG_HW_PIN(B2, B3),  /* BUTTON 2 : B2 : B3 */ \
   CONFIG_HW_PIN(B4, B5),  /* BUTTON 3 : B4 : B5 */ \
@@ -33,7 +34,7 @@ hw_pin hw_pins[] = {
 // as a macro that expands to two arguments, otherwise get:
 // "error: too few arguments provided to function-like macro invocation"
 #define CONFIG_HW_PIN(x, y) _CONFIG_HW_PIN(x, y)
-#define _CONFIG_HW_PIN(port_1, bit_1, port_2, bit_2) { hw_pins[port_1##_], bit_1, hw_pins[port_2##_], bit_2 }
+#define _CONFIG_HW_PIN(input_port, input_pin, led_port, led_pin) { hw_pins[input_port##_], input_pin, hw_pins[led_port##_], led_pin }
 
 // this assumes that the pins to the 2 DATA lines are on the same port
 // will need to refactor if this is not the case
