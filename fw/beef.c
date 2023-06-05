@@ -52,6 +52,8 @@ int main(void) {
   // unneccessary indirection by using macro?
   // it just expands to:
   // *(buttons[i].INPUT_PORT.DDR) &= ~(1<<buttons[i].input_pin)
+
+  // also, leave these macros here or in config.h?
   #define CONFIG_DDR_INPUT(DDR, pin_number) (*(DDR) &= ~(1<<pin_number))
   #define CONFIG_DDR_LED(DDR, pin_number) (*(DDR) |= (1<<pin_number))
 
