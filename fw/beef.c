@@ -41,8 +41,6 @@ int main(void) {
   DDRF  &= 0b11111100;
   PORTF |= 0b00000011;
 
-  // if buttons[] is initialized outside of main(), get:
-  // "error: initializer element is not a compile-time constant"
   button_pins buttons[] = CONFIG_ALL_HW_PIN;
   buttons_ptr = buttons;
 
