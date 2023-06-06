@@ -2,28 +2,7 @@
 // Copyright 2023 supervaka, HWXLR8
 
 #include "beef.h"
-
-button_pins buttons[] = {
-  // PIN : PORT : [button no] : [input pin] : [LED pin]  
-  { &PINB, &PORTB, 0, 0, 1 },  // BUTTON 1 : B0 : B1  
-  { &PINB, &PORTB, 1, 2, 3 },  // BUTTON 2 : B2 : B3  
-  { &PINB, &PORTB, 2, 4, 5 },  // BUTTON 3 : B4 : B5  
-  { &PINB, &PORTB, 3, 6, 7 },  // BUTTON 4 : B6 : B7  
-  { &PIND, &PORTD, 4, 0, 1 },  // BUTTON 5 : D0 : D1  
-  { &PIND, &PORTD, 5, 2, 3 },  // BUTTON 6 : D2 : D3  
-  { &PIND, &PORTD, 6, 4, 5 },  // BUTTON 7 : D4 : D5  
-  { &PIND, &PORTD, 7, 6, 7 },  // BUTTON 8 : D6 : D7  
-  { &PINC, &PORTC, 8, 0, 1 },  // BUTTON 9 : C0 : C1  
-  { &PINC, &PORTC, 9, 2, 3 },  // BUTTON 10: C2 : C3
-  { &PINC, &PORTC, 10, 4, 5 }, // BUTTON 11: C4 : C5 
-};
-
-// this assumes that the pins to the 2 DATA lines are on the same port
-// will need to refactor if this is not the case
-// e.g. if a_pin is on F0 and b_pin is on D0
-// PIN : [a_pin] : [b_pin] : [prev] : [tt_position] 
-tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
-// tt_pins tt_y = { &PIN?, ?, ?, -1, 0 };
+#include "config.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -51,6 +30,8 @@ uint16_t button_state = 0;
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
 bool reactive_led = true;
+// temporary hack? because set_led() needs access to buttons[]
+button_pins* buttons_ptr;
 
 int main(void) {
   SetupHardware();
@@ -60,29 +41,16 @@ int main(void) {
   DDRF  &= 0b11111100;
   PORTF |= 0b00000011;
 
-  // buttons mapping:
-  // <name>   : [input pin] : [LED pin]
-  // BUTTON 1 : B0 : B1
-  // BUTTON 2 : B2 : B3
-  // BUTTON 3 : B4 : B5
-  // BUTTON 4 : B6 : B7
-  // BUTTON 5 : D0 : D1
-  // BUTTON 6 : D2 : D3
-  // BUTTON 7 : D4 : D5
-  // BUTTON 8 : D6 : D7
-  // BUTTON 9 : C0 : C1
-  // BUTTON 10: C2 : C3
-  // BUTTON 11: C4 : C5
+  button_pins buttons[] = CONFIG_ALL_HW_PIN;
+  buttons_ptr = buttons;
 
-  DDRB  = 0b10101010;
-  DDRD  = 0b10101010;
-  DDRC &= 0b11101010;
-  DDRC |= 0b00101010;
+  for (int i = 0; i < sizeof(buttons)/sizeof(buttons[0]); ++i) {
+    CONFIG_DDR_INPUT(buttons[i].INPUT_PORT.DDR, buttons[i].input_pin);
+    CONFIG_DDR_LED(buttons[i].LED_PORT.DDR, buttons[i].led_pin);
 
-  PORTB  = 0b01010101;
-  PORTD  = 0b01010101;
-  PORTC |= 0b00010101;
-  PORTC &= 0b11010101;
+    CONFIG_PORT_INPUT(buttons[i].INPUT_PORT.PORT, buttons[i].input_pin);
+    CONFIG_PORT_LED(buttons[i].LED_PORT.PORT, buttons[i].led_pin);
+  }
 
   GlobalInterruptEnable();
 
@@ -97,9 +65,9 @@ int main(void) {
 
     
     for (int i = 0; i < 11; ++i) {
-      process_button(buttons[i].PIN, 
-                     buttons[i].PORT,
-                     buttons[i].button_number, 
+      process_button(buttons[i].INPUT_PORT.PIN, 
+                     buttons[i].LED_PORT.PORT,
+                     i, 
                      buttons[i].input_pin, 
                      buttons[i].led_pin); 
     }
@@ -264,9 +232,9 @@ void process_tt(volatile uint8_t* PIN,
 
 void update_lighting(uint16_t led_state) {
   for (int i = 0; i < 11; ++i) {
-    set_led(buttons[i].PORT, 
-            buttons[i].button_number, 
-            buttons[i].led_pin, 
+    set_led(buttons_ptr[i].LED_PORT.PORT, 
+            i, 
+            buttons_ptr[i].led_pin, 
             led_state);  
   }
 }
