@@ -30,10 +30,8 @@ uint16_t button_state = 0;
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
 bool reactive_led = true;
-
 // temporary hack? because set_led() needs access to buttons[]
-button_pins * buttons_ptr;
-
+button_pins* buttons_ptr;
 
 int main(void) {
   SetupHardware();
@@ -43,22 +41,10 @@ int main(void) {
   DDRF  &= 0b11111100;
   PORTF |= 0b00000011;
 
-
   // if buttons[] is initialized outside of main(), get:
   // "error: initializer element is not a compile-time constant"
   button_pins buttons[] = CONFIG_ALL_HW_PIN;
   buttons_ptr = buttons;
-
-  // unneccessary indirection by using macro?
-  // it just expands to:
-  // *(buttons[i].INPUT_PORT.DDR) &= ~(1<<buttons[i].input_pin)
-
-  // also, leave these macros here or in config.h?
-  #define CONFIG_DDR_INPUT(DDR, pin_number) (*(DDR) &= ~(1<<pin_number))
-  #define CONFIG_DDR_LED(DDR, pin_number) (*(DDR) |= (1<<pin_number))
-
-  #define CONFIG_PORT_INPUT(PORT, pin_number) (*(PORT) |= (1<<pin_number))
-  #define CONFIG_PORT_LED(PORT, pin_number) (*(PORT) &= ~(1<<pin_number))
 
   for (int i = 0; i < sizeof(buttons)/sizeof(buttons[0]); ++i) {
     CONFIG_DDR_INPUT(buttons[i].INPUT_PORT.DDR, buttons[i].input_pin);
