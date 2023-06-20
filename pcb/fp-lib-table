@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "BEEF-BOARD")(type "KiCad")(uri "${KIPRJMOD}/BEEF-BOARD.pretty")(options "")(descr ""))
+)
