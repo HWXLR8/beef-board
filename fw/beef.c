@@ -220,12 +220,12 @@ void process_tt(volatile uint8_t* PIN,
       *prev == 1 && curr == 0 ||
       *prev == 0 && curr == 2 ||
       *prev == 2 && curr == 3) {
-    (*tt_position)++;
+    (*tt_position)--;
   } else if (*prev == 1 && curr == 3 ||
              *prev == 0 && curr == 1 ||
              *prev == 2 && curr == 0 ||
              *prev == 3 && curr == 2) {
-    (*tt_position)--;
+    (*tt_position)++;
   }
   *prev = curr;
 }
