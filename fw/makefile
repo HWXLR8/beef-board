@@ -32,8 +32,13 @@ include $(DMBS_PATH)/avrdude.mk
 include $(DMBS_PATH)/atprogram.mk
 
 .PHONY: flash
-flash: all
+dfu: all
 	sudo avrdude -c flip1 -p usb1286 -U flash:w:$(TARGET).hex
+
+
+.PHONY: isp
+isp: all
+	sudo avrdude -c stk500v1 -b 19200 -p at90usb1286 -P /dev/ttyACM0 -U flash:w:$(TARGET).hex
 
 .PHONY: fuse
 fuse:
