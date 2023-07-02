@@ -59,17 +59,17 @@ int main(void) {
     HID_Task();
     USB_USBTask();
 
-    
+
     process_tt(tt_x.PIN, tt_x.a_pin, tt_x.b_pin, &tt_x.prev, &tt_x.tt_position);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
 
-    
+
     for (int i = 0; i < 11; ++i) {
-      process_button(buttons[i].INPUT_PORT.PIN, 
+      process_button(buttons[i].INPUT_PORT.PIN,
                      buttons[i].LED_PORT.PORT,
-                     i, 
-                     buttons[i].input_pin, 
-                     buttons[i].led_pin); 
+                     i,
+                     buttons[i].input_pin,
+                     buttons[i].led_pin);
     }
   }
 }
@@ -162,7 +162,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 
   JoystickReport->X = tt_x.tt_position;
   // JoystickReport->Y = tt_y.tt_position;
-  JoystickReport->Button = button_state; 
+  JoystickReport->Button = button_state;
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;
@@ -176,9 +176,9 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
   // Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 }
 
-void set_led(volatile uint8_t* PORT, 
-             uint8_t button_number, 
-             uint8_t led_pin, 
+void set_led(volatile uint8_t* PORT,
+             uint8_t button_number,
+             uint8_t led_pin,
              uint16_t led_state) {
   if (led_state & (1 << button_number)) {
     *PORT |= (1 << led_pin);
@@ -187,10 +187,10 @@ void set_led(volatile uint8_t* PORT,
   }
 }
 
-void process_button(volatile uint8_t* PIN, 
-                    volatile uint8_t* PORT, 
-                    uint8_t button_number, 
-                    uint8_t input_pin, 
+void process_button(volatile uint8_t* PIN,
+                    volatile uint8_t* PORT,
+                    uint8_t button_number,
+                    uint8_t input_pin,
                     uint8_t led_pin) {
   if (~*PIN & (1 << input_pin)) {
     button_state |= (1 << button_number);
@@ -201,10 +201,10 @@ void process_button(volatile uint8_t* PIN,
   }
 }
 
-void process_tt(volatile uint8_t* PIN, 
-                uint8_t a_pin, 
+void process_tt(volatile uint8_t* PIN,
+                uint8_t a_pin,
                 uint8_t b_pin,
-                int8_t* prev, 
+                int8_t* prev,
                 int8_t* tt_position) {
   // tt logic
   // example where tt_x wired to F0/F1:
@@ -232,9 +232,9 @@ void process_tt(volatile uint8_t* PIN,
 
 void update_lighting(uint16_t led_state) {
   for (int i = 0; i < 11; ++i) {
-    set_led(buttons_ptr[i].LED_PORT.PORT, 
-            i, 
-            buttons_ptr[i].led_pin, 
-            led_state);  
+    set_led(buttons_ptr[i].LED_PORT.PORT,
+            i,
+            buttons_ptr[i].led_pin,
+            led_state);
   }
 }
