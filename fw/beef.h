@@ -31,13 +31,13 @@ typedef struct {
 } hw_pin;
 
 // To bundle each button to its respective pins
-// INPUT_PORT : [input pin] : LED_PORT : [LED pin]  
+// INPUT_PORT : [input pin] : LED_PORT : [LED pin]
 typedef struct {
   hw_pin INPUT_PORT;
   uint8_t input_pin;
   hw_pin LED_PORT;
   uint8_t led_pin;
-} button_pins; 
+} button_pins;
 
 typedef struct {
   volatile uint8_t* PIN;
@@ -45,7 +45,7 @@ typedef struct {
   uint8_t b_pin;
   int8_t prev;
   int8_t tt_position;
-} tt_pins; 
+} tt_pins;
 
 void SetupHardware(void);
 void HID_Task(void);
@@ -55,20 +55,21 @@ void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 void EVENT_USB_Device_StartOfFrame(void);
 void ProcessGenericHIDReport(uint16_t led_state);
-void set_led(volatile uint8_t* PORT, 
-             uint8_t button_number, 
-             uint8_t led_pin, 
+void set_led(volatile uint8_t* PORT,
+             uint8_t button_number,
+             uint8_t led_pin,
              uint16_t OutputData);
-void process_button(volatile uint8_t* PIN, 
-                    volatile uint8_t* PORT, 
-                    uint8_t button_number, 
-                    uint8_t input_pin, 
+void process_button(volatile uint8_t* PIN,
+                    volatile uint8_t* PORT,
+                    uint8_t button_number,
+                    uint8_t input_pin,
                     uint8_t led_pin);
-void process_tt(volatile uint8_t* PIN, 
-                uint8_t a_pin, 
+void process_tt(volatile uint8_t* PIN,
+                uint8_t a_pin,
                 uint8_t b_pin,
-                int8_t* prev, 
-                int8_t* tt_position);
+                int8_t* prev,
+                int8_t* tt_position,
+		int8_t* tt_count);
 void update_lighting(uint16_t led_data);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
                                          uint8_t* const ReportID,
@@ -79,4 +80,4 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportID,
                                           const uint8_t ReportType,
                                           const void* ReportData,
-                                          const uint16_t ReportSize); 
+                                          const uint16_t ReportSize);

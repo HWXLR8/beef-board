@@ -54,15 +54,21 @@ int main(void) {
 
   GlobalInterruptEnable();
 
+  // how many signals from the rotary encoder have been received
+  int8_t* tt_count = 0;
+
   while (1) {
     HID_Device_USBTask(&Joystick_HID_Interface);
     HID_Task();
     USB_USBTask();
 
-
-    process_tt(tt_x.PIN, tt_x.a_pin, tt_x.b_pin, &tt_x.prev, &tt_x.tt_position);
+    process_tt(tt_x.PIN,
+	       tt_x.a_pin,
+	       tt_x.b_pin,
+	       &tt_x.prev,
+	       &tt_x.tt_position,
+	       &tt_count);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
-
 
     for (int i = 0; i < 11; ++i) {
       process_button(buttons[i].INPUT_PORT.PIN,
@@ -205,7 +211,8 @@ void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                int8_t* tt_position) {
+                int8_t* tt_position,
+		int8_t* tt_count) {
   // tt logic
   // example where tt_x wired to F0/F1:
   // curr is binary number ab
@@ -220,12 +227,20 @@ void process_tt(volatile uint8_t* PIN,
       *prev == 1 && curr == 0 ||
       *prev == 0 && curr == 2 ||
       *prev == 2 && curr == 3) {
-    (*tt_position)--;
+    (*tt_count)--;
+    if (-1 * (*tt_count) == TT_RATIO) {
+      (*tt_count) = 0;
+      (*tt_position)--;
+    }
   } else if (*prev == 1 && curr == 3 ||
              *prev == 0 && curr == 1 ||
              *prev == 2 && curr == 0 ||
              *prev == 3 && curr == 2) {
-    (*tt_position)++;
+    (*tt_count)++;
+    if ((*tt_count) == TT_RATIO) {
+      (*tt_count) = 0;
+      (*tt_position)++;
+    }
   }
   *prev = curr;
 }
