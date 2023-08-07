@@ -2095,7 +2095,7 @@
     (pin "3" (uuid 0eedf83e-8e76-46da-9651-3c944d4bfde4))
     (pin "4" (uuid 6fac3085-c823-403e-8ba5-715bbee624af))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J7") (unit 1)
         )
@@ -2121,7 +2121,7 @@
     (pin "1" (uuid 2c17d586-9140-4be2-88f3-4e1f57268b23))
     (pin "2" (uuid 05a58369-d2a7-434c-9662-5bbc7d1ec587))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C4") (unit 1)
         )
@@ -2149,7 +2149,7 @@
     (pin "3" (uuid 7e1fb48a-d47f-4fea-9fb1-fadab07bfa82))
     (pin "4" (uuid 84e8b24a-e961-42fc-999d-6eaa54192b68))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J6") (unit 1)
         )
@@ -2175,7 +2175,7 @@
     (pin "1" (uuid 82d1ac45-a971-4923-bc52-2033d73d9a11))
     (pin "2" (uuid 9d2663df-f131-4c19-833e-ec4509e8b476))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C5") (unit 1)
         )
@@ -2200,7 +2200,7 @@
     )
     (pin "1" (uuid 2f3c82bf-ada6-43ac-a591-d95e5ee4d85a))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR05") (unit 1)
         )
@@ -2225,7 +2225,7 @@
     )
     (pin "1" (uuid acd32d4a-3922-4eb6-9366-8b8576fc6be0))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR031") (unit 1)
         )
@@ -2250,7 +2250,7 @@
     )
     (pin "1" (uuid 9f850ff4-7f88-40f7-8fdf-fd12c7ebcf95))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR046") (unit 1)
         )
@@ -2278,7 +2278,7 @@
     (pin "3" (uuid 0b125ef8-5448-4497-bd56-5a3319b91f3c))
     (pin "4" (uuid 65221f06-72bc-42a4-a14e-ada348542d1d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J27") (unit 1)
         )
@@ -2303,7 +2303,7 @@
     )
     (pin "1" (uuid 26c9372c-8a08-4ad4-b08e-c0819c9b9b8f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR026") (unit 1)
         )
@@ -2328,7 +2328,7 @@
     )
     (pin "1" (uuid 29e3bccf-c6d3-4c15-a2e7-0f16175c80c0))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR041") (unit 1)
         )
@@ -2356,7 +2356,7 @@
     (pin "3" (uuid 6e981c1c-39f4-4732-ab7c-554bcda15ee0))
     (pin "4" (uuid b2b73d22-682e-4e83-a79d-592575460035))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J20") (unit 1)
         )
@@ -2384,7 +2384,7 @@
     (pin "3" (uuid fa90d5d3-2491-4aba-a0a3-ea7f678a0da1))
     (pin "4" (uuid 94a5a813-0e6e-4df4-8ed1-d93bcc1cf83b))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J3") (unit 1)
         )
@@ -2411,7 +2411,7 @@
     (pin "2" (uuid 4d7ac6ff-2c8f-4bcf-a437-f4fc184e62af))
     (pin "3" (uuid 3c8080db-2657-4697-85f4-f5c5eb700707))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J13") (unit 1)
         )
@@ -2439,7 +2439,7 @@
     (pin "3" (uuid 27afc911-fba4-44c1-9ffd-5d273829945a))
     (pin "4" (uuid 8a5452d0-cb61-45da-979d-25e65fa50f39))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J4") (unit 1)
         )
@@ -2464,7 +2464,7 @@
     )
     (pin "1" (uuid 81eaca10-917a-4882-a91b-4337028788d0))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR09") (unit 1)
         )
@@ -2489,7 +2489,7 @@
     )
     (pin "1" (uuid 5fbbc680-2914-42cb-bf5d-6cbd32241240))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR043") (unit 1)
         )
@@ -2514,7 +2514,7 @@
     )
     (pin "1" (uuid e9f3332c-ff44-4510-abb6-a23a524467ff))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR051") (unit 1)
         )
@@ -2541,7 +2541,7 @@
     (pin "2" (uuid 7e83861a-7f21-4435-a5d7-017e10b7f4d1))
     (pin "3" (uuid 0543c4b1-952b-4218-94b4-9c10d16f2e52))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q8") (unit 1)
         )
@@ -2566,7 +2566,7 @@
     )
     (pin "1" (uuid 9d6f8247-dbe2-40f9-9d0e-8a822024f8b2))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR079") (unit 1)
         )
@@ -2591,7 +2591,7 @@
     )
     (pin "1" (uuid 5a841876-7891-42f1-842c-f4b4cde89d32))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR027") (unit 1)
         )
@@ -2616,7 +2616,7 @@
     )
     (pin "1" (uuid 40c19ab0-651e-48d7-b205-c9fcb60a5323))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR054") (unit 1)
         )
@@ -2642,7 +2642,7 @@
     (pin "1" (uuid 7ab7fb1c-5917-418b-9324-846b60b059e8))
     (pin "2" (uuid 5326f2b3-709a-4dec-903b-73f50af559bd))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Y1") (unit 1)
         )
@@ -2672,7 +2672,7 @@
     )
     (pin "1" (uuid dfe31702-ff16-45e9-9eb3-f2e597b955d7))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR071") (unit 1)
         )
@@ -2697,7 +2697,7 @@
     )
     (pin "1" (uuid d39224fe-c0d9-4d4b-8139-0bb04e17062d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR025") (unit 1)
         )
@@ -2722,7 +2722,7 @@
     )
     (pin "1" (uuid 4b22ea23-89b6-4fc8-a550-0ee61130fd07))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR023") (unit 1)
         )
@@ -2747,7 +2747,7 @@
     )
     (pin "1" (uuid 2d2c1c47-d7f1-4f80-b876-fa10909aba3f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR052") (unit 1)
         )
@@ -2774,7 +2774,7 @@
     (pin "2" (uuid 0021dcd3-22c2-49c6-b134-c02fbc74be04))
     (pin "3" (uuid 9a9725c7-6d74-45d7-8200-36a99b0fe8c7))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q5") (unit 1)
         )
@@ -2799,7 +2799,7 @@
     )
     (pin "1" (uuid fcf71265-0758-497e-9b2e-4b8229a6e09d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR049") (unit 1)
         )
@@ -2832,7 +2832,7 @@
     (pin "3" (uuid d04fc9f9-3696-4bd5-986a-670644251954))
     (pin "4" (uuid fb91fe5d-724d-44db-b055-076dbda11763))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J15") (unit 1)
         )
@@ -2857,7 +2857,7 @@
     )
     (pin "1" (uuid 092fb260-645e-4bba-82d1-c7ea1693cbf9))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR072") (unit 1)
         )
@@ -2882,7 +2882,7 @@
     )
     (pin "1" (uuid 7aef225b-b2fe-4529-925e-e6c34aedadbc))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR078") (unit 1)
         )
@@ -2909,7 +2909,7 @@
     (pin "2" (uuid 93defbc7-425c-446a-b158-ddb269c2158f))
     (pin "3" (uuid 96f5d694-6ef0-483e-b474-d42103bd35dd))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q10") (unit 1)
         )
@@ -2934,7 +2934,7 @@
     )
     (pin "1" (uuid bca4a95c-2096-4736-b43f-e9716246d8a2))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR044") (unit 1)
         )
@@ -2967,7 +2967,7 @@
     (pin "3" (uuid 2df3ec53-201a-435f-8e37-e5a7435dce11))
     (pin "4" (uuid 8ba1314f-4b73-4899-8434-90a4e7b0eeb7))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J28") (unit 1)
         )
@@ -2994,7 +2994,7 @@
     (pin "2" (uuid 4a076f75-d571-461c-b844-468791a07d61))
     (pin "3" (uuid 72992226-5f03-4dcf-9535-1ec415fab0ec))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q12") (unit 1)
         )
@@ -3019,7 +3019,7 @@
     )
     (pin "1" (uuid 1b883e63-ab1d-4dbf-944d-d80523052921))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR061") (unit 1)
         )
@@ -3044,7 +3044,7 @@
     )
     (pin "1" (uuid c5b81f68-3a8d-470e-8308-734088a551cf))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR018") (unit 1)
         )
@@ -3072,7 +3072,7 @@
     (pin "3" (uuid 413300f5-d335-439b-bfca-4a2c80d4f770))
     (pin "4" (uuid 98a1eab2-e057-4f72-9227-931bb70c2a26))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J9") (unit 1)
         )
@@ -3099,7 +3099,7 @@
     (pin "2" (uuid 016df9a7-79dd-48d0-834b-507318850424))
     (pin "3" (uuid e1ba71ad-14fa-4d6e-8b5b-7ab9ad8e03d6))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J12") (unit 1)
         )
@@ -3124,7 +3124,7 @@
     )
     (pin "1" (uuid 5464f682-69ff-48c7-ace0-cb4428e2f9a1))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR057") (unit 1)
         )
@@ -3149,7 +3149,7 @@
     )
     (pin "1" (uuid df2d9236-53f4-4884-a96e-19263e11b5dd))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR019") (unit 1)
         )
@@ -3174,7 +3174,7 @@
     )
     (pin "1" (uuid 8c993e9d-c3f9-4311-b081-771149cafb33))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR033") (unit 1)
         )
@@ -3200,7 +3200,7 @@
     (pin "1" (uuid 1bc240d4-a8aa-46bc-aa5b-29140f1e8808))
     (pin "2" (uuid b441a7ae-d109-4efc-94a2-c24b04616717))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J23") (unit 1)
         )
@@ -3229,7 +3229,7 @@
     (pin "4" (uuid fd4446c8-90ef-4ed1-a333-ef289322d12b))
     (pin "5" (uuid d2dcf47c-7622-43a0-bd3c-869f4a34d93b))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J22") (unit 1)
         )
@@ -3256,7 +3256,7 @@
     (pin "2" (uuid 145416d7-b8fb-444d-89b0-cb46895e4184))
     (pin "3" (uuid b9b143c6-a630-47f6-a624-8ffb2726b4c1))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q13") (unit 1)
         )
@@ -3344,7 +3344,7 @@
     (pin "8" (uuid 49381ba5-0e5f-470d-adc9-6210be6db5ba))
     (pin "9" (uuid f12d5311-ed85-4d2b-8f62-10625afb506d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "U1") (unit 1)
         )
@@ -3370,7 +3370,7 @@
     (pin "1" (uuid ab59d83b-1ecf-4776-abc2-9796b7ca2c51))
     (pin "2" (uuid b6af6e80-3686-49f4-a676-e530bca879ab))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "R1") (unit 1)
         )
@@ -3401,7 +3401,7 @@
     (pin "1" (uuid ab1db7c6-0154-44ae-99bd-7818276b32ed))
     (pin "2" (uuid 2f166ff5-26df-4cf7-873a-d6af6a4882dd))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C2") (unit 1)
         )
@@ -3428,7 +3428,7 @@
     (pin "2" (uuid 34139dde-73b8-4a44-812a-219cbfae3d2a))
     (pin "3" (uuid ae3ae8f6-50af-4605-ac80-5a82efd46c6a))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J17") (unit 1)
         )
@@ -3456,7 +3456,7 @@
     (pin "3" (uuid a73b7fff-e936-4bad-89b2-75a44410e265))
     (pin "4" (uuid c3a12957-9017-4ac6-888d-6f8188616e9f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J21") (unit 1)
         )
@@ -3481,7 +3481,7 @@
     )
     (pin "1" (uuid f1323889-e1c6-4071-98f7-5b926ef69a38))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR036") (unit 1)
         )
@@ -3506,7 +3506,7 @@
     )
     (pin "1" (uuid 0bb040e0-fa88-45b1-ad88-c49bd35c294d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR035") (unit 1)
         )
@@ -3531,7 +3531,7 @@
     )
     (pin "1" (uuid dccc3e30-dc7d-46ec-a904-b9169098d856))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR081") (unit 1)
         )
@@ -3556,7 +3556,7 @@
     )
     (pin "1" (uuid 490f927c-e924-4b68-97c7-b1ba950a279c))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR077") (unit 1)
         )
@@ -3582,7 +3582,7 @@
     (pin "1" (uuid b1305eaa-997f-4a8c-8042-412f4c7cfbd4))
     (pin "2" (uuid 6624b42d-c132-4801-8fed-27de14b444f5))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C3") (unit 1)
         )
@@ -3607,7 +3607,7 @@
     )
     (pin "1" (uuid 6241de36-e4a4-4fb3-95c1-5beafacf4aec))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR03") (unit 1)
         )
@@ -3633,7 +3633,7 @@
     (pin "1" (uuid a8181ec5-51a7-4914-af95-1b0736dde128))
     (pin "2" (uuid e71683fb-f9c5-45f8-b168-c9a0e274b7b2))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C8") (unit 1)
         )
@@ -3659,7 +3659,7 @@
     (pin "1" (uuid c5ae025f-a340-4a88-9b29-4e07b3fa8714))
     (pin "2" (uuid 1f1c7f0e-836b-425e-8084-96f1f24d03bc))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J26") (unit 1)
         )
@@ -3684,7 +3684,7 @@
     )
     (pin "1" (uuid 1371edc0-7705-40e9-9d1c-b064396f715a))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR083") (unit 1)
         )
@@ -3709,7 +3709,7 @@
     )
     (pin "1" (uuid 0942a37f-140a-46a3-9a47-b1cbbcb0e82f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR059") (unit 1)
         )
@@ -3735,7 +3735,7 @@
     (pin "1" (uuid 4c3150c1-b064-4ef3-8bb2-2fa6b087255f))
     (pin "2" (uuid 817bf48b-8692-4c3d-85d8-fcdbf03842b4))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "R2") (unit 1)
         )
@@ -3770,7 +3770,7 @@
     (pin "5" (uuid 028e7f7d-c5ac-4a71-bfec-093960f9e67d))
     (pin "6" (uuid afa1f76a-67f9-4615-a7a8-a93c1f7203b9))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J1") (unit 1)
         )
@@ -3796,7 +3796,7 @@
     (pin "1" (uuid 6531e58c-0768-4c67-8d7e-ba54a678518e))
     (pin "2" (uuid 429ba82c-8223-4741-87bc-7a771aa13d90))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C9") (unit 1)
         )
@@ -3821,7 +3821,7 @@
     )
     (pin "1" (uuid daaf689f-6ac5-47ee-9ce7-0af4680bc976))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR028") (unit 1)
         )
@@ -3846,7 +3846,7 @@
     )
     (pin "1" (uuid dcd0353e-eed8-42f1-acdc-d34fc58dfa4c))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR066") (unit 1)
         )
@@ -3871,7 +3871,7 @@
     )
     (pin "1" (uuid 7416428c-0d28-4ea7-b22a-ec4b765d1db3))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR058") (unit 1)
         )
@@ -3896,7 +3896,7 @@
     )
     (pin "1" (uuid 580251cd-8408-462b-abf3-67f6d6c01486))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR068") (unit 1)
         )
@@ -3921,7 +3921,7 @@
     )
     (pin "1" (uuid bd2cb052-a2b2-44ce-a0af-687a8c0a12dd))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR076") (unit 1)
         )
@@ -3947,7 +3947,7 @@
     (pin "1" (uuid 0d8274e4-ace2-40f0-b042-90b3b2e6d6e0))
     (pin "2" (uuid 037a4996-0dcf-434c-aa24-30cd70b17a75))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C1") (unit 1)
         )
@@ -3972,7 +3972,7 @@
     )
     (pin "1" (uuid 405baa77-617c-439d-9023-cce495819c3e))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR014") (unit 1)
         )
@@ -3997,7 +3997,7 @@
     )
     (pin "1" (uuid ac79064f-f925-47b7-85b1-4b8e9d091dc4))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR039") (unit 1)
         )
@@ -4022,7 +4022,7 @@
     )
     (pin "1" (uuid 4fab4fb2-826f-477f-b203-aba154b3abdf))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR020") (unit 1)
         )
@@ -4049,7 +4049,7 @@
     (pin "2" (uuid 143f0678-d2f2-4346-b9c2-5b1207971a05))
     (pin "3" (uuid d3fc3057-4730-44d5-9023-1669d51e1067))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q7") (unit 1)
         )
@@ -4076,7 +4076,7 @@
     (pin "2" (uuid a765df6f-03f5-4521-a4f1-6718d734f744))
     (pin "3" (uuid 68628c5d-e69f-4cc2-88f7-fa2d2e84b1e6))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q3") (unit 1)
         )
@@ -4101,7 +4101,7 @@
     )
     (pin "1" (uuid 6f92a3f5-b5a5-4fcf-ad44-5f82b53cb882))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR070") (unit 1)
         )
@@ -4126,7 +4126,7 @@
     )
     (pin "1" (uuid ce8259e1-b984-408a-b7a0-81be20450ff7))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR085") (unit 1)
         )
@@ -4151,7 +4151,7 @@
     )
     (pin "1" (uuid 230881bb-bf7e-4853-898a-294b45c6fbc8))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR030") (unit 1)
         )
@@ -4176,7 +4176,7 @@
     )
     (pin "1" (uuid c42924ac-6133-4571-a104-2539391a3005))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR038") (unit 1)
         )
@@ -4201,7 +4201,7 @@
     )
     (pin "1" (uuid 400f22ad-4a5e-43c8-bb71-d7bfa4a95a12))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR040") (unit 1)
         )
@@ -4228,7 +4228,7 @@
     (pin "2" (uuid a784069e-03f8-4dbb-b4df-fef2fa6778ed))
     (pin "3" (uuid a3cc2154-08d7-436e-9c90-6c01554c7a97))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J2") (unit 1)
         )
@@ -4253,7 +4253,7 @@
     )
     (pin "1" (uuid bcacb080-e670-4c2c-bdbe-11a191e1755d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR017") (unit 1)
         )
@@ -4279,7 +4279,7 @@
     (pin "1" (uuid 975c937f-117f-40ae-afe5-55998967c954))
     (pin "2" (uuid 22a76417-f82a-43ae-a8e5-d543ad8674ac))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C6") (unit 1)
         )
@@ -4306,7 +4306,7 @@
     (pin "2" (uuid 0d35f8db-2aae-4a49-8108-6e271bf7b901))
     (pin "3" (uuid 3e095fa4-f320-478c-b111-ba3cdcbd4974))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q6") (unit 1)
         )
@@ -4331,7 +4331,7 @@
     )
     (pin "1" (uuid 2d052adb-d09c-46be-a571-cc3a80e14d80))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR074") (unit 1)
         )
@@ -4356,7 +4356,7 @@
     )
     (pin "1" (uuid 8ee99ddd-b1df-45f7-893c-a46d4838788c))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR056") (unit 1)
         )
@@ -4381,7 +4381,7 @@
     )
     (pin "1" (uuid 2db8794e-c259-43ac-a4d2-0c6d5a04b349))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR037") (unit 1)
         )
@@ -4413,7 +4413,7 @@
     (pin "2" (uuid 42c9b1f8-1969-4f41-9e58-f7da02d365c2))
     (pin "3" (uuid 62e75d9d-8114-47bf-8935-34236f69bd5f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q4") (unit 1)
         )
@@ -4438,7 +4438,7 @@
     )
     (pin "1" (uuid b931f6f9-f65b-44ee-9cc7-713ce4155470))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR015") (unit 1)
         )
@@ -4463,7 +4463,7 @@
     )
     (pin "1" (uuid b28f151a-b0cc-49c7-b5de-f2f865205841))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR073") (unit 1)
         )
@@ -4488,7 +4488,7 @@
     )
     (pin "1" (uuid 95f65e8a-ffed-44d1-a90a-f634552ce418))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR053") (unit 1)
         )
@@ -4515,7 +4515,7 @@
     (pin "2" (uuid 64e0ee85-f06c-4ece-94da-16049a091262))
     (pin "3" (uuid cbdd6b62-21ce-4a99-bd6b-83e0be635289))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q9") (unit 1)
         )
@@ -4540,7 +4540,7 @@
     )
     (pin "1" (uuid c84800fa-0333-4d2e-8e30-0a2e0016b2c8))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR06") (unit 1)
         )
@@ -4566,7 +4566,7 @@
     (pin "1" (uuid 56c54196-ab9a-4797-8ea1-b8840a86d02f))
     (pin "2" (uuid 7c76893e-4d84-467b-a31d-8ace48167752))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "SW1") (unit 1)
         )
@@ -4596,7 +4596,7 @@
     )
     (pin "1" (uuid edbed553-7834-461e-96c9-de5b7a1f7c98))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR050") (unit 1)
         )
@@ -4621,7 +4621,7 @@
     )
     (pin "1" (uuid ceb4759e-45d6-4493-a457-faad80a09ac3))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR045") (unit 1)
         )
@@ -4651,7 +4651,7 @@
     )
     (pin "1" (uuid f6b1b512-0fe5-4cfb-994e-471567a92c3a))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR060") (unit 1)
         )
@@ -4678,7 +4678,7 @@
     (pin "2" (uuid 57f125f7-cc81-43ed-8068-06689e0c42d8))
     (pin "3" (uuid 6dce80d2-9b4d-47e4-83f4-52acd20468e6))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J14") (unit 1)
         )
@@ -4703,7 +4703,7 @@
     )
     (pin "1" (uuid 5a30cb33-223b-4ff6-99ff-cfe4abc6f34a))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR055") (unit 1)
         )
@@ -4717,7 +4717,7 @@
     (property "Reference" "J11" (at 271.78 146.05 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "B8" (at 271.78 143.51 0)
+    (property "Value" "B11" (at 271.78 143.51 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "BEEF-BOARD:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical_0.9mm_holes" (at 269.24 146.05 0)
@@ -4731,7 +4731,7 @@
     (pin "3" (uuid a6c4c1ec-43e5-4eb0-a588-5c34948361e2))
     (pin "4" (uuid c8fa8146-cc0f-47ff-8af4-76ff74c1b312))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J11") (unit 1)
         )
@@ -4756,7 +4756,7 @@
     )
     (pin "1" (uuid 5d8e9dc3-3a86-4a25-ac5a-c092eb817b1c))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR062") (unit 1)
         )
@@ -4781,7 +4781,7 @@
     )
     (pin "1" (uuid 351b625e-dac0-4cfc-98df-2338cb1f3292))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR07") (unit 1)
         )
@@ -4807,7 +4807,7 @@
     (pin "1" (uuid 54fac671-5c24-4976-8767-72a660b1fe85))
     (pin "2" (uuid cc096ed5-e8f1-4ec8-af6d-eab000b2ee1f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "C7") (unit 1)
         )
@@ -4832,7 +4832,7 @@
     )
     (pin "1" (uuid 3ef430ed-5578-4e0b-8358-7fe847a7ba13))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR016") (unit 1)
         )
@@ -4858,7 +4858,7 @@
     (pin "1" (uuid 1d3d7d79-4e61-495e-8f54-41c93f1bdb71))
     (pin "2" (uuid 39acd0c8-4bd2-4a78-9ef8-c27ae8b15aff))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J25") (unit 1)
         )
@@ -4883,7 +4883,7 @@
     )
     (pin "1" (uuid 39e33b8f-6a99-4d5f-86c4-0ca7e332d7c9))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR013") (unit 1)
         )
@@ -4909,7 +4909,7 @@
     (pin "1" (uuid 5aef1ba3-c9db-4216-870e-b6d16dda2efa))
     (pin "2" (uuid 0c96b1f1-f313-4db1-a92f-261b2fa53f7c))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J24") (unit 1)
         )
@@ -4934,7 +4934,7 @@
     )
     (pin "1" (uuid afe1661c-1f02-4248-a9a3-229cbc50b752))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR01") (unit 1)
         )
@@ -4961,7 +4961,7 @@
     (pin "2" (uuid 2a48f94f-7f89-4f92-96ed-b7882386eb71))
     (pin "3" (uuid 32c265d7-a548-4d4b-b291-43cd0ad0caef))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "Q11") (unit 1)
         )
@@ -4986,7 +4986,7 @@
     )
     (pin "1" (uuid 52c09f0d-4eeb-40e1-a8b1-639534b1653d))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR063") (unit 1)
         )
@@ -5011,7 +5011,7 @@
     )
     (pin "1" (uuid 6b2b681b-986d-4e6d-8cc5-4be65523e90e))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR010") (unit 1)
         )
@@ -5036,7 +5036,7 @@
     )
     (pin "1" (uuid 7e8c2b4d-b8b1-40bd-ac95-212dbf3aaab6))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR011") (unit 1)
         )
@@ -5061,7 +5061,7 @@
     )
     (pin "1" (uuid 5bd817c9-1aba-43e4-a465-9701f91b0398))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR04") (unit 1)
         )
@@ -5086,7 +5086,7 @@
     )
     (pin "1" (uuid 8326067f-f908-485d-98a2-4c46f9f32151))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR067") (unit 1)
         )
@@ -5111,7 +5111,7 @@
     )
     (pin "1" (uuid cb14ff3b-0430-4924-a047-ce95234480d5))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR012") (unit 1)
         )
@@ -5137,7 +5137,7 @@
     (pin "1" (uuid a6056e71-57ca-44c7-b901-005f1922e7d8))
     (pin "2" (uuid 4447dcf9-16b6-4c8d-a53c-1cfef27979da))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "R4") (unit 1)
         )
@@ -5162,7 +5162,7 @@
     )
     (pin "1" (uuid 80629224-e7d0-43a3-b40f-86220f828ac7))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR047") (unit 1)
         )
@@ -5187,7 +5187,7 @@
     )
     (pin "1" (uuid 63c74f2f-3788-4a19-881d-bb0843e50195))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR021") (unit 1)
         )
@@ -5212,7 +5212,7 @@
     )
     (pin "1" (uuid 3a2e2533-0fe5-4a10-affa-3b88e0b53ca3))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR024") (unit 1)
         )
@@ -5237,7 +5237,7 @@
     )
     (pin "1" (uuid 41cbbf92-229e-4ac0-b9c4-10017eef8e27))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR032") (unit 1)
         )
@@ -5262,7 +5262,7 @@
     )
     (pin "1" (uuid 3b79c4f3-6f76-476a-b3d6-f89db6ab1efa))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR065") (unit 1)
         )
@@ -5290,7 +5290,7 @@
     (pin "3" (uuid ef6179e0-e95e-4972-9099-a136ac8c250f))
     (pin "4" (uuid 4fe57369-886e-4946-969b-d41ea5f7a57f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J19") (unit 1)
         )
@@ -5315,7 +5315,7 @@
     )
     (pin "1" (uuid c3b1c57b-739d-481e-8ada-5a03e81650fa))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR029") (unit 1)
         )
@@ -5340,7 +5340,7 @@
     )
     (pin "1" (uuid 7ffb7cdb-8535-47eb-ab5d-73a3f66df225))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR08") (unit 1)
         )
@@ -5366,7 +5366,7 @@
     (pin "1" (uuid 16bb5bd5-8043-4929-8e25-146cf3d83b2d))
     (pin "2" (uuid 149f35e0-a1de-49ba-9c6e-72b8128372d3))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J16") (unit 1)
         )
@@ -5391,7 +5391,7 @@
     )
     (pin "1" (uuid 2c99068a-3d4b-4b4b-9695-dff14d16d75e))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR069") (unit 1)
         )
@@ -5416,7 +5416,7 @@
     )
     (pin "1" (uuid 141a2979-f4fb-4761-874c-fd04d7650300))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR02") (unit 1)
         )
@@ -5441,7 +5441,7 @@
     )
     (pin "1" (uuid 7759f425-e146-4b6b-8537-a5f3e0df860e))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR034") (unit 1)
         )
@@ -5469,7 +5469,7 @@
     (pin "3" (uuid f5ebaa10-a88b-4ccf-8687-a6f68b3c18df))
     (pin "4" (uuid ba9e3ad3-d0a4-4154-88ba-5e472f3589b8))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J5") (unit 1)
         )
@@ -5494,7 +5494,7 @@
     )
     (pin "1" (uuid e1005ee4-e246-4bea-aa41-56ebc26bb7c5))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR048") (unit 1)
         )
@@ -5519,7 +5519,7 @@
     )
     (pin "1" (uuid 5282814e-c70d-4663-a7f2-478a283ce9c1))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR064") (unit 1)
         )
@@ -5545,7 +5545,7 @@
     (pin "1" (uuid d6929698-9f90-4d4c-aa82-3dbe94148381))
     (pin "2" (uuid c12636da-6551-440d-bccd-8300a385fa4c))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "R3") (unit 1)
         )
@@ -5570,7 +5570,7 @@
     )
     (pin "1" (uuid e1ba25f0-0311-4db8-a46a-1219c7671bfe))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR022") (unit 1)
         )
@@ -5598,7 +5598,7 @@
     (pin "3" (uuid 52c40a6a-9449-4dfa-b9f4-ce2b23b68a02))
     (pin "4" (uuid a6a7ce19-19d0-4180-8d23-6a4c4c2a093f))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J8") (unit 1)
         )
@@ -5623,7 +5623,7 @@
     )
     (pin "1" (uuid bf6a6fef-0e0f-470d-b8e5-b608a21c0471))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR042") (unit 1)
         )
@@ -5656,7 +5656,7 @@
     (pin "3" (uuid e897baf5-b317-4239-867e-e5dbe5c6682d))
     (pin "4" (uuid 7c161ad4-87de-4f5a-99d0-31012a4aa677))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J10") (unit 1)
         )
@@ -5681,7 +5681,7 @@
     )
     (pin "1" (uuid 615a9c49-4dcf-436a-9d43-f06bb7b31ef0))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "#PWR075") (unit 1)
         )
@@ -5708,7 +5708,7 @@
     (pin "2" (uuid 327b92da-4c88-4256-a801-c5ec061774df))
     (pin "3" (uuid 47aab7d6-ee49-4c11-bf67-1045fbf5de94))
     (instances
-      (project "2D-EGGS"
+      (project "beef-board"
         (path "/603cab36-5bc1-4050-9595-d50dcdf15559"
           (reference "J18") (unit 1)
         )
