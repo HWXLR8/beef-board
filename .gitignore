@@ -12,3 +12,9 @@ pcb/*.kicad_prl
 pcb/*.bak
 pcb/fp-info-cache
 pcb/sym-lib-table
+
+remote-board/*-backups
+remote-board/*.kicad_prl
+remote-board/*.bak
+remote-board/fp-info-cache
+remote-board/sym-lib-table
