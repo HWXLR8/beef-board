@@ -44,7 +44,7 @@ typedef struct {
   uint8_t a_pin;
   uint8_t b_pin;
   int8_t prev;
-  int8_t tt_position;
+  uint16_t tt_position;
 } tt_pins;
 
 void SetupHardware(void);
@@ -68,8 +68,7 @@ void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                int8_t* tt_position,
-		int8_t* tt_count);
+                uint16_t* tt_position);
 void update_lighting(uint16_t led_data);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
                                          uint8_t* const ReportID,
