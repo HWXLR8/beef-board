@@ -54,8 +54,7 @@ int main(void) {
 
   GlobalInterruptEnable();
 
-  // how many signals from the rotary encoder have been received
-  int8_t* tt_count = 0;
+
 
   while (1) {
     HID_Device_USBTask(&Joystick_HID_Interface);
@@ -66,8 +65,7 @@ int main(void) {
 	       tt_x.a_pin,
 	       tt_x.b_pin,
 	       &tt_x.prev,
-	       &tt_x.tt_position,
-	       &tt_count);
+	       &tt_x.tt_position);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
 
     for (int i = 0; i < 11; ++i) {
@@ -166,7 +164,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize) {
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-  JoystickReport->X = tt_x.tt_position;
+  JoystickReport->X = ((int8_t)(tt_x.tt_position / TT_RATIO)) - 128;
   // JoystickReport->Y = tt_y.tt_position;
   JoystickReport->Button = button_state;
 
@@ -211,8 +209,7 @@ void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                int8_t* tt_position,
-		int8_t* tt_count) {
+                uint16_t* tt_position) {
   // tt logic
   // example where tt_x wired to F0/F1:
   // curr is binary number ab
@@ -227,21 +224,14 @@ void process_tt(volatile uint8_t* PIN,
       *prev == 1 && curr == 0 ||
       *prev == 0 && curr == 2 ||
       *prev == 2 && curr == 3) {
-    (*tt_count)--;
-    if (-1 * (*tt_count) == TT_RATIO) {
-      (*tt_count) = 0;
-      (*tt_position)--;
-    }
+    (*tt_position)--;
   } else if (*prev == 1 && curr == 3 ||
              *prev == 0 && curr == 1 ||
              *prev == 2 && curr == 0 ||
              *prev == 3 && curr == 2) {
-    (*tt_count)++;
-    if ((*tt_count) == TT_RATIO) {
-      (*tt_count) = 0;
-      (*tt_position)++;
-    }
+    (*tt_position)++;
   }
+  *tt_position = *tt_position % (256 * TT_RATIO);
   *prev = curr;
 }
 
