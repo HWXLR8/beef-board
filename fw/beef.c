@@ -54,8 +54,6 @@ int main(void) {
 
   GlobalInterruptEnable();
 
-
-
   while (1) {
     HID_Device_USBTask(&Joystick_HID_Interface);
     HID_Task();
