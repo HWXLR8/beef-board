@@ -33,9 +33,32 @@ bool reactive_led = true;
 // temporary hack? because set_led() needs access to buttons[]
 button_pins* buttons_ptr;
 
+struct cRGB led[60];
+
+// milliseconds initialized before #include 
+// so that analog_turntable.h->timer.h can use milliseconds
+volatile uint32_t milliseconds = 0;
+#include "analog_turntable.h"
+#include "tt_rgb_manager.h"
+
+// Interrupt Service Routine
+// https://exploreembedded.com/wiki/AVR_Timer_Interrupts
+ISR(TIMER1_COMPA_vect) {
+    milliseconds++;
+}
+
 int main(void) {
   SetupHardware();
   USB_Init();
+
+  timer my_timer;
+  timer_init(&my_timer);
+  timer_arm(&my_timer, 500);
+
+  timer_init(&led_timer);
+
+  analog_turntable tt1;
+  analog_turntable_init(&tt1, 4, 200, true);
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
@@ -59,6 +82,10 @@ int main(void) {
     HID_Task();
     USB_USBTask();
 
+    int8_t tt1_report = 0;
+    tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
+    tt_rgb_manager_update(tt1_report);
+
     process_tt(tt_x.PIN,
 	       tt_x.a_pin,
 	       tt_x.b_pin,
@@ -76,6 +103,28 @@ int main(void) {
   }
 }
 
+// this refers to the hardware timer peripheral
+// unrelated to the timer class in timer.h
+// https://exploreembedded.com/wiki/AVR_Timer_programming
+void hardware_timer1_init(void) {
+    // set up Timer1 in CTC (Clear Timer on Compare Match) mode
+    TCCR1B |= (1 << WGM12);
+
+    // set the value to compare to
+    // assuming a 16MHz clock and a prescaler of 64, this will give us a 1ms tick
+    // (16000000 / (64 * 1000)) - 1 = 249
+    OCR1A = 249;
+
+    // enable the compare match interrupt
+    TIMSK1 |= (1 << OCIE1A);
+
+    // enable global interrupts
+    sei();
+
+    // start the timer with a prescaler of 64
+    TCCR1B |= (1 << CS10) | (1 << CS11);
+}
+
 // configure board hardware and chip peripherals
 void SetupHardware(void) {
   // disable watchdog if enabled by bootloader/fuses
@@ -87,6 +136,7 @@ void SetupHardware(void) {
 
   // hardware init
   USB_Init();
+  hardware_timer1_init();
   reactive_led = true;
 }
 
