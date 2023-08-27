@@ -41,6 +41,8 @@ volatile uint32_t milliseconds = 0;
 #include "analog_turntable.h"
 #include "tt_rgb_manager.h"
 
+timer hid_lights_expiry_timer;
+
 // Interrupt Service Routine
 // https://exploreembedded.com/wiki/AVR_Timer_Interrupts
 ISR(TIMER1_COMPA_vect) {
@@ -56,6 +58,9 @@ int main(void) {
   timer_arm(&my_timer, 500);
 
   timer_init(&led_timer);
+
+  timer_init(&hid_lights_expiry_timer);
+  timer_arm(&hid_lights_expiry_timer, 5000);
 
   analog_turntable tt1;
   analog_turntable_init(&tt1, 4, 200, true);
@@ -81,6 +86,11 @@ int main(void) {
     HID_Device_USBTask(&Joystick_HID_Interface);
     HID_Task();
     USB_USBTask();
+
+    if (!timer_is_armed(&hid_lights_expiry_timer) ||
+        timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
+      reactive_led = true;
+    }
 
     int8_t tt1_report = 0;
     tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
@@ -177,6 +187,7 @@ void EVENT_USB_Device_ControlRequest(void) {
 // process last received report from the host.
 void ProcessGenericHIDReport(uint16_t led_state) {
   reactive_led = false;
+  timer_arm(&hid_lights_expiry_timer, 5000);
 
   //forward the lighting data
   update_lighting(led_state);
