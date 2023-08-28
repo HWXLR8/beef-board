@@ -26,7 +26,8 @@ void tt_rgb_manager_update(int8_t tt_report) {
   } else if (tt_report == -1) {
     set_led_red();
     timer_arm(&led_timer, 500);
-  } else if (timer_check_if_expired_reset(&led_timer)) {
+  } 
+  if (timer_check_if_expired_reset(&led_timer)) {
     set_led_off();
   }
 }
