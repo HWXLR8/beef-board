@@ -3,6 +3,8 @@
 
 #include "beef.h"
 #include "config.h"
+#include "analog_turntable.h"
+#include "tt_rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -26,6 +28,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 uint16_t button_state = 0;
+uint16_t led_state_from_hid_report = 0;
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
@@ -33,9 +36,30 @@ bool reactive_led = true;
 // temporary hack? because set_led() needs access to buttons[]
 button_pins* buttons_ptr;
 
+timer hid_lights_expiry_timer;
+
+ISR(TIMER1_COMPA_vect) {
+  milliseconds++;
+}
+
 int main(void) {
   SetupHardware();
   USB_Init();
+
+  timer my_timer;
+  timer_init(&my_timer);
+  timer_arm(&my_timer, 500);
+
+  timer_init(&led_timer);
+
+  timer_init(&spin_timer);
+  timer_arm(&spin_timer, 100);
+
+  timer_init(&hid_lights_expiry_timer);
+  timer_arm(&hid_lights_expiry_timer, 5000);
+
+  analog_turntable tt1;
+  analog_turntable_init(&tt1, 4, 200, true);
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
@@ -59,6 +83,20 @@ int main(void) {
     HID_Task();
     USB_USBTask();
 
+    if (!timer_is_armed(&hid_lights_expiry_timer) ||
+        timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
+      reactive_led = true;
+    }
+
+    int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
+    tt_rgb_manager_update(tt1_report);
+
+    if (reactive_led) {
+      update_lighting(button_state);
+    } else {
+      update_lighting(led_state_from_hid_report);
+    }
+
     process_tt(tt_x.PIN,
 	       tt_x.a_pin,
 	       tt_x.b_pin,
@@ -76,6 +114,27 @@ int main(void) {
   }
 }
 
+// this refers to the hardware timer peripheral
+// unrelated to the timer class in timer.h
+void hardware_timer1_init(void) {
+    // set up Timer1 in CTC (Clear Timer on Compare Match) mode
+    TCCR1B |= (1 << WGM12);
+
+    // set the value to compare to
+    // assuming a 16MHz clock and a prescaler of 64, this will give us a 1ms tick
+    // (16000000 / (64 * 1000)) - 1 = 249
+    OCR1A = 249;
+
+    // enable the compare match interrupt
+    TIMSK1 |= (1 << OCIE1A);
+
+    // enable global interrupts
+    sei();
+
+    // start the timer with a prescaler of 64
+    TCCR1B |= (1 << CS10) | (1 << CS11);
+}
+
 // configure board hardware and chip peripherals
 void SetupHardware(void) {
   // disable watchdog if enabled by bootloader/fuses
@@ -87,6 +146,7 @@ void SetupHardware(void) {
 
   // hardware init
   USB_Init();
+  hardware_timer1_init();
   reactive_led = true;
 }
 
@@ -127,9 +187,10 @@ void EVENT_USB_Device_ControlRequest(void) {
 // process last received report from the host.
 void ProcessGenericHIDReport(uint16_t led_state) {
   reactive_led = false;
+  timer_arm(&hid_lights_expiry_timer, 5000);
 
-  //forward the lighting data
-  update_lighting(led_state);
+  // update the lighting data
+  led_state_from_hid_report = led_state;
 }
 
 void HID_Task(void) {
@@ -196,10 +257,8 @@ void process_button(volatile uint8_t* PIN,
                     uint8_t led_pin) {
   if (~*PIN & (1 << input_pin)) {
     button_state |= (1 << button_number);
-    if (reactive_led) *PORT |= (1 << led_pin);
   } else {
     button_state &= ~(1 << button_number);
-    if (reactive_led) *PORT &= ~(1 << led_pin);
   }
 }
 

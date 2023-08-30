@@ -29,3 +29,14 @@ tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
 // PORTF |= 0b00000011;
 
 #define TT_RATIO 2 // default 2:1 ratio
+
+#define RING_LIGHT_LEDS 24
+#define LIGHT_BAR_LEDS 16
+
+// tentative names for LED ring modes
+enum ring_light_mode {
+  SPIN,
+  REACT_TO_SCR
+};
+
+enum ring_light_mode ring_light_mode = REACT_TO_SCR;

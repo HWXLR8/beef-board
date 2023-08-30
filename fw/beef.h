@@ -14,6 +14,8 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
+#include "ws2812.h"
+
 // HID report structure, for creating and sending HID reports to the
 // host PC. This mirrors the layout described to the host in the HID
 // report descriptor in descriptors.c.
@@ -47,6 +49,7 @@ typedef struct {
   uint16_t tt_position;
 } tt_pins;
 
+void hardware_timer1_init(void);
 void SetupHardware(void);
 void HID_Task(void);
 void EVENT_USB_Device_Connect(void);
