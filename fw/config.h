@@ -29,3 +29,7 @@ tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
 // PORTF |= 0b00000011;
 
 #define TT_RATIO 2 // default 2:1 ratio
+
+// https://twitter.com/GamoTwo/status/1696265882887209134 
+#define RING_LIGHT_LEDS 24
+#define LIGHT_BAR_LEDS 16

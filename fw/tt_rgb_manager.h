@@ -3,18 +3,22 @@
 timer led_timer;
 
 void set_led_blue() {
-    led[0].r = 0; led[0].g = 0; led[0].b = 255;
-    ws2812_setleds(led, 60);
+  led[0].r = 0; led[0].g = 0; led[0].b = 255;
+  led[11].r = 0; led[11].g = 0; led[11].b = 255;
+  ws2812_setleds(led, RING_LIGHT_LEDS);
 }
 
 void set_led_red() {
-    led[0].r = 255; led[0].g = 0; led[0].b = 0;
-    ws2812_setleds(led, 60);
+  led[0].r = 255; led[0].g = 0; led[0].b = 0;
+  led[11].r = 255; led[11].g = 0; led[11].b = 0;
+  ws2812_setleds(led, RING_LIGHT_LEDS);
 }
 
 void set_led_off() {
-    led[0].r = 0; led[0].g = 0; led[0].b = 0;
-    ws2812_setleds(led, 60);
+  for (int i = 0; i < RING_LIGHT_LEDS; ++i) {
+    led[i].r = 0; led[i].g = 0; led[i].b = 0;
+  }
+  ws2812_setleds(led, RING_LIGHT_LEDS);
 }
 
 

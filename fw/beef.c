@@ -26,6 +26,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 uint16_t button_state = 0;
+uint16_t led_state_from_hid_report = 0;
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
@@ -33,7 +34,7 @@ bool reactive_led = true;
 // temporary hack? because set_led() needs access to buttons[]
 button_pins* buttons_ptr;
 
-struct cRGB led[60];
+struct cRGB led[RING_LIGHT_LEDS];
 
 // milliseconds initialized before #include 
 // so that analog_turntable.h->timer.h can use milliseconds
@@ -92,9 +93,14 @@ int main(void) {
       reactive_led = true;
     }
 
-    int8_t tt1_report = 0;
-    tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
+    int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
     tt_rgb_manager_update(tt1_report);
+
+    if (reactive_led) {
+      update_lighting(button_state);
+    } else {
+      update_lighting(led_state_from_hid_report);
+    }
 
     process_tt(tt_x.PIN,
 	       tt_x.a_pin,
@@ -189,8 +195,8 @@ void ProcessGenericHIDReport(uint16_t led_state) {
   reactive_led = false;
   timer_arm(&hid_lights_expiry_timer, 5000);
 
-  //forward the lighting data
-  update_lighting(led_state);
+  // update the lighting data
+  led_state_from_hid_report = led_state;
 }
 
 void HID_Task(void) {
@@ -257,10 +263,8 @@ void process_button(volatile uint8_t* PIN,
                     uint8_t led_pin) {
   if (~*PIN & (1 << input_pin)) {
     button_state |= (1 << button_number);
-    if (reactive_led) *PORT |= (1 << led_pin);
   } else {
     button_state &= ~(1 << button_number);
-    if (reactive_led) *PORT &= ~(1 << led_pin);
   }
 }
 
