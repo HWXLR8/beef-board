@@ -1,8 +1,6 @@
 #include "timer.h"
 
 typedef struct {
-  // config
-
   // Number of ticks we need to advance before recognizing an input
   uint32_t deadzone;
   // How long to sustain the input before clearing it (if opposite direction is input, we'll release immediately)
@@ -20,7 +18,6 @@ typedef struct {
   int8_t state; // -1, 0, 1
 } analog_turntable;
 
-
 void analog_turntable_init(analog_turntable* self, uint32_t deadzone, uint32_t sustain_ms, bool clear) {
   self->deadzone = deadzone;
   self->sustain_ms = sustain_ms;
@@ -30,7 +27,6 @@ void analog_turntable_init(analog_turntable* self, uint32_t deadzone, uint32_t s
   self->state = 0;
   timer_init(&self->sustain_timer);
 }
-
 
 int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
   if (!self->center_valid) {

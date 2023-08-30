@@ -3,6 +3,8 @@
 
 #include "beef.h"
 #include "config.h"
+#include "analog_turntable.h"
+#include "tt_rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -34,20 +36,10 @@ bool reactive_led = true;
 // temporary hack? because set_led() needs access to buttons[]
 button_pins* buttons_ptr;
 
-struct cRGB led[RING_LIGHT_LEDS];
-
-// milliseconds initialized before #include 
-// so that analog_turntable.h->timer.h can use milliseconds
-volatile uint32_t milliseconds = 0;
-#include "analog_turntable.h"
-#include "tt_rgb_manager.h"
-
 timer hid_lights_expiry_timer;
 
-// Interrupt Service Routine
-// https://exploreembedded.com/wiki/AVR_Timer_Interrupts
 ISR(TIMER1_COMPA_vect) {
-    milliseconds++;
+  milliseconds++;
 }
 
 int main(void) {
@@ -59,6 +51,9 @@ int main(void) {
   timer_arm(&my_timer, 500);
 
   timer_init(&led_timer);
+
+  timer_init(&spin_timer);
+  timer_arm(&spin_timer, 100);
 
   timer_init(&hid_lights_expiry_timer);
   timer_arm(&hid_lights_expiry_timer, 5000);
@@ -121,7 +116,6 @@ int main(void) {
 
 // this refers to the hardware timer peripheral
 // unrelated to the timer class in timer.h
-// https://exploreembedded.com/wiki/AVR_Timer_programming
 void hardware_timer1_init(void) {
     // set up Timer1 in CTC (Clear Timer on Compare Match) mode
     TCCR1B |= (1 << WGM12);

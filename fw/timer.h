@@ -1,5 +1,6 @@
 #include "beef.h"
 
+volatile uint32_t milliseconds = 0;
 typedef struct {
   bool armed;
   uint32_t time_to_expire;
@@ -47,5 +48,3 @@ bool timer_check_if_expired_reset(timer* self) {
   }
   return expired;
 }
-
-
