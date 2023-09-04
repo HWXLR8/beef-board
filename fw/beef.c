@@ -55,6 +55,9 @@ int main(void) {
   timer_init(&spin_timer);
   timer_arm(&spin_timer, 100);
 
+  timer_init(&flash_timer);
+  timer_arm(&flash_timer, 500);
+
   timer_init(&hid_lights_expiry_timer);
   timer_arm(&hid_lights_expiry_timer, 5000);
 
@@ -90,6 +93,7 @@ int main(void) {
 
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
     tt_rgb_manager_update(tt1_report);
+    light_bar_update();
 
     if (reactive_led) {
       update_lighting(button_state);

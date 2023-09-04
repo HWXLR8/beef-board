@@ -12,6 +12,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "ring_light_ws2812.h"
 
 ///////////////////////////////////////////////////////////////////////
 // Define Reset time in µs.
@@ -34,7 +35,7 @@
 #endif
 
 #if !defined(ws2812_pin)
-#define ws2812_pin 5 // Data out pin
+#define ws2812_pin 4 // Data out pin
 #endif
 
 /*
@@ -44,8 +45,8 @@
  * cRGBW:    RGBW for SK6812RGBW
  */
 
-struct cRGB  { uint8_t g; uint8_t r; uint8_t b; };
-struct cRGBW { uint8_t g; uint8_t r; uint8_t b; uint8_t w;};
+// struct cRGB  { uint8_t g; uint8_t r; uint8_t b; };
+// struct cRGBW { uint8_t g; uint8_t r; uint8_t b; uint8_t w;};
 
 
 
@@ -62,7 +63,7 @@ struct cRGBW { uint8_t g; uint8_t r; uint8_t b; uint8_t w;};
  *         - Wait 50µs to reset the LEDs
  */
 
-void ws2812_setleds     (struct cRGB  *ledarray, uint16_t number_of_leds);
+void light_bar_setleds  (struct cRGB  *ledarray, uint16_t number_of_leds);
 void ws2812_setleds_pin (struct cRGB  *ledarray, uint16_t number_of_leds,uint8_t pinmask);
 void ws2812_setleds_rgbw(struct cRGBW *ledarray, uint16_t number_of_leds);
 

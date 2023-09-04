@@ -48,3 +48,11 @@ bool timer_check_if_expired_reset(timer* self) {
   }
   return expired;
 }
+
+bool timer_check_if_expired_rearm(timer* self, uint32_t milliseconds_from_now) {
+  bool expired = timer_is_expired(self);
+  if (expired) {
+    timer_arm(self, milliseconds_from_now);
+  }
+  return expired;
+}

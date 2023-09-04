@@ -31,7 +31,8 @@ tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
 #define TT_RATIO 2 // default 2:1 ratio
 
 #define RING_LIGHT_LEDS 24
-#define LIGHT_BAR_LEDS 16
+#define ring_light_port C // Data port
+#define ring_light_pin 5 // Data out pin
 
 // tentative names for LED ring modes
 enum ring_light_mode {
@@ -39,4 +40,15 @@ enum ring_light_mode {
   REACT_TO_SCR
 };
 
-enum ring_light_mode ring_light_mode = REACT_TO_SCR;
+enum ring_light_mode ring_light_mode = SPIN;
+
+#define LIGHT_BAR_LEDS 16
+#define light_bar_port C // Data port
+#define light_bar_pin 4 // Data out pin
+
+enum light_bar_mode {
+  FLASH,
+  DISABLE,
+  IDLE
+};
+enum ring_light_mode light_bar_mode = FLASH;

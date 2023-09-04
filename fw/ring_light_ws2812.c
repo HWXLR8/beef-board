@@ -10,7 +10,7 @@
 * License: GNU GPL v2+ (see License.txt)
 */
 
-#include "ws2812.h"
+#include "ring_light_ws2812.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <util/delay.h>
@@ -20,27 +20,27 @@
 #define interrupt_is_disabled
 
 // Setleds for standard RGB
-void inline ws2812_setleds(struct cRGB *ledarray, uint16_t leds)
+void inline ring_light_setleds(struct cRGB *ledarray, uint16_t leds)
 {
-   ws2812_setleds_pin(ledarray,leds, _BV(ws2812_pin));
+   ring_light_setleds_pin(ledarray,leds, _BV(ring_light_pin));
 }
 
-void inline ws2812_setleds_pin(struct cRGB *ledarray, uint16_t leds, uint8_t pinmask)
+void inline ring_light_setleds_pin(struct cRGB *ledarray, uint16_t leds, uint8_t pinmask)
 {
-  ws2812_sendarray_mask((uint8_t*)ledarray,leds+leds+leds,pinmask);
-  _delay_us(ws2812_resettime);
+  ring_light_sendarray_mask((uint8_t*)ledarray,leds+leds+leds,pinmask);
+  _delay_us(ring_light_resettime);
 }
 
 // Setleds for SK6812RGBW
-void inline ws2812_setleds_rgbw(struct cRGBW *ledarray, uint16_t leds)
+void inline ring_light_setleds_rgbw(struct cRGBW *ledarray, uint16_t leds)
 {
-  ws2812_sendarray_mask((uint8_t*)ledarray,leds<<2,_BV(ws2812_pin));
-  _delay_us(ws2812_resettime);
+  ring_light_sendarray_mask((uint8_t*)ledarray,leds<<2,_BV(ring_light_pin));
+  _delay_us(ring_light_resettime);
 }
 
-void ws2812_sendarray(uint8_t *data,uint16_t datlen)
+void ring_light_sendarray(uint8_t *data,uint16_t datlen)
 {
-  ws2812_sendarray_mask(data,datlen,_BV(ws2812_pin));
+  ring_light_sendarray_mask(data,datlen,_BV(ring_light_pin));
 }
 
 /*
@@ -108,15 +108,15 @@ void ws2812_sendarray(uint8_t *data,uint16_t datlen)
 #define w_nop8  w_nop4 w_nop4
 #define w_nop16 w_nop8 w_nop8
 
-void inline ws2812_sendarray_mask(uint8_t *data,uint16_t datlen,uint8_t maskhi)
+void inline ring_light_sendarray_mask(uint8_t *data,uint16_t datlen,uint8_t maskhi)
 {
   uint8_t curbyte,ctr,masklo;
   uint8_t sreg_prev;
 
-  ws2812_DDRREG |= maskhi; // Enable output
+  ring_light_DDRREG |= maskhi; // Enable output
 
-  masklo	=~maskhi&ws2812_PORTREG;
-  maskhi |=        ws2812_PORTREG;
+  masklo	=~maskhi&ring_light_PORTREG;
+  maskhi |=        ring_light_PORTREG;
 
   sreg_prev=SREG;
 #ifdef interrupt_is_disabled
@@ -186,7 +186,7 @@ w_nop16
     "       dec   %0    \n\t"    //  '1' [+2] '0' [+2]
     "       brne  loop%=\n\t"    //  '1' [+3] '0' [+4]
     :	"=&d" (ctr)
-    :	"r" (curbyte), "I" (_SFR_IO_ADDR(ws2812_PORTREG)), "r" (maskhi), "r" (masklo)
+    :	"r" (curbyte), "I" (_SFR_IO_ADDR(ring_light_PORTREG)), "r" (maskhi), "r" (masklo)
     );
   }
 
