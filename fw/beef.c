@@ -121,22 +121,22 @@ int main(void) {
 // this refers to the hardware timer peripheral
 // unrelated to the timer class in timer.h
 void hardware_timer1_init(void) {
-    // set up Timer1 in CTC (Clear Timer on Compare Match) mode
-    TCCR1B |= (1 << WGM12);
+  // set up Timer1 in CTC (Clear Timer on Compare Match) mode
+  TCCR1B |= (1 << WGM12);
 
-    // set the value to compare to
-    // assuming a 16MHz clock and a prescaler of 64, this will give us a 1ms tick
-    // (16000000 / (64 * 1000)) - 1 = 249
-    OCR1A = 249;
+  // set the value to compare to
+  // assuming a 16MHz clock and a prescaler of 64, this will give us a 1ms tick
+  // (16000000 / (64 * 1000)) - 1 = 249
+  OCR1A = 249;
 
-    // enable the compare match interrupt
-    TIMSK1 |= (1 << OCIE1A);
+  // enable the compare match interrupt
+  TIMSK1 |= (1 << OCIE1A);
 
-    // enable global interrupts
-    sei();
+  // enable global interrupts
+  sei();
 
-    // start the timer with a prescaler of 64
-    TCCR1B |= (1 << CS10) | (1 << CS11);
+  // start the timer with a prescaler of 64
+  TCCR1B |= (1 << CS10) | (1 << CS11);
 }
 
 // configure board hardware and chip peripherals

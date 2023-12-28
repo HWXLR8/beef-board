@@ -51,4 +51,4 @@ enum light_bar_mode {
   DISABLE,
   IDLE
 };
-enum ring_light_mode light_bar_mode = FLASH;
+enum ring_light_mode light_bar_mode = DISABLE;
