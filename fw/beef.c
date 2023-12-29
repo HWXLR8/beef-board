@@ -1,6 +1,8 @@
 // Copyright 2021 Dean Camera (dean [at] fourwalledcubicle [dot] com)
 // Copyright 2023 supervaka, HWXLR8
 
+#include <avr/eeprom.h>
+
 #include "beef.h"
 #include "config.h"
 #include "analog_turntable.h"
@@ -43,7 +45,7 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 int main(void) {
-  SetupHardware();
+  hwinit();
   USB_Init();
 
   timer my_timer;
@@ -57,6 +59,9 @@ int main(void) {
 
   timer_init(&hid_lights_expiry_timer);
   timer_arm(&hid_lights_expiry_timer, 5000);
+
+  timer combo_timer;
+  timer_init(&combo_timer);
 
   analog_turntable tt1;
   analog_turntable_init(&tt1, 4, 200, true);
@@ -106,10 +111,9 @@ int main(void) {
 
     for (int i = 0; i < 11; ++i) {
       process_button(buttons[i].INPUT_PORT.PIN,
-                     buttons[i].LED_PORT.PORT,
-                     i,
-                     buttons[i].input_pin,
-                     buttons[i].led_pin);
+		     i,
+		     buttons[i].input_pin,
+		     &combo_timer);
     }
   }
 }
@@ -136,7 +140,7 @@ void hardware_timer1_init(void) {
 }
 
 // configure board hardware and chip peripherals
-void SetupHardware(void) {
+void hwinit(void) {
   // disable watchdog if enabled by bootloader/fuses
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
@@ -251,14 +255,35 @@ void set_led(volatile uint8_t* PORT,
 }
 
 void process_button(volatile uint8_t* PIN,
-                    volatile uint8_t* PORT,
                     uint8_t button_number,
                     uint8_t input_pin,
-                    uint8_t led_pin) {
+		    timer* combo_timer) {
   if (~*PIN & (1 << input_pin)) {
     button_state |= (1 << button_number);
   } else {
     button_state &= ~(1 << button_number);
+  }
+
+  // button combos
+
+  // reverse TT
+  if (is_pressed(BUTTON_1) &&
+      is_pressed(BUTTON_7) &&
+      is_pressed(BUTTON_8)) {
+    // arm timer if not already armed
+    if (!timer_is_armed(combo_timer)) {
+      timer_arm(combo_timer, 3000);
+    }
+
+    if (timer_is_expired(combo_timer)) {
+      // get TT current direction
+      int8_t direction = eeprom_read_byte((uint8_t*)0);
+      // reverse it:
+      eeprom_write_byte((uint8_t*)0, direction * -1);
+      timer_init(combo_timer);
+    }
+  } else {
+    timer_init(combo_timer);
   }
 }
 
@@ -277,16 +302,19 @@ void process_tt(volatile uint8_t* PIN,
   int8_t b = *PIN & (1 << b_pin) ? 1 : 0;
   int8_t curr = (a << 1) | b;
 
+  // read TT direction from EEPROM
+  int8_t direction = eeprom_read_byte((uint8_t*)0);
+
   if (*prev == 3 && curr == 1 ||
       *prev == 1 && curr == 0 ||
       *prev == 0 && curr == 2 ||
       *prev == 2 && curr == 3) {
-    (*tt_position)--;
+    (*tt_position) += direction;
   } else if (*prev == 1 && curr == 3 ||
              *prev == 0 && curr == 1 ||
              *prev == 2 && curr == 0 ||
              *prev == 3 && curr == 2) {
-    (*tt_position)++;
+    (*tt_position) -= direction;
   }
   *tt_position = *tt_position % (256 * TT_RATIO);
   *prev = curr;
@@ -299,4 +327,8 @@ void update_lighting(uint16_t led_state) {
             buttons_ptr[i].led_pin,
             led_state);
   }
+}
+
+bool is_pressed(uint8_t button_bit) {
+  return button_state & (1 << button_bit);
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "beef.h"
 
 volatile uint32_t milliseconds = 0;
