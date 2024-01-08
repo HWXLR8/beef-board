@@ -13,6 +13,6 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 
 Credits:
 * HW design by [HWXLR8](https://github.com/HWXLR8)
-* FW written by [supervaka](https://github.com/supervaka)
+* FW written by [HWXLR8](https://github.com/HWXLR8) and [supervaka](https://github.com/supervaka)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
 * Implementation of the WS2812 protocol provided by [Tim (cpldcpu)](https://github.com/cpldcpu/light_ws2812).
