@@ -403,7 +403,7 @@
 				HID_RI_REPORT_SIZE(8, (Buttons % 8) ? (8 - (Buttons % 8)) : 0), \
 				HID_RI_REPORT_COUNT(8, 0x01),               \
 				HID_RI_INPUT(8, HID_IOF_CONSTANT),          \
-			//HID_RI_END_COLLECTION(0)
+			HID_RI_END_COLLECTION(0)
 
 		/** \hideinitializer
 		 *  A list of HID report item array elements that describe a typical HID USB keyboard. The resulting report descriptor

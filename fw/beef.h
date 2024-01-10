@@ -14,6 +14,7 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
+#include "rgb.h"
 #include "ws2812.h"
 #include "timer.h"
 
@@ -75,7 +76,7 @@ void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 void EVENT_USB_Device_StartOfFrame(void);
-void ProcessGenericHIDReport(uint16_t led_state);
+void ProcessGenericHIDReport(hid_lights led_state);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
                                          uint8_t* const ReportID,
                                          const uint8_t ReportType,

@@ -3,23 +3,23 @@
 timer led_timer;
 struct cRGB led[RING_LIGHT_LEDS];
 
-void set_led_blue() {
-  led[0].r = 0; led[0].g = 0; led[0].b = 255;
-  led[11].r = 0; led[11].g = 0; led[11].b = 255;
+void set_tt_leds(rgb_lights lights) {
+  for (int i = 0; i < RING_LIGHT_LEDS; ++i) {
+    rgb(&led[i], lights.r, lights.g, lights.b);
+  }
   ws2812_setleds(led, RING_LIGHT_LEDS);
+}
+
+void set_led_blue() {
+  set_tt_leds((rgb_lights){0, 0, 255});
 }
 
 void set_led_red() {
-  led[0].r = 255; led[0].g = 0; led[0].b = 0;
-  led[11].r = 255; led[11].g = 0; led[11].b = 0;
-  ws2812_setleds(led, RING_LIGHT_LEDS);
+  set_tt_leds((rgb_lights){255, 0, 0});
 }
 
 void set_led_off() {
-  for (int i = 0; i < RING_LIGHT_LEDS; ++i) {
-    led[i].r = 0; led[i].g = 0; led[i].b = 0;
-  }
-  ws2812_setleds(led, RING_LIGHT_LEDS);
+  set_tt_leds((rgb_lights){0});
 }
 
 void react_to_scr(int8_t tt_report) {
@@ -30,7 +30,7 @@ void react_to_scr(int8_t tt_report) {
     set_led_red();
     timer_arm(&led_timer, 500);
   } 
-  if (timer_check_if_expired_reset(&led_timer)) {
+  if (timer_check_if_expired_reset(&led_timer) || !timer_is_armed(&led_timer)) {
     set_led_off();
   }
 }
@@ -46,12 +46,11 @@ timer spin_timer;
 void spin() {
   if (timer_check_if_expired_reset(&spin_timer)) {
     rgb(&(led[spin_counter]), 0, 0, 0);
-    rgb(&(led[(spin_counter + 1) % RING_LIGHT_LEDS]), 0, 0, 255);
+    rgb(&(led[++spin_counter % RING_LIGHT_LEDS]), 0, 0, 255);
     ws2812_setleds(led, RING_LIGHT_LEDS);
 
     timer_arm(&spin_timer, 50);
 
-    spin_counter += 1;
     spin_counter %= RING_LIGHT_LEDS;
   }
 }

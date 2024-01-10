@@ -28,6 +28,8 @@ tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
 // DDRF  &= 0b11111100;
 // PORTF |= 0b00000011;
 
+#define BUTTONS 11
+
 #define TT_RATIO 2 // default 2:1 ratio
 
 #define RING_LIGHT_LEDS 24
