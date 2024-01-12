@@ -6,6 +6,7 @@
 #include "beef.h"
 #include "config.h"
 #include "analog_turntable.h"
+#include "rgb.h"
 #include "tt_rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
@@ -30,7 +31,8 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 uint16_t button_state = 0;
-uint16_t led_state_from_hid_report = 0;
+hid_lights led_state_from_hid_report;
+
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
@@ -46,7 +48,6 @@ ISR(TIMER1_COMPA_vect) {
 
 int main(void) {
   hwinit();
-  USB_Init();
 
   timer my_timer;
   timer_init(&my_timer);
@@ -94,12 +95,13 @@ int main(void) {
     }
 
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
-    tt_rgb_manager_update(tt1_report);
 
     if (reactive_led) {
       update_lighting(button_state);
+      tt_rgb_manager_update(tt1_report);
     } else {
-      update_lighting(led_state_from_hid_report);
+      update_lighting(led_state_from_hid_report.buttons);
+      set_tt_leds(led_state_from_hid_report.tt_lights);
     }
 
     process_tt(tt_x.PIN,
@@ -109,7 +111,7 @@ int main(void) {
 	       &tt_x.tt_position);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
 
-    for (int i = 0; i < 11; ++i) {
+    for (int i = 0; i < BUTTONS; ++i) {
       process_button(buttons[i].INPUT_PORT.PIN,
 		     i,
 		     buttons[i].input_pin,
@@ -170,26 +172,10 @@ void EVENT_USB_Device_ConfigurationChanged(void) {
 }
 
 void EVENT_USB_Device_ControlRequest(void) {
-  // handle HID Class specific requests
-  switch (USB_ControlRequest.bRequest) {
-    case HID_REQ_SetReport:
-      if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE)) {
-        uint16_t led_state;
-
-        Endpoint_ClearSETUP();
-
-        // read report data from the control endpoint
-        Endpoint_Read_Control_Stream_LE(&led_state, sizeof(led_state));
-        Endpoint_ClearIN();
-
-        ProcessGenericHIDReport(led_state);
-      }
-    break;
-  }
 }
 
 // process last received report from the host.
-void ProcessGenericHIDReport(uint16_t led_state) {
+void ProcessGenericHIDReport(hid_lights led_state) {
   reactive_led = false;
   timer_arm(&hid_lights_expiry_timer, 5000);
 
@@ -205,7 +191,7 @@ void HID_Task(void) {
     // check if packet contains data
     if (Endpoint_IsReadWriteAllowed()) {
       //temp buffer to hold the read in report from the host
-      uint16_t led_state;
+      hid_lights led_state;
 
       // read generic report data
       Endpoint_Read_Stream_LE(&led_state, sizeof(led_state), NULL);
@@ -227,7 +213,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize) {
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-  JoystickReport->X = ((int8_t)(tt_x.tt_position / TT_RATIO)) - 128;
+  JoystickReport->X = ((int8_t)(tt_x.tt_position / TT_RATIO));
   // JoystickReport->Y = tt_y.tt_position;
   JoystickReport->Button = button_state;
 
@@ -321,7 +307,7 @@ void process_tt(volatile uint8_t* PIN,
 }
 
 void update_lighting(uint16_t led_state) {
-  for (int i = 0; i < 11; ++i) {
+  for (int i = 0; i < BUTTONS; ++i) {
     set_led(buttons_ptr[i].LED_PORT.PORT,
             i,
             buttons_ptr[i].led_pin,
