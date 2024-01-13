@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "beef.h"
 #include "pin.h"
 
 #define CONFIG_ALL_HW_PIN { \
@@ -19,9 +18,6 @@
   CONFIG_HW_PIN(E2, A7),  /* BUTTON 11 */ \
 }
 
-tt_pins tt_x;
-// tt_pins tt_y;
-
 // you still need to assign DDR and PORT manually in main() for now
 // DDRF  &= 0b11111100;
 // PORTF |= 0b00000011;
@@ -33,16 +29,13 @@ tt_pins tt_x;
 #define RING_LIGHT_LEDS 24
 #define LIGHT_BAR_LEDS 16
 
-#define CONFIG_VERSION 0
-#define CONFIG_BASE_ADDR (uint8_t*)0
-#define CONFIG_VERSION_ADDR (uint8_t*)0
-#define CONFIG_REVERSE_TT_ADDR (uint8_t*)1
 typedef struct {
   uint8_t version;
   uint8_t reverse_tt;
 } config;
 
 void config_init(config* self);
+void toggle_reverse_tt(config* self);
 
 // button combos
 #define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)

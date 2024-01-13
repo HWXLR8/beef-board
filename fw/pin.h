@@ -2,6 +2,14 @@
 
 #pragma once
 
+#include <avr/io.h>
+
+typedef struct {
+  volatile uint8_t* DDR;
+  volatile uint8_t* PIN;
+  volatile uint8_t* PORT;
+} hw_pin;
+
 hw_pin hw_pins[6];
 
 // to index into hw_pins[] array

@@ -1,4 +1,4 @@
-#include "beef.h"
+#include "pin.h"
 
 hw_pin hw_pins[] = {
   { &DDRA, &PINA, &PORTA },

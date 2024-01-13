@@ -5,7 +5,6 @@
 
 #include "analog_turntable.h"
 #include "beef.h"
-#include "config.h"
 #include "tt_rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
@@ -41,7 +40,27 @@ button_pins* buttons_ptr;
 
 timer hid_lights_expiry_timer;
 
+// this assumes that the pins to the 2 DATA lines are on the same port
+// will need to refactor if this is not the case
+// e.g. if a_pin is on F0 and b_pin is on D0
+// PIN : [a_pin] : [b_pin] : [prev] : [tt_position]
+tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
+// tt_pins tt_y = { &PIN?, ?, ?, -1, 0 };
+
 config current_config;
+
+typedef struct {
+  uint16_t button_combo;
+  void (*config_set)(config*);
+} combo;
+bool ignore_combo = false;
+#define NUM_OF_COMBOS 1
+combo button_combos[NUM_OF_COMBOS] = {
+  {
+    button_combo: REVERSE_TT_COMBO,
+    config_set: toggle_reverse_tt
+  }
+};
 
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
@@ -49,10 +68,6 @@ ISR(TIMER1_COMPA_vect) {
 
 int main(void) {
   hwinit();
-
-  timer my_timer;
-  timer_init(&my_timer);
-  timer_arm(&my_timer, 500);
 
   timer_init(&led_timer);
 
@@ -63,7 +78,9 @@ int main(void) {
   timer_arm(&hid_lights_expiry_timer, 5000);
 
   timer combo_timer;
+  timer combo_lights_timer;
   timer_init(&combo_timer);
+  timer_init(&combo_lights_timer);
 
   analog_turntable tt1;
   analog_turntable_init(&tt1, 4, 200, true);
@@ -99,27 +116,24 @@ int main(void) {
 
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
 
-    if (reactive_led) {
-      update_lighting(button_state);
-      tt_rgb_manager_update(tt1_report);
-    } else {
-      update_lighting(led_state_from_hid_report.buttons);
-      set_tt_leds(led_state_from_hid_report.tt_lights);
-    }
-
     for (int i = 0; i < BUTTONS; ++i) {
       process_button(buttons[i].INPUT_PORT.PIN,
                      i,
                      buttons[i].input_pin);
     }
-    process_combos(&combo_timer);
+    process_combos(&current_config,
+                   &combo_timer,
+                   &combo_lights_timer);
 
     process_tt(tt_x.PIN,
-	       tt_x.a_pin,
-	       tt_x.b_pin,
-	       &tt_x.prev,
-	       &tt_x.tt_position);
+               tt_x.a_pin,
+               tt_x.b_pin,
+               &tt_x.prev,
+               &tt_x.tt_position,
+               current_config);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
+
+    update_lighting(tt1_report, &combo_lights_timer);
   }
 }
 
@@ -174,8 +188,7 @@ void EVENT_USB_Device_ConfigurationChanged(void) {
   ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 }
 
-void EVENT_USB_Device_ControlRequest(void) {
-}
+void EVENT_USB_Device_ControlRequest(void){}
 
 // process last received report from the host.
 void ProcessGenericHIDReport(hid_lights led_state) {
@@ -253,20 +266,37 @@ void process_button(volatile uint8_t* PIN,
   }
 }
 
-void process_combos(timer* combo_timer) {
-  if (is_pressed_strict(REVERSE_TT_COMBO)) {
-    // arm timer if not already armed
-    if (!timer_is_armed(combo_timer)) {
-      timer_arm(combo_timer, 3000);
-    }
+void process_combos(config* current_config,
+                    timer* combo_timer,
+                    timer* combo_lights_timer) {
+  bool combo_pressed = false;
+  for (int i = 0; i < NUM_OF_COMBOS; ++i) {
+    if (is_pressed_strict(button_combos[i].button_combo)) {
+      combo_pressed = true;
+      if (ignore_combo) {
+        return;
+      }
 
-    if (timer_is_expired(combo_timer)) {
-      current_config.reverse_tt ^= 1;
-      eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, current_config.reverse_tt);
-      timer_init(combo_timer);
+      // arm timer if not already armed
+      if (!timer_is_armed(combo_timer)) {
+        timer_arm(combo_timer, 1000);
+      }
+
+      if (timer_is_expired(combo_timer)) {
+        button_combos[i].config_set(current_config);
+        timer_init(combo_timer);
+        timer_arm(combo_lights_timer, 333);
+        ignore_combo = true;
+      }
+
+      return;
     }
-  } else {
+  }
+
+  if (!combo_pressed) {
+    ignore_combo = false;
     timer_init(combo_timer);
+    timer_init(combo_lights_timer);
   }
 }
 
@@ -274,7 +304,8 @@ void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                uint16_t* tt_position) {
+                uint16_t* tt_position,
+                config current_config) {
   // tt logic
   // example where tt_x wired to F0/F1:
   // curr is binary number ab
@@ -285,7 +316,7 @@ void process_tt(volatile uint8_t* PIN,
   int8_t b = *PIN & (1 << b_pin) ? 1 : 0;
   int8_t curr = (a << 1) | b;
 
-  int8_t direction = current_config.reverse_tt ? 1 : -1;
+  int8_t direction = current_config.reverse_tt ? -1 : 1;
 
   if ((*prev == 3 && curr == 1) ||
       (*prev == 1 && curr == 0) ||
@@ -302,7 +333,25 @@ void process_tt(volatile uint8_t* PIN,
   *prev = curr;
 }
 
-void update_lighting(uint16_t led_state) {
+void update_lighting(int8_t tt1_report, timer* combo_lights_timer) {
+  if (reactive_led) {
+    update_button_lighting(button_state, combo_lights_timer);
+    tt_rgb_manager_update(tt1_report);
+  } else {
+    update_button_lighting(led_state_from_hid_report.buttons,
+                           combo_lights_timer);
+    set_tt_leds(led_state_from_hid_report.tt_lights);
+  }
+}
+
+void update_button_lighting(uint16_t led_state,
+                            timer* combo_lights_timer) {
+  if (timer_is_armed(combo_lights_timer) &&
+      !timer_check_if_expired_reset(combo_lights_timer)) {
+    // Temporarily black out button LEDs to notify a mode change
+    led_state = 0;
+  }
+
   for (int i = 0; i < BUTTONS; ++i) {
     set_led(buttons_ptr[i].LED_PORT.PORT,
             i,
@@ -316,5 +365,5 @@ bool is_pressed(uint16_t button_bits) {
 }
 
 bool is_pressed_strict(uint16_t button_bits) {
-  return button_state & button_bits && !(button_state & ~button_bits);
+  return button_state == button_bits;
 }
