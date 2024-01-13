@@ -3,10 +3,9 @@
 
 #include <avr/eeprom.h>
 
+#include "analog_turntable.h"
 #include "beef.h"
 #include "config.h"
-#include "analog_turntable.h"
-#include "rgb.h"
 #include "tt_rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
@@ -42,6 +41,8 @@ button_pins* buttons_ptr;
 
 timer hid_lights_expiry_timer;
 
+config current_config;
+
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
 }
@@ -66,6 +67,8 @@ int main(void) {
 
   analog_turntable tt1;
   analog_turntable_init(&tt1, 4, 200, true);
+
+  config_init(&current_config);
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
@@ -104,19 +107,19 @@ int main(void) {
       set_tt_leds(led_state_from_hid_report.tt_lights);
     }
 
+    for (int i = 0; i < BUTTONS; ++i) {
+      process_button(buttons[i].INPUT_PORT.PIN,
+                     i,
+                     buttons[i].input_pin);
+    }
+    process_combos(&combo_timer);
+
     process_tt(tt_x.PIN,
 	       tt_x.a_pin,
 	       tt_x.b_pin,
 	       &tt_x.prev,
 	       &tt_x.tt_position);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
-
-    for (int i = 0; i < BUTTONS; ++i) {
-      process_button(buttons[i].INPUT_PORT.PIN,
-		     i,
-		     buttons[i].input_pin,
-		     &combo_timer);
-    }
   }
 }
 
@@ -242,30 +245,24 @@ void set_led(volatile uint8_t* PORT,
 
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
-                    uint8_t input_pin,
-		    timer* combo_timer) {
+                    uint8_t input_pin) {
   if (~*PIN & (1 << input_pin)) {
     button_state |= (1 << button_number);
   } else {
     button_state &= ~(1 << button_number);
   }
+}
 
-  // button combos
-
-  // reverse TT
-  if (is_pressed(BUTTON_1) &&
-      is_pressed(BUTTON_7) &&
-      is_pressed(BUTTON_8)) {
+void process_combos(timer* combo_timer) {
+  if (is_pressed_strict(REVERSE_TT_COMBO)) {
     // arm timer if not already armed
     if (!timer_is_armed(combo_timer)) {
       timer_arm(combo_timer, 3000);
     }
 
     if (timer_is_expired(combo_timer)) {
-      // get TT current direction
-      int8_t direction = eeprom_read_byte((uint8_t*)0);
-      // reverse it:
-      eeprom_write_byte((uint8_t*)0, direction * -1);
+      current_config.reverse_tt ^= 1;
+      eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, current_config.reverse_tt);
       timer_init(combo_timer);
     }
   } else {
@@ -288,21 +285,20 @@ void process_tt(volatile uint8_t* PIN,
   int8_t b = *PIN & (1 << b_pin) ? 1 : 0;
   int8_t curr = (a << 1) | b;
 
-  // read TT direction from EEPROM
-  int8_t direction = eeprom_read_byte((uint8_t*)0);
+  int8_t direction = current_config.reverse_tt ? 1 : -1;
 
-  if (*prev == 3 && curr == 1 ||
-      *prev == 1 && curr == 0 ||
-      *prev == 0 && curr == 2 ||
-      *prev == 2 && curr == 3) {
-    (*tt_position) += direction;
-  } else if (*prev == 1 && curr == 3 ||
-             *prev == 0 && curr == 1 ||
-             *prev == 2 && curr == 0 ||
-             *prev == 3 && curr == 2) {
-    (*tt_position) -= direction;
+  if ((*prev == 3 && curr == 1) ||
+      (*prev == 1 && curr == 0) ||
+      (*prev == 0 && curr == 2) ||
+      (*prev == 2 && curr == 3)) {
+    *tt_position -= direction;
+  } else if ((*prev == 1 && curr == 3) ||
+             (*prev == 0 && curr == 1) ||
+             (*prev == 2 && curr == 0) ||
+             (*prev == 3 && curr == 2)) {
+    *tt_position += direction;
   }
-  *tt_position = *tt_position % (256 * TT_RATIO);
+  *tt_position %= 256 * TT_RATIO;
   *prev = curr;
 }
 
@@ -315,6 +311,10 @@ void update_lighting(uint16_t led_state) {
   }
 }
 
-bool is_pressed(uint8_t button_bit) {
-  return button_state & (1 << button_bit);
+bool is_pressed(uint16_t button_bits) {
+  return button_state & button_bits;
+}
+
+bool is_pressed_strict(uint16_t button_bits) {
+  return button_state & button_bits && !(button_state & ~button_bits);
 }

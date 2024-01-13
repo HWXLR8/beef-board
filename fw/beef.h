@@ -15,7 +15,6 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "rgb.h"
-#include "ws2812.h"
 #include "timer.h"
 
 // HID report structure, for creating and sending HID reports to the
@@ -59,15 +58,16 @@ void set_led(volatile uint8_t* PORT,
              uint16_t OutputData);
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
-                    uint8_t input_pin,
-		    timer* combo_timer);
+                    uint8_t input_pin);
+void process_combos(timer* combo_timer);
 void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
                 uint16_t* tt_position);
 void update_lighting(uint16_t led_data);
-bool is_pressed(uint8_t button_bit);
+bool is_pressed(uint16_t button_bits);
+bool is_pressed_strict(uint16_t button_bits);
 
 // HID functions
 void HID_Task(void);
@@ -89,14 +89,14 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize);
 
 // button macros to map to bit positions within button_state
-#define BUTTON_1 0
-#define BUTTON_2 1
-#define BUTTON_3 2
-#define BUTTON_4 3
-#define BUTTON_5 4
-#define BUTTON_6 5
-#define BUTTON_7 6
-#define BUTTON_8 7
-#define BUTTON_9 8
-#define BUTTON_10 9
-#define BUTTON_11 10
+#define BUTTON_1 1 << 0
+#define BUTTON_2 1 << 1
+#define BUTTON_3 1 << 2
+#define BUTTON_4 1 << 3
+#define BUTTON_5 1 << 4
+#define BUTTON_6 1 << 5
+#define BUTTON_7 1 << 6
+#define BUTTON_8 1 << 7
+#define BUTTON_9 1 << 8
+#define BUTTON_10 1 << 9
+#define BUTTON_11 1 << 10

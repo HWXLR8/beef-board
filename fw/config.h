@@ -1,5 +1,7 @@
 // Copyright 2023 supervaka, HWXLR8
 
+#pragma once
+
 #include "beef.h"
 #include "pin.h"
 
@@ -17,12 +19,8 @@
   CONFIG_HW_PIN(E2, A7),  /* BUTTON 11 */ \
 }
 
-// this assumes that the pins to the 2 DATA lines are on the same port
-// will need to refactor if this is not the case
-// e.g. if a_pin is on F0 and b_pin is on D0
-// PIN : [a_pin] : [b_pin] : [prev] : [tt_position]
-tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
-// tt_pins tt_y = { &PIN?, ?, ?, -1, 0 };
+tt_pins tt_x;
+// tt_pins tt_y;
 
 // you still need to assign DDR and PORT manually in main() for now
 // DDRF  &= 0b11111100;
@@ -35,10 +33,16 @@ tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
 #define RING_LIGHT_LEDS 24
 #define LIGHT_BAR_LEDS 16
 
-// tentative names for LED ring modes
-enum ring_light_mode {
-  SPIN,
-  REACT_TO_SCR
-};
+#define CONFIG_VERSION 0
+#define CONFIG_BASE_ADDR (uint8_t*)0
+#define CONFIG_VERSION_ADDR (uint8_t*)0
+#define CONFIG_REVERSE_TT_ADDR (uint8_t*)1
+typedef struct {
+  uint8_t version;
+  uint8_t reverse_tt;
+} config;
 
-enum ring_light_mode ring_light_mode = REACT_TO_SCR;
+void config_init(config* self);
+
+// button combos
+#define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)

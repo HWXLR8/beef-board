@@ -1,15 +1,8 @@
 // Copyright 2023 supervaka, HWXLR8
 
-#include "beef.h"
+#pragma once
 
-hw_pin hw_pins[] = {
-  { &DDRA, &PINA, &PORTA },
-  { &DDRB, &PINB, &PORTB },
-  { &DDRC, &PINC, &PORTC },
-  { &DDRD, &PIND, &PORTD },
-  { &DDRE, &PINE, &PORTE },
-  { &DDRF, &PINF, &PORTF },
-};
+hw_pin hw_pins[6];
 
 // to index into hw_pins[] array
 #define A_ 0
