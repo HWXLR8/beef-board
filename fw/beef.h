@@ -27,23 +27,6 @@ typedef struct {
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
-// To bundle each button to its respective pins
-// INPUT_PORT : [input pin] : LED_PORT : [LED pin]
-typedef struct {
-  hw_pin INPUT_PORT;
-  uint8_t input_pin;
-  hw_pin LED_PORT;
-  uint8_t led_pin;
-} button_pins;
-
-typedef struct {
-  volatile uint8_t* PIN;
-  uint8_t a_pin;
-  uint8_t b_pin;
-  int8_t prev;
-  uint16_t tt_position;
-} tt_pins;
-
 void hwinit(void);
 void hardware_timer1_init(void);
 void set_led(volatile uint8_t* PORT,

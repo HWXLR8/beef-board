@@ -53,7 +53,7 @@ typedef struct {
   uint16_t button_combo;
   void (*config_set)(config*);
 } combo;
-bool ignore_combo = false;
+
 #define NUM_OF_COMBOS 1
 combo button_combos[NUM_OF_COMBOS] = {
   {
@@ -269,7 +269,9 @@ void process_button(volatile uint8_t* PIN,
 void process_combos(config* current_config,
                     timer* combo_timer,
                     timer* combo_lights_timer) {
+  static bool ignore_combo = false;
   bool combo_pressed = false;
+
   for (int i = 0; i < NUM_OF_COMBOS; ++i) {
     if (is_pressed_strict(button_combos[i].button_combo)) {
       combo_pressed = true;
@@ -285,7 +287,7 @@ void process_combos(config* current_config,
       if (timer_is_expired(combo_timer)) {
         button_combos[i].config_set(current_config);
         timer_init(combo_timer);
-        timer_arm(combo_lights_timer, 333);
+        timer_arm(combo_lights_timer, 500);
         ignore_combo = true;
       }
 
