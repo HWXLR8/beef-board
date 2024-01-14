@@ -38,6 +38,7 @@ bool reactive_led = true;
 // temporary hack? because set_led() needs access to buttons[]
 button_pins* buttons_ptr;
 
+#define HID_LIGHTS_EXPIRY_TIME 1000
 timer hid_lights_expiry_timer;
 
 // this assumes that the pins to the 2 DATA lines are on the same port
@@ -54,12 +55,16 @@ typedef struct {
   void (*config_set)(config*);
 } combo;
 
-#define NUM_OF_COMBOS 1
+#define NUM_OF_COMBOS 2
 combo button_combos[NUM_OF_COMBOS] = {
   {
     button_combo: REVERSE_TT_COMBO,
     config_set: toggle_reverse_tt
-  }
+  },
+  {
+    button_combo: TT_EFFECTS_COMBO,
+    config_set: cycle_tt_effects
+  },
 };
 
 ISR(TIMER1_COMPA_vect) {
@@ -72,10 +77,9 @@ int main(void) {
   timer_init(&led_timer);
 
   timer_init(&spin_timer);
-  timer_arm(&spin_timer, 100);
+  timer_arm(&spin_timer, 50);
 
   timer_init(&hid_lights_expiry_timer);
-  timer_arm(&hid_lights_expiry_timer, 5000);
 
   timer combo_timer;
   timer combo_lights_timer;
@@ -112,6 +116,7 @@ int main(void) {
     if (!timer_is_armed(&hid_lights_expiry_timer) ||
         timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
       reactive_led = true;
+      set_hid_standby_lighting(&led_state_from_hid_report);
     }
 
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
@@ -133,7 +138,9 @@ int main(void) {
                current_config);
     // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
 
-    update_lighting(tt1_report, &combo_lights_timer);
+    update_lighting(tt1_report,
+                    &combo_lights_timer,
+                    current_config);
   }
 }
 
@@ -170,7 +177,9 @@ void hwinit(void) {
   // hardware init
   USB_Init();
   hardware_timer1_init();
+
   reactive_led = true;
+  set_hid_standby_lighting(&led_state_from_hid_report);
 }
 
 // event handler for USB connection event
@@ -193,7 +202,7 @@ void EVENT_USB_Device_ControlRequest(void){}
 // process last received report from the host.
 void ProcessGenericHIDReport(hid_lights led_state) {
   reactive_led = false;
-  timer_arm(&hid_lights_expiry_timer, 5000);
+  timer_arm(&hid_lights_expiry_timer, HID_LIGHTS_EXPIRY_TIME);
 
   // update the lighting data
   led_state_from_hid_report = led_state;
@@ -220,7 +229,6 @@ void HID_Task(void) {
     Endpoint_ClearOUT();
   }
 }
-
 
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
                                          uint8_t* const ReportID,
@@ -254,6 +262,12 @@ void set_led(volatile uint8_t* PORT,
   } else {
     *PORT &= ~(1 << led_pin);
   }
+}
+
+void set_hid_standby_lighting(hid_lights* lights) {
+  *lights = (hid_lights){
+    tt_lights: { 255, 255, 255 }
+  };
 }
 
 void process_button(volatile uint8_t* PIN,
@@ -335,15 +349,19 @@ void process_tt(volatile uint8_t* PIN,
   *prev = curr;
 }
 
-void update_lighting(int8_t tt1_report, timer* combo_lights_timer) {
+void update_lighting(int8_t tt1_report,
+                     timer* combo_lights_timer,
+                     config current_config) {
   if (reactive_led) {
     update_button_lighting(button_state, combo_lights_timer);
-    tt_rgb_manager_update(tt1_report);
   } else {
     update_button_lighting(led_state_from_hid_report.buttons,
                            combo_lights_timer);
-    set_tt_leds(led_state_from_hid_report.tt_lights);
   }
+
+  tt_rgb_manager_update(tt1_report, 
+                        led_state_from_hid_report.tt_lights,
+                        current_config.tt_effect);
 }
 
 void update_button_lighting(uint16_t led_state,
