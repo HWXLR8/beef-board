@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/power.h>
 #include <avr/interrupt.h>
@@ -14,8 +13,8 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
+#include "config.h"
 #include "rgb.h"
-#include "ws2812.h"
 #include "timer.h"
 
 // HID report structure, for creating and sending HID reports to the
@@ -28,29 +27,6 @@ typedef struct {
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
-typedef struct {
-  volatile uint8_t* DDR;
-  volatile uint8_t* PIN;
-  volatile uint8_t* PORT;
-} hw_pin;
-
-// To bundle each button to its respective pins
-// INPUT_PORT : [input pin] : LED_PORT : [LED pin]
-typedef struct {
-  hw_pin INPUT_PORT;
-  uint8_t input_pin;
-  hw_pin LED_PORT;
-  uint8_t led_pin;
-} button_pins;
-
-typedef struct {
-  volatile uint8_t* PIN;
-  uint8_t a_pin;
-  uint8_t b_pin;
-  int8_t prev;
-  uint16_t tt_position;
-} tt_pins;
-
 void hwinit(void);
 void hardware_timer1_init(void);
 void set_led(volatile uint8_t* PORT,
@@ -59,15 +35,21 @@ void set_led(volatile uint8_t* PORT,
              uint16_t OutputData);
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
-                    uint8_t input_pin,
-		    timer* combo_timer);
+                    uint8_t input_pin);
+void process_combos(config* current_config,
+                    timer* combo_timer,
+                    timer* combo_lights_timer);
 void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                uint16_t* tt_position);
-void update_lighting(uint16_t led_data);
-bool is_pressed(uint8_t button_bit);
+                uint16_t* tt_position,
+                config current_config);
+void update_lighting(int8_t tt1_report, timer* combo_lights_timer);
+void update_button_lighting(uint16_t led_data,
+                            timer* combo_lights_timer);
+bool is_pressed(uint16_t button_bits);
+bool is_pressed_strict(uint16_t button_bits);
 
 // HID functions
 void HID_Task(void);
@@ -89,14 +71,14 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize);
 
 // button macros to map to bit positions within button_state
-#define BUTTON_1 0
-#define BUTTON_2 1
-#define BUTTON_3 2
-#define BUTTON_4 3
-#define BUTTON_5 4
-#define BUTTON_6 5
-#define BUTTON_7 6
-#define BUTTON_8 7
-#define BUTTON_9 8
-#define BUTTON_10 9
-#define BUTTON_11 10
+#define BUTTON_1 1 << 0
+#define BUTTON_2 1 << 1
+#define BUTTON_3 1 << 2
+#define BUTTON_4 1 << 3
+#define BUTTON_5 1 << 4
+#define BUTTON_6 1 << 5
+#define BUTTON_7 1 << 6
+#define BUTTON_8 1 << 7
+#define BUTTON_9 1 << 8
+#define BUTTON_10 1 << 9
+#define BUTTON_11 1 << 10

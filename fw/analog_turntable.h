@@ -1,3 +1,5 @@
+#pragma once
+
 #include "timer.h"
 
 typedef struct {

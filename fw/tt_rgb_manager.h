@@ -1,7 +1,25 @@
-#include "beef.h"
+#pragma once
+
+#include "rgb.h"
+#include "timer.h"
+#include "ws2812.h"
 
 timer led_timer;
 struct cRGB led[RING_LIGHT_LEDS];
+
+// tentative names for LED ring modes
+enum ring_light_mode {
+  SPIN,
+  REACT_TO_SCR
+};
+
+enum ring_light_mode ring_light_mode = REACT_TO_SCR;
+
+void rgb(struct cRGB* led, uint8_t r, uint8_t g, uint8_t b) {
+  led->r = r;
+  led->g = g;
+  led->b = b;
+}
 
 void set_tt_leds(rgb_lights lights) {
   for (int i = 0; i < RING_LIGHT_LEDS; ++i) {
@@ -10,15 +28,15 @@ void set_tt_leds(rgb_lights lights) {
   ws2812_setleds(led, RING_LIGHT_LEDS);
 }
 
-void set_led_blue() {
+void set_led_blue(void) {
   set_tt_leds((rgb_lights){0, 0, 255});
 }
 
-void set_led_red() {
+void set_led_red(void) {
   set_tt_leds((rgb_lights){255, 0, 0});
 }
 
-void set_led_off() {
+void set_led_off(void) {
   set_tt_leds((rgb_lights){0});
 }
 
@@ -35,23 +53,16 @@ void react_to_scr(int8_t tt_report) {
   }
 }
 
-void rgb(struct cRGB* led, uint8_t r, uint8_t g, uint8_t b) {
-  led->r = r;
-  led->g = g;
-  led->b = b;
-}
-
-uint8_t spin_counter = 0;
 timer spin_timer;
-void spin() {
+void spin(void) {
+  static uint8_t spin_counter = 0;
   if (timer_check_if_expired_reset(&spin_timer)) {
     rgb(&(led[spin_counter]), 0, 0, 0);
-    rgb(&(led[++spin_counter % RING_LIGHT_LEDS]), 0, 0, 255);
+    spin_counter = (spin_counter + 1) % RING_LIGHT_LEDS;
+    rgb(&(led[spin_counter]), 0, 0, 255);
     ws2812_setleds(led, RING_LIGHT_LEDS);
 
     timer_arm(&spin_timer, 50);
-
-    spin_counter %= RING_LIGHT_LEDS;
   }
 }
 

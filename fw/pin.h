@@ -1,15 +1,33 @@
 // Copyright 2023 supervaka, HWXLR8
 
-#include "beef.h"
+#pragma once
 
-hw_pin hw_pins[] = {
-  { &DDRA, &PINA, &PORTA },
-  { &DDRB, &PINB, &PORTB },
-  { &DDRC, &PINC, &PORTC },
-  { &DDRD, &PIND, &PORTD },
-  { &DDRE, &PINE, &PORTE },
-  { &DDRF, &PINF, &PORTF },
-};
+#include <avr/io.h>
+
+typedef struct {
+  volatile uint8_t* DDR;
+  volatile uint8_t* PIN;
+  volatile uint8_t* PORT;
+} hw_pin;
+
+// To bundle each button to its respective pins
+// INPUT_PORT : [input pin] : LED_PORT : [LED pin]
+typedef struct {
+  hw_pin INPUT_PORT;
+  uint8_t input_pin;
+  hw_pin LED_PORT;
+  uint8_t led_pin;
+} button_pins;
+
+typedef struct {
+  volatile uint8_t* PIN;
+  uint8_t a_pin;
+  uint8_t b_pin;
+  int8_t prev;
+  uint16_t tt_position;
+} tt_pins;
+
+hw_pin hw_pins[6];
 
 // to index into hw_pins[] array
 #define A_ 0
