@@ -31,8 +31,13 @@
 
 // tentative names for LED ring modes
 typedef enum {
+  RING_LIGHT_MODE_PLACEHOLDER1, // single colour
   SPIN,
+  RING_LIGHT_MODE_PLACEHOLDER2, // colour shift
+  RING_LIGHT_MODE_PLACEHOLDER3, // static rainbow
+  RING_LIGHT_MODE_PLACEHOLDER4, // reactive rainbow
   REACT_TO_SCR,
+  RING_LIGHT_MODE_PLACEHOLDER5, // breathing
   HID,
   RING_LIGHT_MODE_ENUMS
 } ring_light_mode;

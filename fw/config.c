@@ -56,7 +56,13 @@ void toggle_reverse_tt(config* self) {
 }
 
 void cycle_tt_effects(config* self) {
-  self->tt_effect = (self->tt_effect + 1) % RING_LIGHT_MODE_ENUMS;
+  do {
+    self->tt_effect = (self->tt_effect + 1) % RING_LIGHT_MODE_ENUMS;
+  } while (self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER1 ||
+           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER2 ||
+           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER3 ||
+           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER4 ||
+           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER5);
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, self->tt_effect);
 
   set_led_off();
