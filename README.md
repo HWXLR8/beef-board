@@ -16,3 +16,31 @@ Credits:
 * FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
 * Implementation of the WS2812 protocol provided by [Tim (cpldcpu)](https://github.com/cpldcpu/light_ws2812).
+
+BOM
+```
+### PIN HEADERS ###
+1    JST XH 5pin
+15   JST XH 4pin
+6    JST XH 3pin
+2    JST XH 2pin
+1    JST PH 2pin
+2    1x2 2.54mm pin header
+1    IDC header 2x3pin 2.54mm
+
+### MCU ###
+1    AT90USB1286 TQFP
+1    16MHz crystal (ECS-160-18-4X-CKM)
+11   2N7002
+1    6mm push button
+
+### CAPACITORS ###
+2    1uF 0805
+5    100nF 0805
+2    10pF 0805
+
+### RESISTORS ###
+1    1K 0805
+2    22 ohm 0805
+1    4.7K 0805
+```
