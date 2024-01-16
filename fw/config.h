@@ -39,7 +39,7 @@ typedef enum {
   REACT_TO_SCR,
   RING_LIGHT_MODE_PLACEHOLDER5, // breathing
   HID,
-  RING_LIGHT_MODE_ENUMS
+  NUM_OF_RING_LIGHT_MODES
 } ring_light_mode;
 
 typedef struct {

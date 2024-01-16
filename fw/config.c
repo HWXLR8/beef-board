@@ -57,7 +57,7 @@ void toggle_reverse_tt(config* self) {
 
 void cycle_tt_effects(config* self) {
   do {
-    self->tt_effect = (self->tt_effect + 1) % RING_LIGHT_MODE_ENUMS;
+    self->tt_effect = (self->tt_effect + 1) % NUM_OF_RING_LIGHT_MODES;
   } while (self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER1 ||
            self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER2 ||
            self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER3 ||
