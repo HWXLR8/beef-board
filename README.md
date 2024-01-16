@@ -11,13 +11,13 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 * Sound Voltex
 * Pop'n Music
 
-Credits:
+## Credits:
 * HW design by [HWXLR8](https://github.com/HWXLR8)
 * FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
 * Implementation of the WS2812 protocol provided by [Tim (cpldcpu)](https://github.com/cpldcpu/light_ws2812).
 
-BOM
+## BOM
 ```
 ### PIN HEADERS ###
 1    JST XH 5pin
