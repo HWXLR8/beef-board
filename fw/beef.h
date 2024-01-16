@@ -33,6 +33,7 @@ void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
              uint8_t led_pin,
              uint16_t OutputData);
+void set_hid_standby_lighting(hid_lights* lights);
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
@@ -45,7 +46,9 @@ void process_tt(volatile uint8_t* PIN,
                 int8_t* prev,
                 uint16_t* tt_position,
                 config current_config);
-void update_lighting(int8_t tt1_report, timer* combo_lights_timer);
+void update_lighting(int8_t tt1_report,
+                     timer* combo_lights_timer,
+                     config current_config);
 void update_button_lighting(uint16_t led_data,
                             timer* combo_lights_timer);
 bool is_pressed(uint16_t button_bits);

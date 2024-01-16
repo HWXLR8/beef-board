@@ -14,8 +14,8 @@
   CONFIG_HW_PIN(B4, B5),  /* BUTTON 7  */ \
   CONFIG_HW_PIN(C0, C1),  /* BUTTON 8  */ \
   CONFIG_HW_PIN(A6, A5),  /* BUTTON 9  */ \
-  CONFIG_HW_PIN(C2, C3),  /* BUTTON 10 */ \
-  CONFIG_HW_PIN(E2, A7),  /* BUTTON 11 */ \
+  CONFIG_HW_PIN(E2, A7),  /* BUTTON 10 */ \
+  CONFIG_HW_PIN(C2, C3),  /* BUTTON 11 */ \
 }
 
 // you still need to assign DDR and PORT manually in main() for now
@@ -29,13 +29,29 @@
 #define RING_LIGHT_LEDS 24
 #define LIGHT_BAR_LEDS 16
 
+// tentative names for LED ring modes
+typedef enum {
+  RING_LIGHT_MODE_PLACEHOLDER1, // single colour
+  SPIN,
+  RING_LIGHT_MODE_PLACEHOLDER2, // colour shift
+  RING_LIGHT_MODE_PLACEHOLDER3, // static rainbow
+  RING_LIGHT_MODE_PLACEHOLDER4, // reactive rainbow
+  REACT_TO_SCR,
+  RING_LIGHT_MODE_PLACEHOLDER5, // breathing
+  HID,
+  NUM_OF_RING_LIGHT_MODES
+} ring_light_mode;
+
 typedef struct {
   uint8_t version;
   uint8_t reverse_tt;
+  ring_light_mode tt_effect;
 } config;
 
 void config_init(config* self);
 void toggle_reverse_tt(config* self);
+void cycle_tt_effects(config* self);
 
 // button combos
 #define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)
+#define TT_EFFECTS_COMBO (BUTTON_2 | BUTTON_8 | BUTTON_11)
