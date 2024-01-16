@@ -43,4 +43,8 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 1    1K 0805
 2    22 ohm 0805
 1    4.7K 0805
+
+### REMOTE BOARD ###
+2   JST XH 4pin
+2   USB-B (ED2983-ND)
 ```
