@@ -237,7 +237,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize) {
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-  JoystickReport->X = ((int8_t)(tt_x.tt_position / TT_RATIO));
+  JoystickReport->X = tt_x.tt_position / TT_RATIO;
   // JoystickReport->Y = tt_y.tt_position;
   JoystickReport->Button = button_state;
 

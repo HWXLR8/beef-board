@@ -21,9 +21,8 @@
 // host PC. This mirrors the layout described to the host in the HID
 // report descriptor in descriptors.c.
 typedef struct {
-  int8_t  X;
-  int8_t  Y;
-  int8_t  Z;
+  uint8_t  X;
+  uint8_t  Y;
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
@@ -85,3 +84,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 #define BUTTON_9 1 << 8
 #define BUTTON_10 1 << 9
 #define BUTTON_11 1 << 10
+
+// Digital TT
+#define BUTTON_12 1 << 11
+#define BUTTON_13 1 << 12
