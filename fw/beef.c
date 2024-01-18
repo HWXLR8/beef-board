@@ -55,7 +55,6 @@ typedef struct {
   void (*config_set)(config*);
 } combo;
 
-#define NUM_OF_COMBOS 2
 combo button_combos[NUM_OF_COMBOS] = {
   {
     button_combo: REVERSE_TT_COMBO,
@@ -65,6 +64,14 @@ combo button_combos[NUM_OF_COMBOS] = {
     button_combo: TT_EFFECTS_COMBO,
     config_set: cycle_tt_effects
   },
+  {
+    button_combo: TT_DEADZONE_INCR_COMBO,
+    config_set: increase_deadzone
+  },
+  {
+    button_combo: TT_DEADZONE_DECR_COMBO,
+    config_set: decrease_deadzone
+  },
 };
 
 ISR(TIMER1_COMPA_vect) {
@@ -73,6 +80,8 @@ ISR(TIMER1_COMPA_vect) {
 
 int main(void) {
   hwinit();
+
+  config_init(&current_config);
 
   timer_init(&led_timer);
 
@@ -85,11 +94,9 @@ int main(void) {
   timer combo_lights_timer;
   timer_init(&combo_timer);
   timer_init(&combo_lights_timer);
+  timer_init(&combo_tt_led_timer);
 
-  analog_turntable tt1;
-  analog_turntable_init(&tt1, 4, 200, true);
-
-  config_init(&current_config);
+  analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
@@ -128,7 +135,8 @@ int main(void) {
     }
     process_combos(&current_config,
                    &combo_timer,
-                   &combo_lights_timer);
+                   &combo_lights_timer,
+                   &combo_tt_led_timer);
 
     process_tt(tt_x.PIN,
                tt_x.a_pin,
@@ -282,7 +290,8 @@ void process_button(volatile uint8_t* PIN,
 
 void process_combos(config* current_config,
                     timer* combo_timer,
-                    timer* combo_lights_timer) {
+                    timer* combo_lights_timer,
+                    timer* combo_tt_led_timer) {
   static bool ignore_combo = false;
   bool combo_pressed = false;
 
@@ -298,10 +307,9 @@ void process_combos(config* current_config,
         timer_arm(combo_timer, 1000);
       }
 
-      if (timer_is_expired(combo_timer)) {
+      if (timer_check_if_expired_reset(combo_timer)) {
         button_combos[i].config_set(current_config);
-        timer_init(combo_timer);
-        timer_arm(combo_lights_timer, 500);
+        timer_arm(combo_lights_timer, CONFIG_CHANGE_NOTIFY_TIME);
         ignore_combo = true;
       }
 
@@ -313,6 +321,7 @@ void process_combos(config* current_config,
     ignore_combo = false;
     timer_init(combo_timer);
     timer_init(combo_lights_timer);
+    timer_init(combo_tt_led_timer);
   }
 }
 

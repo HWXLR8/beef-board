@@ -29,6 +29,8 @@
 #define RING_LIGHT_LEDS 24
 #define LIGHT_BAR_LEDS 16
 
+#define CONFIG_CHANGE_NOTIFY_TIME 1000
+
 // tentative names for LED ring modes
 typedef enum {
   RING_LIGHT_MODE_PLACEHOLDER1, // single colour
@@ -42,16 +44,23 @@ typedef enum {
   NUM_OF_RING_LIGHT_MODES
 } ring_light_mode;
 
+// Do not reorder these fields
 typedef struct {
   uint8_t version;
   uint8_t reverse_tt;
   ring_light_mode tt_effect;
+  uint8_t tt_deadzone;
 } config;
 
 void config_init(config* self);
 void toggle_reverse_tt(config* self);
 void cycle_tt_effects(config* self);
+void increase_deadzone(config* self);
+void decrease_deadzone(config* self);
 
 // button combos
+#define NUM_OF_COMBOS 4
 #define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)
 #define TT_EFFECTS_COMBO (BUTTON_2 | BUTTON_8 | BUTTON_11)
+#define TT_DEADZONE_INCR_COMBO (BUTTON_3 | BUTTON_8 | BUTTON_11)
+#define TT_DEADZONE_DECR_COMBO (BUTTON_1 | BUTTON_8 | BUTTON_11)
