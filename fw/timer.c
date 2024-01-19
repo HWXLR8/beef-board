@@ -28,7 +28,12 @@ bool timer_is_expired(timer* self) {
 
   uint32_t now = milliseconds;
   int32_t diff = now - self->time_to_expire;
-  return (diff > 0);
+  return diff > 0;
+}
+
+bool timer_is_active(timer* self) {
+  return timer_is_armed(self) &&
+    !timer_check_if_expired_reset(self);
 }
 
 int32_t timer_get_remaining_time(timer* self) {

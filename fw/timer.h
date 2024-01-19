@@ -14,5 +14,6 @@ void timer_arm(timer* self, uint32_t milliseconds_from_now);
 void timer_reset(timer* self);
 bool timer_is_armed(timer* self);
 bool timer_is_expired(timer* self);
+bool timer_is_active(timer* self);
 int32_t timer_get_remaining_time(timer* self);
 bool timer_check_if_expired_reset(timer* self);

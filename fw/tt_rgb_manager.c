@@ -32,7 +32,7 @@ void react_to_scr(int8_t tt_report) {
     set_tt_leds_red();
     timer_arm(&led_timer, 500);
   } 
-  if (timer_check_if_expired_reset(&led_timer) || !timer_is_armed(&led_timer)) {
+  if (timer_check_if_expired_reset(&led_timer)) {
     set_tt_leds_off();
   }
 }

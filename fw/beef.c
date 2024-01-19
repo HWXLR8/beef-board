@@ -120,8 +120,7 @@ int main(void) {
     HID_Task();
     USB_USBTask();
 
-    if (!timer_is_armed(&hid_lights_expiry_timer) ||
-        timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
+    if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
       reactive_led = true;
       set_hid_standby_lighting(&led_state_from_hid_report);
     }
@@ -375,8 +374,7 @@ void update_lighting(int8_t tt1_report,
 
 void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer) {
-  if (timer_is_armed(combo_lights_timer) &&
-      !timer_check_if_expired_reset(combo_lights_timer)) {
+  if (timer_is_active(combo_lights_timer)) {
     // Temporarily black out button LEDs to notify a mode change
     led_state = 0;
   }
