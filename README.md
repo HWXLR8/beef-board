@@ -14,8 +14,8 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 ## Configuration
 Various configuration options can be changed on-the-fly by holding a button combination. Holding the buttons simultaneously for 1 second will cause the change to take affect. Button lights will momentarily shut off to indicate that the change has occurred. Refer to this table for a list of configuration options currently supported:
 
-| Configuration option | Button combination |
-|---|---|
+|Configuration option | Button combination |
+|:---|:---|
 | Reverse TT direction | B1 + B7 + B8 |
 | Change TT lighting effects| B2 + B8 + B11 |
 | Increase TT deadzone | B3 + B8 + B11 |
