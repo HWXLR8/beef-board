@@ -5,10 +5,10 @@
 #include "timer.h"
 #include "ws2812.h"
 
-timer led_timer;
-timer combo_tt_led_timer;
-struct cRGB tt_leds[RING_LIGHT_LEDS];
-timer spin_timer;
+extern timer led_timer;
+extern timer combo_tt_led_timer;
+extern struct cRGB tt_leds[RING_LIGHT_LEDS];
+extern timer spin_timer;
 
 void rgb(struct cRGB* led, uint8_t r, uint8_t g, uint8_t b);
 void set_tt_leds(rgb_light lights);

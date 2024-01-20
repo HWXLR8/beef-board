@@ -7,6 +7,14 @@
 #include "beef.h"
 #include "tt_rgb_manager.h"
 
+// placing the following objects in global scope since extern
+// declarations expect them to be here
+timer led_timer;
+timer spin_timer;
+timer combo_tt_led_timer;
+analog_turntable tt1;
+struct cRGB tt_leds[RING_LIGHT_LEDS];
+
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
 
@@ -367,7 +375,7 @@ void update_lighting(int8_t tt1_report,
                            combo_lights_timer);
   }
 
-  tt_rgb_manager_update(tt1_report, 
+  tt_rgb_manager_update(tt1_report,
                         led_state_from_hid_report.tt_lights,
                         current_config.tt_effect);
 }

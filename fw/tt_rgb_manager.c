@@ -31,7 +31,7 @@ void react_to_scr(int8_t tt_report) {
   } else if (tt_report == -1) {
     set_tt_leds_red();
     timer_arm(&led_timer, 500);
-  } 
+  }
   if (!timer_is_active(&led_timer)) {
     set_tt_leds_off();
   }
