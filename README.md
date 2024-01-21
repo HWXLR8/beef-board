@@ -26,7 +26,8 @@ Various configuration options can be changed on-the-fly by holding a button comb
 * HW design by [HWXLR8](https://github.com/HWXLR8)
 * FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
-* Implementation of the WS2812 protocol provided by [Tim (cpldcpu)](https://github.com/cpldcpu/light_ws2812).
+* Implementation of the WS2812 protocol provided by [FastLED](https://github.com/FastLED/FastLED)
+* [kinetic-flow](https://github.com/kinetic-flow)'s [arcin-infinitas](https://github.com/kinetic-flow/arcin-infinitas) as a template for RGB HID functionality and the FastLED shims
 
 ## BOM
 ```
