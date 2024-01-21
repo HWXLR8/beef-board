@@ -27,7 +27,7 @@ typedef struct {
   uint16_t tt_position;
 } tt_pins;
 
-hw_pin hw_pins[6];
+extern hw_pin hw_pins[6];
 
 // to index into hw_pins[] array
 #define A_ 0

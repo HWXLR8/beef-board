@@ -15,11 +15,11 @@ typedef struct {
   bool center_valid;
 
   // time to: reset center to counter
-  timer sustain_timer;  
+  timer sustain_timer;
 
   int8_t state; // -1, 0, 1
 } analog_turntable;
-analog_turntable tt1;
+extern analog_turntable tt1;
 
 void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t sustain_ms, bool clear);
 int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value);

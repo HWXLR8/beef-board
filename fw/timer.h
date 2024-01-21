@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-volatile uint32_t milliseconds;
+extern volatile uint32_t milliseconds;
 typedef struct {
   bool armed;
   uint32_t time_to_expire;
