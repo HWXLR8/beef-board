@@ -21,6 +21,7 @@ Various configuration options can be changed on-the-fly by holding a button comb
 | Increase TT deadzone | B3 + B8 + B11 |
 | Decrease TT deadzone | B1 + B8 + B11 |
 | Change centre bar lighting effects (PHOENIXWAN only) | B6 + B8 + B10 |
+| Disable LEDs | B2 + B4 + B6 + B11 |
 
 
 ## Credits:

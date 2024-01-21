@@ -36,6 +36,8 @@ typedef struct {
   RgbManager::Turntable::Mode tt_effect;
   uint8_t tt_deadzone;
   RgbManager::Bar::Mode bar_effect;
+  uint8_t disable_led;
+  RgbManager::Turntable::Mode prev_tt_effect;
 } config;
 
 void config_init(config* self);
@@ -44,11 +46,13 @@ void cycle_tt_effects(config* self);
 void increase_deadzone(config* self);
 void decrease_deadzone(config* self);
 void cycle_bar_effects(config* self);
+void toggle_disable_led(config* self);
 
 // button combos
-#define NUM_OF_COMBOS 5
+#define NUM_OF_COMBOS 6
 #define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)
 #define TT_EFFECTS_COMBO (BUTTON_2 | BUTTON_8 | BUTTON_11)
 #define TT_DEADZONE_INCR_COMBO (BUTTON_3 | BUTTON_8 | BUTTON_11)
 #define TT_DEADZONE_DECR_COMBO (BUTTON_1 | BUTTON_8 | BUTTON_11)
 #define BAR_EFFECTS_COMBO (BUTTON_6 | BUTTON_8 | BUTTON_10)
+#define DISABLE_LED_COMBO (BUTTON_2 | BUTTON_4 | BUTTON_6 | BUTTON_11)
