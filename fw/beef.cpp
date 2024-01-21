@@ -115,6 +115,7 @@ int main(void) {
 
   GlobalInterruptEnable();
 
+  // Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
   FastLED.addLeds<NEOPIXEL, 15>(tt_leds, RING_LIGHT_LEDS);
 
   while (1) {
