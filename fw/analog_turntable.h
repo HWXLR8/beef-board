@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "timer.h"
 
 typedef struct {
@@ -23,3 +26,6 @@ extern analog_turntable tt1;
 
 void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t sustain_ms, bool clear);
 int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value);
+#ifdef __cplusplus
+}
+#endif

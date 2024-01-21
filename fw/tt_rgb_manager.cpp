@@ -1,27 +1,25 @@
 #include "tt_rgb_manager.h"
 
-void rgb(struct cRGB* led, uint8_t r, uint8_t g, uint8_t b) {
-  led->r = r;
-  led->g = g;
-  led->b = b;
-}
+timer led_timer;
+timer combo_tt_led_timer;
+CRGB tt_leds[RING_LIGHT_LEDS];
+timer spin_timer;
 
 void set_tt_leds(rgb_light lights) {
-  for (int i = 0; i < RING_LIGHT_LEDS; ++i) {
-    rgb(&tt_leds[i], lights.r, lights.g, lights.b);
-  }
+  fill_solid(tt_leds, RING_LIGHT_LEDS,
+             CRGB(lights.r, lights.g, lights.b));
 }
 
 void set_tt_leds_blue(void) {
-  set_tt_leds((rgb_light){0, 0, 255});
+  fill_solid(tt_leds, RING_LIGHT_LEDS, CRGB::Blue);
 }
 
 void set_tt_leds_red(void) {
-  set_tt_leds((rgb_light){255, 0, 0});
+  fill_solid(tt_leds, RING_LIGHT_LEDS, CRGB::Red);
 }
 
 void set_tt_leds_off(void) {
-  set_tt_leds((rgb_light){0});
+  fill_solid(tt_leds, RING_LIGHT_LEDS, CRGB::Black);
 }
 
 void react_to_scr(int8_t tt_report) {
@@ -43,9 +41,9 @@ void spin(void) {
     spin_counter = (spin_counter + 1) % RING_LIGHT_LEDS;
     for (int i = 0; i < RING_LIGHT_LEDS; i++) {
       if (i == spin_counter) {
-        rgb(&(tt_leds[i]), 0, 0, 255);
+        tt_leds[i] = CRGB::Blue;
       } else {
-        rgb(&(tt_leds[i]), 0, 0, 0);
+        tt_leds[i] = CRGB::Black;
       }
     }
 
@@ -59,7 +57,7 @@ void tt_rgb_manager_update(int8_t tt_report,
                            ring_light_mode mode) {
   // Ignore turtable effect if notifying a mode change
   if (!timer_is_active(&combo_tt_led_timer)) {
-      switch(mode) {
+    switch(mode) {
       case SPIN:
         spin();
         break;
@@ -73,6 +71,4 @@ void tt_rgb_manager_update(int8_t tt_report,
         break;
     }
   }
-
-  ws2812_setleds(tt_leds, RING_LIGHT_LEDS);
 }

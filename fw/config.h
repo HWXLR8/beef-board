@@ -32,17 +32,18 @@
 #define CONFIG_CHANGE_NOTIFY_TIME 1000
 
 // tentative names for LED ring modes
-typedef enum {
-  RING_LIGHT_MODE_PLACEHOLDER1, // single colour
+enum ring_light_mode {
+  PLACEHOLDER1, // single colour
   SPIN,
-  RING_LIGHT_MODE_PLACEHOLDER2, // colour shift
-  RING_LIGHT_MODE_PLACEHOLDER3, // static rainbow
-  RING_LIGHT_MODE_PLACEHOLDER4, // reactive rainbow
+  PLACEHOLDER2, // colour shift
+  PLACEHOLDER3, // static rainbow
+  PLACEHOLDER4, // reactive rainbow
   REACT_TO_SCR,
-  RING_LIGHT_MODE_PLACEHOLDER5, // breathing
+  PLACEHOLDER5, // breathing
   HID,
-  NUM_OF_RING_LIGHT_MODES
-} ring_light_mode;
+  COUNT
+};
+static_assert(sizeof(ring_light_mode) == sizeof(uint8_t));
 
 // Do not reorder these fields
 typedef struct {

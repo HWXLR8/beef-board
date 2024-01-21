@@ -2,6 +2,9 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <avr/io.h>
 
 typedef struct {
@@ -97,3 +100,6 @@ extern hw_pin hw_pins[6];
 #define F5 F, 5
 #define F6 F, 6
 #define F7 F, 7
+#ifdef __cplusplus
+}
+#endif

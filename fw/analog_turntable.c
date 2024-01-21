@@ -1,5 +1,7 @@
 #include "analog_turntable.h"
 
+analog_turntable tt1;
+
 void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t sustain_ms, bool clear) {
   self->deadzone = deadzone;
   self->sustain_ms = sustain_ms;
