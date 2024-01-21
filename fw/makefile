@@ -8,9 +8,10 @@ F_CPU = 16000000
 F_USB = $(F_CPU)
 OPTIMIZATION = s
 TARGET = beef
-SRC = $(wildcard *.c) $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
+FASTLED_SRC = FastLED/src
+SRC = $(wildcard *.c) $(wildcard *.cpp) $(wildcard $(FASTLED_SRC)/*.cpp) $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH = LUFA
-CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/
+CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -include fastled_shim.h -DFASTLED_NO_PINMAP
 LD_FLAGS =
 
 # Default target
@@ -37,8 +38,8 @@ dfu: all
 
 .PHONY: isp
 isp: all
-	sudo avrdude -c stk500v1 -b 19200 -p at90usb1286 -P /dev/ttyACM0 -U flash:w:$(TARGET).hex
+	sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U flash:w:$(TARGET).hex
 
 .PHONY: fuse
 fuse:
-	sudo avrdude -c stk500v1 -b 19200 -p at90usb1286 -P /dev/ttyACM0 -U lfuse:w:0xde:m -U hfuse:w:0x99:m -U efuse:w:0xf3:m
+	sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U lfuse:w:0xde:m -U hfuse:w:0x99:m -U efuse:w:0xf3:m

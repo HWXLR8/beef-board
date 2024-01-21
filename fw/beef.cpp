@@ -7,14 +7,6 @@
 #include "beef.h"
 #include "tt_rgb_manager.h"
 
-// placing the following objects in global scope since extern
-// declarations expect them to be here
-timer led_timer;
-timer spin_timer;
-timer combo_tt_led_timer;
-analog_turntable tt1;
-struct cRGB tt_leds[RING_LIGHT_LEDS];
-
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
 
@@ -113,7 +105,7 @@ int main(void) {
   button_pins buttons[] = CONFIG_ALL_HW_PIN;
   buttons_ptr = buttons;
 
-  for (int i = 0; i < sizeof(buttons)/sizeof(buttons[0]); ++i) {
+  for (int i = 0; i < int(sizeof(buttons)/sizeof(buttons[0])); ++i) {
     CONFIG_DDR_INPUT(buttons[i].INPUT_PORT.DDR, buttons[i].input_pin);
     CONFIG_DDR_LED(buttons[i].LED_PORT.DDR, buttons[i].led_pin);
 
@@ -122,6 +114,8 @@ int main(void) {
   }
 
   GlobalInterruptEnable();
+
+  FastLED.addLeds<NEOPIXEL, 15>(tt_leds, RING_LIGHT_LEDS);
 
   while (1) {
     HID_Device_USBTask(&Joystick_HID_Interface);
@@ -280,9 +274,8 @@ void set_led(volatile uint8_t* PORT,
 }
 
 void set_hid_standby_lighting(hid_lights* lights) {
-  *lights = (hid_lights){
-    tt_lights: { 255, 255, 255 }
-  };
+  lights->buttons = 0;
+  lights->tt_lights = { 255, 255, 255 };
 }
 
 void process_button(volatile uint8_t* PIN,
@@ -378,6 +371,8 @@ void update_lighting(int8_t tt1_report,
   tt_rgb_manager_update(tt1_report,
                         led_state_from_hid_report.tt_lights,
                         current_config.tt_effect);
+
+  FastLED.show();
 }
 
 void update_button_lighting(uint16_t led_state,

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -17,3 +20,6 @@ bool timer_is_expired(timer* self);
 bool timer_is_active(timer* self);
 int32_t timer_get_remaining_time(timer* self);
 bool timer_check_if_expired_reset(timer* self);
+#ifdef __cplusplus
+}
+#endif

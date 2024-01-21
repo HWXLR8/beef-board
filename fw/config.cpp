@@ -68,22 +68,22 @@ void toggle_reverse_tt(config* self) {
   int red_start = (12 + offset) % RING_LIGHT_LEDS;
   int red_end = red_start + (RING_LIGHT_LEDS / 2);
   for (int i = blue_start; i < blue_end; ++i) {
-    rgb(&tt_leds[i], 0, 0, 255);
+    tt_leds[i] = CRGB::Blue;
   }
   for (int i = red_start; i < red_end; ++i) {
-    rgb(&tt_leds[i], 255, 0, 0);
+    tt_leds[i] = CRGB::Red;
   }
   timer_arm(&combo_tt_led_timer, CONFIG_CHANGE_NOTIFY_TIME);
 }
 
 void cycle_tt_effects(config* self) {
   do {
-    self->tt_effect = (self->tt_effect + 1) % NUM_OF_RING_LIGHT_MODES;
-  } while (self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER1 ||
-           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER2 ||
-           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER3 ||
-           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER4 ||
-           self->tt_effect == RING_LIGHT_MODE_PLACEHOLDER5);
+    self->tt_effect = ring_light_mode((int(self->tt_effect) + 1) % ring_light_mode::COUNT);
+  } while (self->tt_effect == ring_light_mode::PLACEHOLDER1 ||
+           self->tt_effect == ring_light_mode::PLACEHOLDER2 ||
+           self->tt_effect == ring_light_mode::PLACEHOLDER3 ||
+           self->tt_effect == ring_light_mode::PLACEHOLDER4 ||
+           self->tt_effect == ring_light_mode::PLACEHOLDER5);
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, self->tt_effect);
 
   set_tt_leds_off();
@@ -92,10 +92,10 @@ void cycle_tt_effects(config* self) {
 void display_tt_change(uint8_t deadzone, int range) {
   int num_of_leds = deadzone * (RING_LIGHT_LEDS / range);
   for (int i = 0; i < num_of_leds; ++i) {
-    rgb(&tt_leds[i], 255, 0, 0);
+    tt_leds[i] = CRGB::Red;
   }
   for (int i = num_of_leds; i < RING_LIGHT_LEDS; ++i) {
-    rgb(&tt_leds[i], 0, 0, 0);
+    tt_leds[i] = CRGB::Black;
   }
   timer_arm(&combo_tt_led_timer, CONFIG_CHANGE_NOTIFY_TIME);
 }
