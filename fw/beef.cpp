@@ -5,7 +5,7 @@
 
 #include "analog_turntable.h"
 #include "beef.h"
-#include "tt_rgb_manager.h"
+#include "rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
 static uint8_t PrevJoystickHIDReportBuffer[sizeof(USB_JoystickReport_Data_t)];
@@ -72,6 +72,10 @@ combo button_combos[NUM_OF_COMBOS] = {
     button_combo: TT_DEADZONE_DECR_COMBO,
     config_set: decrease_deadzone
   },
+  {
+    button_combo: BAR_EFFECTS_COMBO,
+    config_set: cycle_bar_effects
+  },
 };
 
 ISR(TIMER1_COMPA_vect) {
@@ -83,20 +87,17 @@ int main(void) {
 
   config_init(&current_config);
 
-  timer_init(&led_timer);
-
-  timer_init(&spin_timer);
-  timer_arm(&spin_timer, 50);
-
   timer_init(&hid_lights_expiry_timer);
 
   timer combo_timer;
   timer combo_lights_timer;
   timer_init(&combo_timer);
   timer_init(&combo_lights_timer);
-  timer_init(&combo_tt_led_timer);
 
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
+
+  RgbManager::Turntable::init();
+  RgbManager::Bar::init();
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
@@ -114,9 +115,6 @@ int main(void) {
   }
 
   GlobalInterruptEnable();
-
-  // Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
-  FastLED.addLeds<NEOPIXEL, 15>(tt_leds, RING_LIGHT_LEDS);
 
   while (1) {
     HID_Device_USBTask(&Joystick_HID_Interface);
@@ -137,8 +135,7 @@ int main(void) {
     }
     process_combos(&current_config,
                    &combo_timer,
-                   &combo_lights_timer,
-                   &combo_tt_led_timer);
+                   &combo_lights_timer);
 
     process_tt(tt_x.PIN,
                tt_x.a_pin,
@@ -259,9 +256,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportID,
                                           const uint8_t ReportType,
                                           const void* ReportData,
-                                          const uint16_t ReportSize) {
-  // Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
-}
+                                          const uint16_t ReportSize){}
 
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
@@ -277,6 +272,7 @@ void set_led(volatile uint8_t* PORT,
 void set_hid_standby_lighting(hid_lights* lights) {
   lights->buttons = 0;
   lights->tt_lights = { 255, 255, 255 };
+  lights->bar_lights = { 255, 255, 255 };
 }
 
 void process_button(volatile uint8_t* PIN,
@@ -291,8 +287,7 @@ void process_button(volatile uint8_t* PIN,
 
 void process_combos(config* current_config,
                     timer* combo_timer,
-                    timer* combo_lights_timer,
-                    timer* combo_tt_led_timer) {
+                    timer* combo_lights_timer) {
   static bool ignore_combo = false;
   bool combo_pressed = false;
 
@@ -322,7 +317,8 @@ void process_combos(config* current_config,
     ignore_combo = false;
     timer_init(combo_timer);
     timer_init(combo_lights_timer);
-    timer_init(combo_tt_led_timer);
+    timer_init(&RgbManager::Turntable::combo_timer);
+    timer_init(&RgbManager::Bar::combo_timer);
   }
 }
 
@@ -369,9 +365,11 @@ void update_lighting(int8_t tt1_report,
                            combo_lights_timer);
   }
 
-  tt_rgb_manager_update(tt1_report,
-                        led_state_from_hid_report.tt_lights,
-                        current_config.tt_effect);
+  RgbManager::Turntable::update(tt1_report,
+                                led_state_from_hid_report.tt_lights,
+                                current_config.tt_effect);
+  RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
+                          current_config.bar_effect);
 
   FastLED.show();
 }

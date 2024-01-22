@@ -3,6 +3,7 @@
 #pragma once
 
 #include "pin.h"
+#include "rgb_manager.h"
 
 #define CONFIG_ALL_HW_PIN { \
   CONFIG_HW_PIN(E0, E1),  /* BUTTON 1  */ \
@@ -26,31 +27,15 @@
 
 #define TT_RATIO 2 // default 2:1 ratio
 
-#define RING_LIGHT_LEDS 24
-#define LIGHT_BAR_LEDS 16
-
 #define CONFIG_CHANGE_NOTIFY_TIME 1000
-
-// tentative names for LED ring modes
-enum ring_light_mode {
-  PLACEHOLDER1, // single colour
-  SPIN,
-  PLACEHOLDER2, // colour shift
-  PLACEHOLDER3, // static rainbow
-  PLACEHOLDER4, // reactive rainbow
-  REACT_TO_SCR,
-  PLACEHOLDER5, // breathing
-  HID,
-  COUNT
-};
-static_assert(sizeof(ring_light_mode) == sizeof(uint8_t));
 
 // Do not reorder these fields
 typedef struct {
   uint8_t version;
   uint8_t reverse_tt;
-  ring_light_mode tt_effect;
+  RgbManager::Turntable::Mode tt_effect;
   uint8_t tt_deadzone;
+  RgbManager::Bar::Mode bar_effect;
 } config;
 
 void config_init(config* self);
@@ -58,10 +43,12 @@ void toggle_reverse_tt(config* self);
 void cycle_tt_effects(config* self);
 void increase_deadzone(config* self);
 void decrease_deadzone(config* self);
+void cycle_bar_effects(config* self);
 
 // button combos
-#define NUM_OF_COMBOS 4
+#define NUM_OF_COMBOS 5
 #define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)
 #define TT_EFFECTS_COMBO (BUTTON_2 | BUTTON_8 | BUTTON_11)
 #define TT_DEADZONE_INCR_COMBO (BUTTON_3 | BUTTON_8 | BUTTON_11)
 #define TT_DEADZONE_DECR_COMBO (BUTTON_1 | BUTTON_8 | BUTTON_11)
+#define BAR_EFFECTS_COMBO (BUTTON_6 | BUTTON_8 | BUTTON_10)
