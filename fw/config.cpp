@@ -66,43 +66,27 @@ void toggle_reverse_tt(config* self) {
   self->reverse_tt ^= 1;
   eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, self->reverse_tt);
 
-  // Illuminate + as blue, - as red in two halves
-  int offset = self->reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
-  int blue_start = offset;
-  int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
-  int red_start = (12 + offset) % RING_LIGHT_LEDS;
-  int red_end = red_start + (RING_LIGHT_LEDS / 2);
-  for (int i = blue_start; i < blue_end; ++i) {
-    RgbManager::Turntable::leds[i] = CRGB::Blue;
-  }
-  for (int i = red_start; i < red_end; ++i) {
-    RgbManager::Turntable::leds[i] = CRGB::Red;
-  }
+  RgbManager::Turntable::reverse_tt(self->reverse_tt);
   timer_arm(&RgbManager::Turntable::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
 }
 
 void cycle_tt_effects(config* self) {
+  using namespace RgbManager::Turntable;
   do {
-    self->tt_effect = RgbManager::Turntable::Mode((int(self->tt_effect) + 1) %
-     RgbManager::Turntable::Mode::COUNT);
-  } while (self->tt_effect == RgbManager::Turntable::Mode::PLACEHOLDER1 ||
-           self->tt_effect == RgbManager::Turntable::Mode::PLACEHOLDER2 ||
-           self->tt_effect == RgbManager::Turntable::Mode::PLACEHOLDER3 ||
-           self->tt_effect == RgbManager::Turntable::Mode::PLACEHOLDER4 ||
-           self->tt_effect == RgbManager::Turntable::Mode::PLACEHOLDER5);
+    self->tt_effect = Mode((int(self->tt_effect) + 1) %
+     Mode::COUNT);
+  } while (self->tt_effect == Mode::PLACEHOLDER1 ||
+           self->tt_effect == Mode::PLACEHOLDER2 ||
+           self->tt_effect == Mode::PLACEHOLDER3 ||
+           self->tt_effect == Mode::PLACEHOLDER4 ||
+           self->tt_effect == Mode::PLACEHOLDER5);
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, self->tt_effect);
 
   RgbManager::Turntable::set_leds_off();
 }
 
 void display_tt_change(uint8_t deadzone, int range) {
-  int num_of_leds = deadzone * (RING_LIGHT_LEDS / range);
-  for (int i = 0; i < num_of_leds; ++i) {
-    RgbManager::Turntable::leds[i] = CRGB::Red;
-  }
-  for (int i = num_of_leds; i < RING_LIGHT_LEDS; ++i) {
-    RgbManager::Turntable::leds[i] = CRGB::Black;
-  }
+  RgbManager::Turntable::display_tt_change(deadzone, range);
   timer_arm(&RgbManager::Turntable::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
 }
 
@@ -133,12 +117,13 @@ void decrease_deadzone(config* self) {
 void cycle_bar_effects(config* self) {
   return; // Does nothing for now
 
+  using namespace RgbManager::Bar;
   do {
-    self->bar_effect = RgbManager::Bar::Mode((int(self->bar_effect) + 1) % RgbManager::Bar::Mode::COUNT);
-  } while (self->bar_effect == RgbManager::Bar::Mode::PLACEHOLDER1 ||
-           self->bar_effect == RgbManager::Bar::Mode::PLACEHOLDER2 ||
-           self->bar_effect == RgbManager::Bar::Mode::PLACEHOLDER3 ||
-           self->bar_effect == RgbManager::Bar::Mode::PLACEHOLDER4);
+    self->bar_effect = Mode((int(self->bar_effect) + 1) % Mode::COUNT);
+  } while (self->bar_effect == Mode::PLACEHOLDER1 ||
+           self->bar_effect == Mode::PLACEHOLDER2 ||
+           self->bar_effect == Mode::PLACEHOLDER3 ||
+           self->bar_effect == Mode::PLACEHOLDER4);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, self->bar_effect);
 
   RgbManager::Bar::set_leds_off();

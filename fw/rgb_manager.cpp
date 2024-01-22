@@ -1,6 +1,44 @@
 #include "rgb_manager.h"
 
+// Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
+#define BAR_DATA_PIN 14 // C4
+#define TT_DATA_PIN 15  // C5
+
 namespace RgbManager {
+  namespace Bar {
+    timer combo_timer;
+    CRGB leds[LIGHT_BAR_LEDS];
+
+    void init() {
+      static bool inited = false;
+      if (!inited) {
+        inited = true;
+
+        timer_init(&combo_timer);
+
+        FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS);
+      }
+    }
+
+    void set_leds(rgb_light lights) {
+      fill_solid(leds, LIGHT_BAR_LEDS,
+                 CRGB(lights.r, lights.g, lights.b));
+    }
+
+    void update(rgb_light lights,
+                Mode mode) {
+      if (!timer_is_active(&combo_timer)) {
+        switch(mode) {
+          case HID:
+            set_leds(lights);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
   namespace Turntable {
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS];
@@ -18,8 +56,7 @@ namespace RgbManager {
         timer_arm(&spin_timer, 50);
         timer_init(&combo_timer);
 
-        // Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
-        FastLED.addLeds<NEOPIXEL, 15>(leds, RING_LIGHT_LEDS);
+        FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS);
       } 
     }
 
@@ -69,6 +106,31 @@ namespace RgbManager {
       }
     }
 
+    void reverse_tt(uint8_t reverse_tt) {
+      // Illuminate + as blue, - as red in two halves
+      int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
+      int blue_start = offset;
+      int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
+      int red_start = (12 + offset) % RING_LIGHT_LEDS;
+      int red_end = red_start + (RING_LIGHT_LEDS / 2);
+      for (int i = blue_start; i < blue_end; ++i) {
+        leds[i] = CRGB::Blue;
+      }
+      for (int i = red_start; i < red_end; ++i) {
+        leds[i] = CRGB::Red;
+      }
+    }
+
+    void display_tt_change(uint8_t deadzone, int range) {
+      int num_of_leds = deadzone * (RING_LIGHT_LEDS / range);
+      for (int i = 0; i < num_of_leds; ++i) {
+        leds[i] = CRGB::Red;
+      }
+      for (int i = num_of_leds; i < RING_LIGHT_LEDS; ++i) {
+        leds[i] = CRGB::Black;
+      }
+    }
+
     // tt +1 is counter-clockwise, -1 is clockwise
     void update(int8_t tt_report,
                 rgb_light lights,
@@ -82,41 +144,6 @@ namespace RgbManager {
           case REACT_TO_SCR:
             react_to_scr(tt_report);
             break;
-          case HID:
-            set_leds(lights);
-            break;
-          default:
-            break;
-        }
-      }
-    }
-  }
-
-  namespace Bar {
-    timer combo_timer;
-    CRGB leds[LIGHT_BAR_LEDS];
-
-    void init() {
-      static bool inited = false;
-      if (!inited) {
-        inited = true;
-
-        timer_init(&combo_timer);
-
-        // Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
-        FastLED.addLeds<NEOPIXEL, 14>(leds, LIGHT_BAR_LEDS);
-      }
-    }
-
-    void set_leds(rgb_light lights) {
-      fill_solid(leds, LIGHT_BAR_LEDS,
-                 CRGB(lights.r, lights.g, lights.b));
-    }
-
-    void update(rgb_light lights,
-                Mode mode) {
-      if (!timer_is_active(&combo_timer)) {
-        switch(mode) {
           case HID:
             set_leds(lights);
             break;
