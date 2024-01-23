@@ -5,40 +5,6 @@
 #define TT_DATA_PIN 15  // C5
 
 namespace RgbManager {
-  namespace Bar {
-    timer combo_timer;
-    CRGB leds[LIGHT_BAR_LEDS];
-
-    void init() {
-      static bool inited = false;
-      if (!inited) {
-        inited = true;
-
-        timer_init(&combo_timer);
-
-        FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS);
-      }
-    }
-
-    void set_leds(rgb_light lights) {
-      fill_solid(leds, LIGHT_BAR_LEDS,
-                 CRGB(lights.r, lights.g, lights.b));
-    }
-
-    void update(rgb_light lights,
-                Mode mode) {
-      if (!timer_is_active(&combo_timer)) {
-        switch(mode) {
-          case HID:
-            set_leds(lights);
-            break;
-          default:
-            break;
-        }
-      }
-    }
-  }
-
   namespace Turntable {
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS];
@@ -144,6 +110,40 @@ namespace RgbManager {
           case REACT_TO_SCR:
             react_to_scr(tt_report);
             break;
+          case HID:
+            set_leds(lights);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  namespace Bar {
+    timer combo_timer;
+    CRGB leds[LIGHT_BAR_LEDS];
+
+    void init() {
+      static bool inited = false;
+      if (!inited) {
+        inited = true;
+
+        timer_init(&combo_timer);
+
+        FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS);
+      }
+    }
+
+    void set_leds(rgb_light lights) {
+      fill_solid(leds, LIGHT_BAR_LEDS,
+                 CRGB(lights.r, lights.g, lights.b));
+    }
+
+    void update(rgb_light lights,
+                Mode mode) {
+      if (!timer_is_active(&combo_timer)) {
+        switch(mode) {
           case HID:
             set_leds(lights);
             break;
