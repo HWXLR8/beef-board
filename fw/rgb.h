@@ -11,4 +11,5 @@ typedef struct {
 typedef struct {
     uint16_t buttons;
     rgb_light tt_lights;
+    rgb_light bar_lights;
 } hid_lights;

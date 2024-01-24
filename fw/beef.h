@@ -38,8 +38,7 @@ void process_button(volatile uint8_t* PIN,
                     uint8_t input_pin);
 void process_combos(config* current_config,
                     timer* combo_timer,
-                    timer* combo_lights_timer,
-                    timer* combo_tt_led_timer);
+                    timer* combo_lights_timer);
 void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,

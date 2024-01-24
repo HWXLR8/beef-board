@@ -1,10 +1,11 @@
-#define CONFIG_VERSION 2
+#define CONFIG_VERSION 3
 
 #define CONFIG_BASE_ADDR (uint8_t*)2
 #define CONFIG_VERSION_ADDR CONFIG_BASE_ADDR
-#define CONFIG_REVERSE_TT_ADDR (CONFIG_VERSION_ADDR + sizeof(uint8_t))
-#define CONFIG_TT_EFFECT_ADDR (CONFIG_REVERSE_TT_ADDR + sizeof(uint8_t))
-#define CONFIG_TT_DEADZONE_ADDR (CONFIG_TT_EFFECT_ADDR + sizeof(ring_light_mode))
+#define CONFIG_REVERSE_TT_ADDR (CONFIG_VERSION_ADDR + sizeof(config::version))
+#define CONFIG_TT_EFFECT_ADDR (CONFIG_REVERSE_TT_ADDR + sizeof(config::reverse_tt))
+#define CONFIG_TT_DEADZONE_ADDR (CONFIG_TT_EFFECT_ADDR + sizeof(config::tt_effect))
+#define CONFIG_BAR_EFFECT_ADDR (CONFIG_TT_DEADZONE_ADDR + sizeof(config::tt_deadzone))
 
 #define MAGIC 0xBEEF
 
@@ -14,7 +15,7 @@
 
 #include "analog_turntable.h"
 #include "config.h"
-#include "tt_rgb_manager.h"
+#include "rgb_manager.h"
 
 bool update_config(config* self);
 
@@ -30,8 +31,9 @@ void config_init(config* self) {
 
     self->version = CONFIG_VERSION;
     self->reverse_tt = 0;
-    self->tt_effect = SPIN;
+    self->tt_effect = RgbManager::Turntable::SPIN;
     self->tt_deadzone = 4;
+    self->bar_effect = RgbManager::Bar::HID;
   }
 
   update = update_config(self);
@@ -46,10 +48,13 @@ bool update_config(config* self) {
 
   switch (self->version) {
   case 0:
-    self->tt_effect = SPIN;
+    self->tt_effect = RgbManager::Turntable::SPIN;
     self->version++;
   case 1:
     self->tt_deadzone = 4;
+    self->version++;
+  case 2:
+    self->bar_effect = RgbManager::Bar::HID;
     self->version++;
     update = true;
   }
@@ -61,43 +66,28 @@ void toggle_reverse_tt(config* self) {
   self->reverse_tt ^= 1;
   eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, self->reverse_tt);
 
-  // Illuminate + as blue, - as red in two halves
-  int offset = self->reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
-  int blue_start = offset;
-  int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
-  int red_start = (12 + offset) % RING_LIGHT_LEDS;
-  int red_end = red_start + (RING_LIGHT_LEDS / 2);
-  for (int i = blue_start; i < blue_end; ++i) {
-    tt_leds[i] = CRGB::Blue;
-  }
-  for (int i = red_start; i < red_end; ++i) {
-    tt_leds[i] = CRGB::Red;
-  }
-  timer_arm(&combo_tt_led_timer, CONFIG_CHANGE_NOTIFY_TIME);
+  RgbManager::Turntable::reverse_tt(self->reverse_tt);
+  timer_arm(&RgbManager::Turntable::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
 }
 
 void cycle_tt_effects(config* self) {
+  using namespace RgbManager::Turntable;
   do {
-    self->tt_effect = ring_light_mode((int(self->tt_effect) + 1) % ring_light_mode::COUNT);
-  } while (self->tt_effect == ring_light_mode::PLACEHOLDER1 ||
-           self->tt_effect == ring_light_mode::PLACEHOLDER2 ||
-           self->tt_effect == ring_light_mode::PLACEHOLDER3 ||
-           self->tt_effect == ring_light_mode::PLACEHOLDER4 ||
-           self->tt_effect == ring_light_mode::PLACEHOLDER5);
+    self->tt_effect = Mode((int(self->tt_effect) + 1) %
+     Mode::COUNT);
+  } while (self->tt_effect == Mode::PLACEHOLDER1 ||
+           self->tt_effect == Mode::PLACEHOLDER2 ||
+           self->tt_effect == Mode::PLACEHOLDER3 ||
+           self->tt_effect == Mode::PLACEHOLDER4 ||
+           self->tt_effect == Mode::PLACEHOLDER5);
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, self->tt_effect);
 
-  set_tt_leds_off();
+  RgbManager::Turntable::set_leds_off();
 }
 
 void display_tt_change(uint8_t deadzone, int range) {
-  int num_of_leds = deadzone * (RING_LIGHT_LEDS / range);
-  for (int i = 0; i < num_of_leds; ++i) {
-    tt_leds[i] = CRGB::Red;
-  }
-  for (int i = num_of_leds; i < RING_LIGHT_LEDS; ++i) {
-    tt_leds[i] = CRGB::Black;
-  }
-  timer_arm(&combo_tt_led_timer, CONFIG_CHANGE_NOTIFY_TIME);
+  RgbManager::Turntable::display_tt_change(deadzone, range);
+  timer_arm(&RgbManager::Turntable::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
 }
 
 #define DEADZONE_MAX 6
@@ -122,4 +112,19 @@ void decrease_deadzone(config* self) {
   tt1.deadzone = self->tt_deadzone;
 
   display_tt_change(self->tt_deadzone, DEADZONE_MAX);
+}
+
+void cycle_bar_effects(config* self) {
+  return; // Does nothing for now
+
+  using namespace RgbManager::Bar;
+  do {
+    self->bar_effect = Mode((int(self->bar_effect) + 1) % Mode::COUNT);
+  } while (self->bar_effect == Mode::PLACEHOLDER1 ||
+           self->bar_effect == Mode::PLACEHOLDER2 ||
+           self->bar_effect == Mode::PLACEHOLDER3 ||
+           self->bar_effect == Mode::PLACEHOLDER4);
+  eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, self->bar_effect);
+
+  RgbManager::Bar::set_leds_off();
 }
