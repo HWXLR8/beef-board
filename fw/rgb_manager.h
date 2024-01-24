@@ -41,7 +41,6 @@ namespace RgbManager {
   }
 
   namespace Bar {
-    extern timer combo_timer;
     extern CRGB leds[LIGHT_BAR_LEDS];
 
     enum Mode {

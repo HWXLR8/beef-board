@@ -121,15 +121,12 @@ namespace RgbManager {
   }
 
   namespace Bar {
-    timer combo_timer;
     CRGB leds[LIGHT_BAR_LEDS];
 
     void init() {
       static bool inited = false;
       if (!inited) {
         inited = true;
-
-        timer_init(&combo_timer);
 
         FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS);
       }
@@ -142,14 +139,12 @@ namespace RgbManager {
 
     void update(rgb_light lights,
                 Mode mode) {
-      if (!timer_is_active(&combo_timer)) {
-        switch(mode) {
-          case HID:
-            set_leds(lights);
-            break;
-          default:
-            break;
-        }
+      switch(mode) {
+        case HID:
+          set_leds(lights);
+          break;
+        default:
+          break;
       }
     }
   }

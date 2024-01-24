@@ -318,7 +318,6 @@ void process_combos(config* current_config,
     timer_init(combo_timer);
     timer_init(combo_lights_timer);
     timer_init(&RgbManager::Turntable::combo_timer);
-    timer_init(&RgbManager::Bar::combo_timer);
   }
 }
 
