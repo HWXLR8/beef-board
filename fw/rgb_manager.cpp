@@ -4,6 +4,8 @@
 #define BAR_DATA_PIN 14 // C4
 #define TT_DATA_PIN 15  // C5
 
+#define SPIN_TIMER 50
+
 namespace RgbManager {
   namespace Turntable {
     timer combo_timer;
@@ -19,7 +21,7 @@ namespace RgbManager {
         timer_init(&scr_timer);
 
         timer_init(&spin_timer);
-        timer_arm(&spin_timer, 50);
+        timer_arm(&spin_timer, SPIN_TIMER);
         timer_init(&combo_timer);
 
         FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS);
@@ -43,6 +45,19 @@ namespace RgbManager {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
     }
 
+    // Render two spinning turquoise LEDs
+    void spin(void) {
+      static uint8_t spin_counter = 0;
+      if (timer_check_if_expired_reset(&spin_timer)) {
+        spin_counter = (spin_counter + 1) % (RING_LIGHT_LEDS / 2);
+        fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
+        leds[spin_counter] = CRGB::Turquoise;
+        leds[spin_counter+12] = CRGB::Turquoise;
+
+        timer_arm(&spin_timer, SPIN_TIMER);
+      }
+    }
+
     void react_to_scr(int8_t tt_report) {
       if (tt_report == 1) {
         set_leds_blue();
@@ -56,24 +71,8 @@ namespace RgbManager {
       }
     }
 
-    void spin(void) {
-      static uint8_t spin_counter = 0;
-      if (timer_check_if_expired_reset(&spin_timer)) {
-        spin_counter = (spin_counter + 1) % RING_LIGHT_LEDS;
-        for (int i = 0; i < RING_LIGHT_LEDS; i++) {
-          if (i == spin_counter) {
-            leds[i] = CRGB::Blue;
-          } else {
-            leds[i] = CRGB::Black;
-          }
-        }
-
-        timer_arm(&spin_timer, 50);
-      }
-    }
-
+    // Illuminate + as blue, - as red in two halves
     void reverse_tt(uint8_t reverse_tt) {
-      // Illuminate + as blue, - as red in two halves
       int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
       int blue_start = offset;
       int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
