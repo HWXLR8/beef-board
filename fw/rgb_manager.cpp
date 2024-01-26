@@ -50,7 +50,7 @@ namespace RgbManager {
       static uint8_t spin_counter = 0;
       if (timer_check_if_expired_reset(&spin_timer)) {
         spin_counter = (spin_counter + 1) % (RING_LIGHT_LEDS / 2);
-        fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
+        set_leds_off();
         leds[spin_counter] = CRGB::Turquoise;
         leds[spin_counter+12] = CRGB::Turquoise;
 
