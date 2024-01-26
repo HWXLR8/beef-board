@@ -377,9 +377,9 @@ void update_lighting(int8_t tt1_report,
                                   current_config.tt_effect);
     RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
                             current_config.bar_effect);
-  }
 
-  FastLED.show();
+    FastLED.show();
+  }
 }
 
 void update_button_lighting(uint16_t led_state,

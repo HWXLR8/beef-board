@@ -139,6 +139,6 @@ void toggle_disable_led(config* self) {
 
   eeprom_write_byte(CONFIG_DISABLE_LED_ADDR, self->disable_led);
 
-  RgbManager::Turntable::set_leds_off();
-  RgbManager::Bar::set_leds_off();
+  if (self->disable_led)
+    FastLED.clear(true);
 }
