@@ -23,18 +23,16 @@ namespace RgbManager {
       REACT_TO_SCR,
       PLACEHOLDER5, // breathing
       HID,
+      DISABLE,
       COUNT
     };
     static_assert(sizeof(Mode) == sizeof(uint8_t));
 
     void init();
-
     void set_leds(rgb_light lights);
     void set_leds_off(void);
-
     void reverse_tt(uint8_t reverse_tt);
     void display_tt_change(uint8_t deadzone, int range);
-
     void update(int8_t tt_report,
                 rgb_light lights,
                 Mode mode);
@@ -49,15 +47,14 @@ namespace RgbManager {
       PLACEHOLDER3, // audio spectrum
       PLACEHOLDER4, // reactive p2
       HID,
+      DISABLE,
       COUNT
     };
     static_assert(sizeof(Mode) == sizeof(uint8_t));
 
     void init();
-
     void set_leds(rgb_light lights);
     void set_leds_off(void);
-
     void update(rgb_light lights,
                 Mode mode);
   }

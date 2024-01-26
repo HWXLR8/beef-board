@@ -1,4 +1,4 @@
-#define CONFIG_VERSION 3
+#define CONFIG_VERSION 4
 
 #define CONFIG_BASE_ADDR (uint8_t*)2
 #define CONFIG_VERSION_ADDR CONFIG_BASE_ADDR
@@ -6,6 +6,7 @@
 #define CONFIG_TT_EFFECT_ADDR (CONFIG_REVERSE_TT_ADDR + sizeof(config::reverse_tt))
 #define CONFIG_TT_DEADZONE_ADDR (CONFIG_TT_EFFECT_ADDR + sizeof(config::tt_effect))
 #define CONFIG_BAR_EFFECT_ADDR (CONFIG_TT_DEADZONE_ADDR + sizeof(config::tt_deadzone))
+#define CONFIG_DISABLE_LED_ADDR (CONFIG_BAR_EFFECT_ADDR + sizeof(config::bar_effect))
 
 #define MAGIC 0xBEEF
 
@@ -15,32 +16,15 @@
 
 #include "analog_turntable.h"
 #include "config.h"
-#include "rgb_manager.h"
 
-bool update_config(config* self);
-
-void config_init(config* self) {
-  eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
-
-  bool update = false;
-  uint16_t magic = eeprom_read_word(0);
-  if (magic != MAGIC) {
-    // initialize config with default values
-    update = true;
-    eeprom_write_word(0, MAGIC);
-
-    self->version = CONFIG_VERSION;
-    self->reverse_tt = 0;
-    self->tt_effect = RgbManager::Turntable::SPIN;
-    self->tt_deadzone = 4;
-    self->bar_effect = RgbManager::Bar::HID;
-  }
-
-  update = update_config(self);
-
-  if (update) {
-    eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
-  }
+// initialize config with default values
+void init_config(config* self) {
+  self->version = CONFIG_VERSION;
+  self->reverse_tt = 0;
+  self->tt_effect = RgbManager::Turntable::SPIN;
+  self->tt_deadzone = 4;
+  self->bar_effect = RgbManager::Bar::HID;
+  self->disable_led = 0;
 }
 
 bool update_config(config* self) {
@@ -50,16 +34,40 @@ bool update_config(config* self) {
   case 0:
     self->tt_effect = RgbManager::Turntable::SPIN;
     self->version++;
+    update = true;
   case 1:
     self->tt_deadzone = 4;
     self->version++;
+    update = true;
   case 2:
     self->bar_effect = RgbManager::Bar::HID;
+    self->version++;
+    update = true;
+  case 3:
+    self->disable_led = 0;
     self->version++;
     update = true;
   }
 
   return update;
+}
+
+void config_init(config* self) {
+  eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
+
+  bool update = false;
+  uint16_t magic = eeprom_read_word(0);
+  if (magic != MAGIC) {
+    update = true;
+    eeprom_write_word(0, MAGIC);
+    init_config(self);
+  } else {
+    update = update_config(self);
+  }
+
+  if (update) {
+    eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
+  }
 }
 
 void toggle_reverse_tt(config* self) {
@@ -73,8 +81,7 @@ void toggle_reverse_tt(config* self) {
 void cycle_tt_effects(config* self) {
   using namespace RgbManager::Turntable;
   do {
-    self->tt_effect = Mode((int(self->tt_effect) + 1) %
-     Mode::COUNT);
+    self->tt_effect = Mode((int(self->tt_effect) + 1) % Mode::COUNT);
   } while (self->tt_effect == Mode::PLACEHOLDER1 ||
            self->tt_effect == Mode::PLACEHOLDER2 ||
            self->tt_effect == Mode::PLACEHOLDER3 ||
@@ -115,8 +122,6 @@ void decrease_deadzone(config* self) {
 }
 
 void cycle_bar_effects(config* self) {
-  return; // Does nothing for now
-
   using namespace RgbManager::Bar;
   do {
     self->bar_effect = Mode((int(self->bar_effect) + 1) % Mode::COUNT);
@@ -127,4 +132,13 @@ void cycle_bar_effects(config* self) {
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, self->bar_effect);
 
   RgbManager::Bar::set_leds_off();
+}
+
+void toggle_disable_led(config* self) {
+  self->disable_led ^= 1;
+
+  eeprom_write_byte(CONFIG_DISABLE_LED_ADDR, self->disable_led);
+
+  if (self->disable_led)
+    FastLED.clear(true);
 }

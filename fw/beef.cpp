@@ -76,6 +76,10 @@ combo button_combos[NUM_OF_COMBOS] = {
     button_combo: BAR_EFFECTS_COMBO,
     config_set: cycle_bar_effects
   },
+  {
+    button_combo: DISABLE_LED_COMBO,
+    config_set: toggle_disable_led
+  },
 };
 
 ISR(TIMER1_COMPA_vect) {
@@ -358,23 +362,33 @@ void update_lighting(int8_t tt1_report,
                      timer* combo_lights_timer,
                      config current_config) {
   if (reactive_led) {
-    update_button_lighting(button_state, combo_lights_timer);
+    update_button_lighting(button_state,
+			   combo_lights_timer,
+			   current_config);
   } else {
     update_button_lighting(led_state_from_hid_report.buttons,
-                           combo_lights_timer);
+                           combo_lights_timer,
+			   current_config);
   }
 
-  RgbManager::Turntable::update(tt1_report,
-                                led_state_from_hid_report.tt_lights,
-                                current_config.tt_effect);
-  RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                          current_config.bar_effect);
+  if (!current_config.disable_led) {
+    RgbManager::Turntable::update(tt1_report,
+                                  led_state_from_hid_report.tt_lights,
+                                  current_config.tt_effect);
+    RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
+                            current_config.bar_effect);
 
-  FastLED.show();
+    FastLED.show();
+  }
 }
 
 void update_button_lighting(uint16_t led_state,
-                            timer* combo_lights_timer) {
+                            timer* combo_lights_timer,
+			    config current_config) {
+  if (current_config.disable_led) {
+    led_state = 0;
+  }
+
   if (timer_is_active(combo_lights_timer)) {
     // Temporarily black out button LEDs to notify a mode change
     led_state = 0;
