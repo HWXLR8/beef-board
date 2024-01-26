@@ -371,11 +371,13 @@ void update_lighting(int8_t tt1_report,
 			   current_config);
   }
 
-  RgbManager::Turntable::update(tt1_report,
-                                led_state_from_hid_report.tt_lights,
-                                current_config.tt_effect);
-  RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                          current_config.bar_effect);
+  if (!current_config.disable_led) {
+    RgbManager::Turntable::update(tt1_report,
+                                  led_state_from_hid_report.tt_lights,
+                                  current_config.tt_effect);
+    RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
+                            current_config.bar_effect);
+  }
 
   FastLED.show();
 }

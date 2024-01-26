@@ -47,6 +47,7 @@ namespace RgbManager {
       PLACEHOLDER3, // audio spectrum
       PLACEHOLDER4, // reactive p2
       HID,
+      DISABLE,
       COUNT
     };
     static_assert(sizeof(Mode) == sizeof(uint8_t));

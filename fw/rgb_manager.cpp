@@ -2,14 +2,14 @@
 
 // Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
 #define BAR_DATA_PIN 14 // C4
-#define TT_DATA_PIN 15  // C5
+#define TT_DATA_PIN  15 // C5
 
 #define SPIN_TIMER 50
 
 namespace RgbManager {
   namespace Turntable {
     timer combo_timer;
-    CRGB leds[RING_LIGHT_LEDS];
+    CRGB leds[RING_LIGHT_LEDS] = {0};
     timer scr_timer;
     timer spin_timer;
 
@@ -112,6 +112,9 @@ namespace RgbManager {
           case HID:
             set_leds(lights);
             break;
+          case DISABLE:
+            set_leds_off();
+            break;
           default:
             break;
         }
@@ -120,7 +123,7 @@ namespace RgbManager {
   }
 
   namespace Bar {
-    CRGB leds[LIGHT_BAR_LEDS];
+    CRGB leds[LIGHT_BAR_LEDS] = {0};
 
     void init() {
       static bool inited = false;
@@ -136,11 +139,18 @@ namespace RgbManager {
                  CRGB(lights.r, lights.g, lights.b));
     }
 
+    void set_leds_off(void) {
+      fill_solid(leds, LIGHT_BAR_LEDS, CRGB::Black);
+    }
+
     void update(rgb_light lights,
                 Mode mode) {
       switch(mode) {
         case HID:
           set_leds(lights);
+          break;
+        case DISABLE:
+          set_leds_off();
           break;
         default:
           break;

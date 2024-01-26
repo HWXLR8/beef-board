@@ -6,8 +6,7 @@
 #define CONFIG_TT_EFFECT_ADDR (CONFIG_REVERSE_TT_ADDR + sizeof(config::reverse_tt))
 #define CONFIG_TT_DEADZONE_ADDR (CONFIG_TT_EFFECT_ADDR + sizeof(config::tt_effect))
 #define CONFIG_BAR_EFFECT_ADDR (CONFIG_TT_DEADZONE_ADDR + sizeof(config::tt_deadzone))
-#define CONFIG_DISABLE_LED_ADDR (CONFIG_BAR_EFFECT_ADDR + sizeof(config::disable_led))
-#define CONFIG_PREV_TT_EFFECT_ADDR (CONFIG_DISABLE_LED_ADDR + sizeof(config::disable_led))
+#define CONFIG_DISABLE_LED_ADDR (CONFIG_BAR_EFFECT_ADDR + sizeof(config::bar_effect))
 
 #define MAGIC 0xBEEF
 
@@ -17,7 +16,16 @@
 
 #include "analog_turntable.h"
 #include "config.h"
-#include "rgb_manager.h"
+
+// initialize config with default values
+void init_config(config* self) {
+  self->version = CONFIG_VERSION;
+  self->reverse_tt = 0;
+  self->tt_effect = RgbManager::Turntable::SPIN;
+  self->tt_deadzone = 4;
+  self->bar_effect = RgbManager::Bar::HID;
+  self->disable_led = 0;
+}
 
 bool update_config(config* self) {
   bool update = false;
@@ -26,9 +34,11 @@ bool update_config(config* self) {
   case 0:
     self->tt_effect = RgbManager::Turntable::SPIN;
     self->version++;
+    update = true;
   case 1:
     self->tt_deadzone = 4;
     self->version++;
+    update = true;
   case 2:
     self->bar_effect = RgbManager::Bar::HID;
     self->version++;
@@ -48,19 +58,12 @@ void config_init(config* self) {
   bool update = false;
   uint16_t magic = eeprom_read_word(0);
   if (magic != MAGIC) {
-    // initialize config with default values
     update = true;
     eeprom_write_word(0, MAGIC);
-
-    self->version = CONFIG_VERSION;
-    self->reverse_tt = 0;
-    self->tt_effect = RgbManager::Turntable::SPIN;
-    self->tt_deadzone = 4;
-    self->bar_effect = RgbManager::Bar::HID;
-    self->disable_led = 0;
+    init_config(self);
+  } else {
+    update = update_config(self);
   }
-
-  update = update_config(self);
 
   if (update) {
     eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
@@ -78,8 +81,7 @@ void toggle_reverse_tt(config* self) {
 void cycle_tt_effects(config* self) {
   using namespace RgbManager::Turntable;
   do {
-    self->tt_effect = Mode((int(self->tt_effect) + 1) %
-     Mode::COUNT);
+    self->tt_effect = Mode((int(self->tt_effect) + 1) % Mode::COUNT);
   } while (self->tt_effect == Mode::PLACEHOLDER1 ||
            self->tt_effect == Mode::PLACEHOLDER2 ||
            self->tt_effect == Mode::PLACEHOLDER3 ||
@@ -120,8 +122,6 @@ void decrease_deadzone(config* self) {
 }
 
 void cycle_bar_effects(config* self) {
-  return; // Does nothing for now
-
   using namespace RgbManager::Bar;
   do {
     self->bar_effect = Mode((int(self->bar_effect) + 1) % Mode::COUNT);
@@ -137,14 +137,8 @@ void cycle_bar_effects(config* self) {
 void toggle_disable_led(config* self) {
   self->disable_led ^= 1;
 
-  if (self->tt_effect == RgbManager::Turntable::Mode::DISABLE) {
-    // restore the TT effect
-    self->tt_effect = (RgbManager::Turntable::Mode)eeprom_read_byte(CONFIG_PREV_TT_EFFECT_ADDR);
-  } else {
-    // store the TT effect in EEPROM before disabling
-    eeprom_write_byte(CONFIG_PREV_TT_EFFECT_ADDR, self->tt_effect);
-    self->tt_effect = RgbManager::Turntable::Mode::DISABLE;
-  }
-  eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, self->tt_effect);
   eeprom_write_byte(CONFIG_DISABLE_LED_ADDR, self->disable_led);
+
+  RgbManager::Turntable::set_leds_off();
+  RgbManager::Bar::set_leds_off();
 }
