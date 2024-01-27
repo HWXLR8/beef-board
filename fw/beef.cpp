@@ -95,8 +95,11 @@ int main(void) {
 
   timer combo_timer;
   timer combo_lights_timer;
+  timer update_lighting_timer;
   timer_init(&combo_timer);
   timer_init(&combo_lights_timer);
+  timer_init(&update_lighting_timer);
+  timer_arm(&update_lighting_timer, 25);
 
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
@@ -147,11 +150,15 @@ int main(void) {
                &tt_x.prev,
                &tt_x.tt_position,
                current_config);
-    // process_tt(tt_y.PIN, tt_y.a_pin, tt_y.b_pin, &tt_y.prev, &tt_y.tt_position);
 
-    update_lighting(tt1_report,
-                    &combo_lights_timer,
-                    current_config);
+    // update lighting on a timer to reduct the number of
+    // computationally expensive calls to FastLED.show();
+    if (timer_check_if_expired_reset(&update_lighting_timer)) {
+      update_lighting(tt1_report,
+		      &combo_lights_timer,
+		      current_config);
+      timer_arm(&update_lighting_timer, 25);
+    }
   }
 }
 
