@@ -151,7 +151,7 @@ int main(void) {
                &tt_x.tt_position,
                current_config);
 
-    // update lighting on a timer to reduct the number of
+    // update lighting on a timer to reduce the number of
     // computationally expensive calls to FastLED.show();
     if (timer_check_if_expired_reset(&update_lighting_timer)) {
       update_lighting(tt1_report,
