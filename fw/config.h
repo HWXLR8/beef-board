@@ -25,8 +25,6 @@
 
 #define BUTTONS 11
 
-#define TT_RATIO 2 // default 2:1 ratio
-
 #define CONFIG_CHANGE_NOTIFY_TIME 1000
 
 // Do not reorder these fields
