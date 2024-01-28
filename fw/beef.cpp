@@ -156,8 +156,8 @@ int main(void) {
     // computationally expensive calls to FastLED.show();
     if (timer_check_if_expired_reset(&update_led_timer)) {
       update_lighting(tt1_report,
-		      &combo_lights_timer,
-		      current_config);
+                      &combo_lights_timer,
+                      current_config);
       timer_arm(&update_led_timer, update_led_timer_time);
     }
   }
@@ -371,12 +371,12 @@ void update_lighting(int8_t tt1_report,
                      config current_config) {
   if (reactive_led) {
     update_button_lighting(button_state,
-			   combo_lights_timer,
-			   current_config);
+                           combo_lights_timer,
+                           current_config);
   } else {
     update_button_lighting(led_state_from_hid_report.buttons,
                            combo_lights_timer,
-			   current_config);
+                           current_config);
   }
 
   if (!current_config.disable_led) {
