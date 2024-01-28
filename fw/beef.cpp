@@ -95,11 +95,12 @@ int main(void) {
 
   timer combo_timer;
   timer combo_lights_timer;
-  timer update_lighting_timer;
+  timer update_led_timer;
   timer_init(&combo_timer);
   timer_init(&combo_lights_timer);
-  timer_init(&update_lighting_timer);
-  timer_arm(&update_lighting_timer, 25);
+  timer_init(&update_led_timer);
+  int update_led_timer_time = 1000 / BEEF_LED_REFRESH;
+  timer_arm(&update_led_timer, update_led_timer_time);
 
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
@@ -153,11 +154,11 @@ int main(void) {
 
     // update lighting on a timer to reduce the number of
     // computationally expensive calls to FastLED.show();
-    if (timer_check_if_expired_reset(&update_lighting_timer)) {
+    if (timer_check_if_expired_reset(&update_led_timer)) {
       update_lighting(tt1_report,
 		      &combo_lights_timer,
 		      current_config);
-      timer_arm(&update_lighting_timer, 25);
+      timer_arm(&update_led_timer, update_led_timer_time);
     }
   }
 }
@@ -255,7 +256,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          uint16_t* const ReportSize) {
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
-  JoystickReport->X = tt_x.tt_position / TT_RATIO;
+  JoystickReport->X = tt_x.tt_position / BEEF_TT_RATIO;
   // JoystickReport->Y = tt_y.tt_position;
   JoystickReport->Button = button_state;
 
@@ -361,7 +362,7 @@ void process_tt(volatile uint8_t* PIN,
              (*prev == 3 && curr == 2)) {
     *tt_position += direction;
   }
-  *tt_position %= 256 * TT_RATIO;
+  *tt_position %= 256 * BEEF_TT_RATIO;
   *prev = curr;
 }
 

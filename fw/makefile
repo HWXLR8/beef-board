@@ -6,12 +6,12 @@ ARCH = AVR8
 BOARD = BOARD_NONE
 F_CPU = 16000000
 F_USB = $(F_CPU)
-OPTIMIZATION = s
+OPTIMIZATION = 2
 TARGET = beef
 FASTLED_SRC = FastLED/src
 SRC = $(wildcard *.c) $(wildcard *.cpp) $(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/lib8tion.cpp $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH = LUFA
-CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -include fastled_shim.h -DFASTLED_NO_PINMAP
+CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -include fastled_shim.h -DFASTLED_NO_PINMAP -DBEEF_LED_REFRESH=40 -DBEEF_TT_RATIO=2
 LD_FLAGS =
 
 # Default target
@@ -32,7 +32,7 @@ include $(DMBS_PATH)/hid.mk
 include $(DMBS_PATH)/avrdude.mk
 include $(DMBS_PATH)/atprogram.mk
 
-.PHONY: flash
+.PHONY: dfu
 dfu: all
 	sudo avrdude -c flip1 -p usb1286 -U flash:w:$(TARGET).hex
 
