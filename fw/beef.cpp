@@ -95,12 +95,8 @@ int main(void) {
 
   timer combo_timer;
   timer combo_lights_timer;
-  timer update_led_timer;
   timer_init(&combo_timer);
   timer_init(&combo_lights_timer);
-  timer_init(&update_led_timer);
-  int update_led_timer_time = 1000 / BEEF_LED_REFRESH;
-  timer_arm(&update_led_timer, update_led_timer_time);
 
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
@@ -152,14 +148,9 @@ int main(void) {
                &tt_x.tt_position,
                current_config);
 
-    // update lighting on a timer to reduce the number of
-    // computationally expensive calls to FastLED.show();
-    if (timer_check_if_expired_reset(&update_led_timer)) {
-      update_lighting(tt1_report,
-                      &combo_lights_timer,
-                      current_config);
-      timer_arm(&update_led_timer, update_led_timer_time);
-    }
+    update_lighting(tt1_report,
+                    &combo_lights_timer,
+                    current_config);
   }
 }
 
@@ -380,13 +371,17 @@ void update_lighting(int8_t tt1_report,
   }
 
   if (!current_config.disable_led) {
-    RgbManager::Turntable::update(tt1_report,
-                                  led_state_from_hid_report.tt_lights,
-                                  current_config.tt_effect);
-    RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                            current_config.bar_effect);
+    // update lighting on a timer to reduce the number of
+    // computationally expensive calls to FastLED.show();
+    EVERY_N_MILLIS(1000 / BEEF_LED_REFRESH) {
+      RgbManager::Turntable::update(tt1_report,
+                                    led_state_from_hid_report.tt_lights,
+                                    current_config.tt_effect);
+      RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
+                              current_config.bar_effect);
 
-    FastLED.show();
+      FastLED.show();
+    }
   }
 }
 
