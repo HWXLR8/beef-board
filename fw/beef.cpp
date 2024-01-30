@@ -5,6 +5,7 @@
 
 #include "analog_turntable.h"
 #include "beef.h"
+#include "fastled_shim.h"
 #include "rgb_manager.h"
 
 // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
@@ -248,7 +249,6 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
   USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
   JoystickReport->X = tt_x.tt_position / BEEF_TT_RATIO;
-  // JoystickReport->Y = tt_y.tt_position;
   JoystickReport->Button = button_state;
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
@@ -372,22 +372,28 @@ void update_lighting(int8_t tt1_report,
 
   if (!current_config.disable_led) {
     // update lighting on a timer to reduce the number of
-    // computationally expensive calls to FastLED.show();
-    EVERY_N_MILLIS(1000 / BEEF_LED_REFRESH) {
-      RgbManager::Turntable::update(tt1_report,
-                                    led_state_from_hid_report.tt_lights,
-                                    current_config.tt_effect);
-      RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                              current_config.bar_effect);
+    // computationally expensive calls to FastLED.show()
+    // basically what FastLED does but without spin waiting
+    static uint32_t last_show = 0;
+    auto min_micros = 1000000 / BEEF_LED_REFRESH;
+    uint32_t now = micros();
+    if (now-last_show < min_micros)
+      return;
+    last_show = now;
 
-      FastLED.show();
-    }
+    RgbManager::Turntable::update(tt1_report,
+                                  led_state_from_hid_report.tt_lights,
+                                  current_config.tt_effect);
+    RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
+                            current_config.bar_effect);
+
+    FastLED.show();
   }
 }
 
 void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer,
-			    config current_config) {
+			                      config current_config) {
   if (current_config.disable_led) {
     led_state = 0;
   }
