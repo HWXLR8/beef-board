@@ -24,13 +24,6 @@ Various configuration options can be changed on-the-fly by holding a button comb
 | Disable LEDs | B4 + B8 + B11 |
 
 
-## Credits:
-* HW design by [HWXLR8](https://github.com/HWXLR8)
-* FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
-* HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
-* Implementation of the WS2812 protocol provided by [FastLED](https://github.com/FastLED/FastLED)
-* [kinetic-flow](https://github.com/kinetic-flow)'s [arcin-infinitas](https://github.com/kinetic-flow/arcin-infinitas) as a template for RGB HID functionality and the FastLED shims
-
 ## BOM
 ```
 ### PIN HEADERS ###
@@ -62,3 +55,11 @@ Various configuration options can be changed on-the-fly by holding a button comb
 2   JST XH 4pin
 2   USB-B (ED2983-ND)
 ```
+
+## Credits:
+* HW design by [HWXLR8](https://github.com/HWXLR8)
+* FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
+* HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
+* Implementation of the WS2812 protocol provided by [FastLED](https://github.com/FastLED/FastLED)
+* [kinetic-flow](https://github.com/kinetic-flow)'s [arcin-infinitas](https://github.com/kinetic-flow/arcin-infinitas) as a template for RGB HID functionality and the FastLED shims
+* Special thanks to Mechada and Cryto for beta testing
