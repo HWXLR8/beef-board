@@ -393,7 +393,7 @@ void update_lighting(int8_t tt1_report,
 
 void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer,
-			                      config current_config) {
+                            config current_config) {
   if (current_config.disable_led) {
     led_state = 0;
   }
