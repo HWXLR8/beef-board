@@ -1,6 +1,3 @@
-# Copyright 2021 Dean Camera (dean [at] fourwalledcubicle [dot] com)
-# Copyright 2023 supervaka, HWXLR8
-
 MCU = at90usb1286
 ARCH = AVR8
 BOARD = BOARD_NONE

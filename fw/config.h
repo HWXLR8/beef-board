@@ -1,5 +1,3 @@
-// Copyright 2023 supervaka, HWXLR8
-
 #pragma once
 
 #include "pin.h"

@@ -1,6 +1,3 @@
-// Copyright 2021 Dean Camera (dean [at] fourwalledcubicle [dot] com)
-// Copyright 2023 supervaka, HWXLR8
-
 #include <avr/eeprom.h>
 
 #include "analog_turntable.h"
