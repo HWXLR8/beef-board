@@ -11,7 +11,6 @@ namespace RgbManager {
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS] = {0};
     timer scr_timer;
-    timer spin_timer;
 
     void init() {
       static bool inited = false;
@@ -19,12 +18,10 @@ namespace RgbManager {
         inited = true;
 
         timer_init(&scr_timer);
-
-        timer_init(&spin_timer);
-        timer_arm(&spin_timer, SPIN_TIMER);
         timer_init(&combo_timer);
 
-        FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS);
+        FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS)
+          .setDither(DISABLE_DITHER);
       } 
     }
 
@@ -48,13 +45,11 @@ namespace RgbManager {
     // Render two spinning turquoise LEDs
     void spin(void) {
       static uint8_t spin_counter = 0;
-      if (timer_check_if_expired_reset(&spin_timer)) {
+      EVERY_N_MILLIS(SPIN_TIMER) {
         spin_counter = (spin_counter + 1) % (RING_LIGHT_LEDS / 2);
         set_leds_off();
         leds[spin_counter] = CRGB::Turquoise;
         leds[spin_counter+12] = CRGB::Turquoise;
-
-        timer_arm(&spin_timer, SPIN_TIMER);
       }
     }
 
@@ -130,7 +125,8 @@ namespace RgbManager {
       if (!inited) {
         inited = true;
 
-        FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS);
+        FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS)
+          .setDither(DISABLE_DITHER);
       }
     }
 

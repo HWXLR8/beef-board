@@ -27,6 +27,12 @@
 
 #define CONFIG_CHANGE_NOTIFY_TIME 1000
 
+#if BEEF_LED_REFRESH <= 0
+  #define BEEF_LED_REFRESH 1
+#elif BEEF_LED_REFRESH > 400
+  #define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
+#endif
+
 // Do not reorder these fields
 typedef struct {
   uint8_t version;
