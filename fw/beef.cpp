@@ -1,5 +1,3 @@
-#include <avr/eeprom.h>
-
 #include "analog_turntable.h"
 #include "beef.h"
 #include "fastled_shim.h"
@@ -48,10 +46,12 @@ tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
 
 config current_config;
 
-typedef struct {
+struct combo {
   uint16_t button_combo;
+  bool continuous;
   void (*config_set)(config*);
-} combo;
+  void (*config_update)(config*);
+};
 
 combo button_combos[NUM_OF_COMBOS] = {
   {
@@ -77,6 +77,24 @@ combo button_combos[NUM_OF_COMBOS] = {
   {
     button_combo: DISABLE_LED_COMBO,
     config_set: toggle_disable_led
+  },
+  {
+    button_combo: TT_HSV_HUE_COMBO,
+    continuous: true,
+    config_set: tt_hsv_set_hue,
+    config_update: tt_hsv_update_hue
+  },
+  {
+    button_combo: TT_HSV_SAT_COMBO,
+    continuous: true,
+    config_set: tt_hsv_set_sat,
+    config_update: tt_hsv_update_sat
+  },
+  {
+    button_combo: TT_HSV_VAL_COMBO,
+    continuous: true,
+    config_set: tt_hsv_set_val,
+    config_update: tt_hsv_update_val
   },
 };
 
@@ -128,6 +146,12 @@ int main(void) {
       set_hid_standby_lighting(&led_state_from_hid_report);
     }
 
+    process_tt(tt_x.PIN,
+               tt_x.a_pin,
+               tt_x.b_pin,
+               &tt_x.prev,
+               &tt_x.tt_position,
+               current_config);
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
 
     for (int i = 0; i < BUTTONS; ++i) {
@@ -138,13 +162,6 @@ int main(void) {
     process_combos(&current_config,
                    &combo_timer,
                    &combo_lights_timer);
-
-    process_tt(tt_x.PIN,
-               tt_x.a_pin,
-               tt_x.b_pin,
-               &tt_x.prev,
-               &tt_x.tt_position,
-               current_config);
 
     update_lighting(tt1_report,
                     &combo_lights_timer,
@@ -289,24 +306,31 @@ void process_combos(config* current_config,
                     timer* combo_timer,
                     timer* combo_lights_timer) {
   static bool ignore_combo = false;
+  static combo last_combo;
   bool combo_pressed = false;
 
-  for (int i = 0; i < NUM_OF_COMBOS; ++i) {
-    if (is_pressed_strict(button_combos[i].button_combo)) {
+  for (uint8_t i = 0; i < NUM_OF_COMBOS; ++i) {
+    auto button_combo = button_combos[i];
+    if (is_pressed_strict(button_combo.button_combo)) {
+      last_combo = button_combo;
       combo_pressed = true;
       if (ignore_combo) {
         return;
       }
 
-      // arm timer if not already armed
-      if (!timer_is_armed(combo_timer)) {
-        timer_arm(combo_timer, 1000);
-      }
+      if (button_combo.continuous) {
+        button_combo.config_set(current_config);
+      } else {
+        // arm timer if not already armed
+        if (!timer_is_armed(combo_timer)) {
+          timer_arm(combo_timer, 1000);
+        }
 
-      if (timer_check_if_expired_reset(combo_timer)) {
-        button_combos[i].config_set(current_config);
-        timer_arm(combo_lights_timer, CONFIG_CHANGE_NOTIFY_TIME);
-        ignore_combo = true;
+        if (timer_check_if_expired_reset(combo_timer)) {
+          button_combo.config_set(current_config);
+          timer_arm(combo_lights_timer, CONFIG_CHANGE_NOTIFY_TIME);
+          ignore_combo = true;
+        }
       }
 
       return;
@@ -318,6 +342,10 @@ void process_combos(config* current_config,
     timer_init(combo_timer);
     timer_init(combo_lights_timer);
     timer_init(&RgbManager::Turntable::combo_timer);
+
+    if (last_combo.continuous) {
+      last_combo.config_update(current_config);
+    }
   }
 }
 
@@ -380,6 +408,7 @@ void update_lighting(int8_t tt1_report,
 
     RgbManager::Turntable::update(tt1_report,
                                   led_state_from_hid_report.tt_lights,
+                                  current_config.tt_hsv,
                                   current_config.tt_effect);
     RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
                             current_config.bar_effect);

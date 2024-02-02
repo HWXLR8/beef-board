@@ -22,6 +22,9 @@ Various configuration options can be changed on-the-fly by holding a button comb
 | Decrease TT deadzone | B1 + B8 + B11 |
 | Change centre bar lighting effects (PHOENIXWAN only) | B6 + B8 + B10 |
 | Disable LEDs | B4 + B8 + B11 |
+| Change turntable hue (static mode) | B2 + B11 + TT |
+| Change turntable saturation (static mode) | B4 + B11 + TT |
+| Change turntable vibrance (static mode) | B6 + B11 + TT |
 
 
 ## BOM

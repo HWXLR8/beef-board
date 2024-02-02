@@ -21,6 +21,7 @@ typedef struct {
   timer sustain_timer;
 
   int8_t state; // -1, 0, 1
+  int8_t raw_state; // state without sustain period
 } analog_turntable;
 extern analog_turntable tt1;
 
