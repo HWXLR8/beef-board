@@ -15,7 +15,7 @@ namespace RgbManager {
 
     // tentative names for LED ring modes
     enum class Mode : uint8_t {
-      STATIC, // single colour
+      STATIC,
       SPIN,
       PLACEHOLDER2, // colour shift
       PLACEHOLDER3, // static rainbow
