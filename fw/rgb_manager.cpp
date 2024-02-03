@@ -31,8 +31,9 @@ namespace RgbManager {
     }
 
     void set_hsv(HSV hsv) {
-      fill_solid(leds, RING_LIGHT_LEDS,
-                 CHSV(hsv.h, hsv.s, hsv.v));
+      CRGB rgb;
+      hsv2rgb_spectrum(CHSV{hsv.h, hsv.s, hsv.v}, rgb);
+      fill_solid(leds, RING_LIGHT_LEDS, rgb);
     }
 
     void set_leds_blue(void) {
@@ -53,8 +54,8 @@ namespace RgbManager {
       EVERY_N_MILLIS(SPIN_TIMER) {
         spin_counter = (spin_counter + 1) % (RING_LIGHT_LEDS / 2);
         set_leds_off();
-        leds[spin_counter] = CRGB::Turquoise;
-        leds[spin_counter+12] = CRGB::Turquoise;
+        leds[spin_counter] = CRGB::Aqua;
+        leds[spin_counter+12] = CRGB::Aqua;
       }
     }
 

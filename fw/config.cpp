@@ -20,7 +20,7 @@
 #include "analog_turntable.h"
 #include "config.h"
 
-const auto default_colour = HSV{ 124, 182, 225 }; // Turquoise (approx.)
+const auto default_colour = HSV{ 127, 255, 255 }; // Aqua
 
 // initialize config with default values
 void init_config(config* self) {
