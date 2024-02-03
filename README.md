@@ -24,7 +24,7 @@ Various configuration options can be changed on-the-fly by holding a button comb
 | Disable LEDs | B4 + B8 + B11 |
 | Change turntable hue (static mode) | B2 + B11 + TT |
 | Change turntable saturation (static mode) | B4 + B11 + TT |
-| Change turntable vibrance (static mode) | B6 + B11 + TT |
+| Change turntable brightness (static mode) | B6 + B11 + TT |
 
 
 ## BOM
