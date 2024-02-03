@@ -17,7 +17,7 @@ namespace RgbManager {
     enum class Mode : uint8_t {
       STATIC,
       SPIN,
-      PLACEHOLDER2, // colour shift
+      SHIFT,
       PLACEHOLDER3, // static rainbow
       PLACEHOLDER4, // reactive rainbow
       REACT_TO_SCR,

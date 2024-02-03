@@ -92,8 +92,7 @@ void cycle_tt_effects(config* self) {
   using namespace RgbManager::Turntable;
   do {
     self->tt_effect = Mode((uint8_t(self->tt_effect) + 1) % uint8_t(Mode::COUNT));
-  } while (self->tt_effect == Mode::PLACEHOLDER2 ||
-           self->tt_effect == Mode::PLACEHOLDER3 ||
+  } while (self->tt_effect == Mode::PLACEHOLDER3 ||
            self->tt_effect == Mode::PLACEHOLDER4 ||
            self->tt_effect == Mode::PLACEHOLDER5);
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
