@@ -20,7 +20,7 @@
 #include "analog_turntable.h"
 #include "config.h"
 
-const auto default_colour = rgb2hsv_approximate(CRGB::Turquoise);
+const auto default_colour = HSV{ 124, 182, 225 }; // Turquoise (approx.)
 
 // initialize config with default values
 void init_config(config* self) {
@@ -30,7 +30,7 @@ void init_config(config* self) {
   self->tt_deadzone = 4;
   self->bar_effect = RgbManager::Bar::Mode::HID;
   self->disable_led = 0;
-  self->tt_hsv = HSV{ default_colour.h, 255, 255 };
+  self->tt_hsv = default_colour;
 }
 
 bool update_config(config* self) {
@@ -54,7 +54,7 @@ bool update_config(config* self) {
     self->version++;
     update = true;
   case 4:
-    self->tt_hsv = HSV{ default_colour.h, 255, 255 };
+    self->tt_hsv = default_colour;
     self->version++;
     update = true;
   }
