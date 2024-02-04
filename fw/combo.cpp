@@ -70,9 +70,7 @@ void process_combos(config* current_config,
         combo_activated = true;
         in_hid = !reactive_led;
       }
-      if (in_hid) {
-        reactive_led = true; 
-      }
+      reactive_led = true;
 
       if (ignore_combo) {
         return;
