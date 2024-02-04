@@ -56,15 +56,22 @@ combo button_combos[NUM_OF_COMBOS] = {
 void process_combos(config* current_config,
                     timer* combo_timer,
                     timer* combo_lights_timer) {
+  static bool combo_activated = false;
   static bool ignore_combo = false;
+  static bool in_hid = false;
   static combo last_combo;
-  bool combo_pressed = false;
 
   for (uint8_t i = 0; i < NUM_OF_COMBOS; ++i) {
     auto button_combo = button_combos[i];
     if (is_pressed_strict(button_combo.button_combo)) {
       last_combo = button_combo;
-      combo_pressed = true;
+
+      if (!combo_activated) {
+        combo_activated = true;
+        in_hid = !reactive_led;
+      }
+      reactive_led = true;
+
       if (ignore_combo) {
         return;
       }
@@ -88,8 +95,13 @@ void process_combos(config* current_config,
     }
   }
 
-  if (!combo_pressed) {
+  if (combo_activated) {
+    combo_activated = false;
     ignore_combo = false;
+    if (in_hid) {
+      reactive_led = false;
+    }
+
     timer_init(combo_timer);
     timer_init(combo_lights_timer);
     timer_init(&RgbManager::Turntable::combo_timer);
