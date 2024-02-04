@@ -29,6 +29,8 @@ int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
     direction = -1;
   }
 
+  self->raw_state = direction;
+
   if (direction != 0) {
     // turntable is moving
     // keep updating the new center, and keep extending the sustain timer

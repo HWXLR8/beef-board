@@ -25,9 +25,15 @@ namespace RgbManager {
       } 
     }
 
-    void set_leds(rgb_light lights) {
+    void set_rgb(rgb_light lights) {
       fill_solid(leds, RING_LIGHT_LEDS,
                  CRGB(lights.r, lights.g, lights.b));
+    }
+
+    void set_hsv(HSV hsv) {
+      CRGB rgb;
+      hsv2rgb_spectrum(CHSV{hsv.h, hsv.s, hsv.v}, rgb);
+      fill_solid(leds, RING_LIGHT_LEDS, rgb);
     }
 
     void set_leds_blue(void) {
@@ -48,8 +54,8 @@ namespace RgbManager {
       EVERY_N_MILLIS(SPIN_TIMER) {
         spin_counter = (spin_counter + 1) % (RING_LIGHT_LEDS / 2);
         set_leds_off();
-        leds[spin_counter] = CRGB::Turquoise;
-        leds[spin_counter+12] = CRGB::Turquoise;
+        leds[spin_counter] = CRGB::Aqua;
+        leds[spin_counter+12] = CRGB::Aqua;
       }
     }
 
@@ -94,20 +100,24 @@ namespace RgbManager {
     // tt +1 is counter-clockwise, -1 is clockwise
     void update(int8_t tt_report,
                 rgb_light lights,
+                HSV hsv,
                 Mode mode) {
       // Ignore turtable effect if notifying a mode change
       if (!timer_is_active(&combo_timer)) {
         switch(mode) {
-          case SPIN:
+          case Mode::STATIC:
+            set_hsv(hsv);
+            break;
+          case Mode::SPIN:
             spin();
             break;
-          case REACT_TO_SCR:
+          case Mode::REACT_TO_SCR:
             react_to_scr(tt_report);
             break;
-          case HID:
-            set_leds(lights);
+          case Mode::HID:
+            set_rgb(lights);
             break;
-          case DISABLE:
+          case Mode::DISABLE:
             set_leds_off();
             break;
           default:
@@ -142,10 +152,10 @@ namespace RgbManager {
     void update(rgb_light lights,
                 Mode mode) {
       switch(mode) {
-        case HID:
+        case Mode::HID:
           set_leds(lights);
           break;
-        case DISABLE:
+        case Mode::DISABLE:
           set_leds_off();
           break;
         default:

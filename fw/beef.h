@@ -33,9 +33,6 @@ void set_hid_standby_lighting(hid_lights* lights);
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
-void process_combos(config* current_config,
-                    timer* combo_timer,
-                    timer* combo_lights_timer);
 void process_tt(volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
