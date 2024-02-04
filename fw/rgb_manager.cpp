@@ -1,4 +1,5 @@
 #include "rgb_manager.h"
+#include "ticker.h"
 
 // Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
 #define BAR_DATA_PIN 14 // C4
@@ -48,11 +49,22 @@ namespace RgbManager {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
     }
 
+    void colour_shift() {
+      static HSV hsv = { 0, 255, 255 };
+      static auto ticker = Ticker(100);
+
+      hsv.h += ticker.get_ticks();
+      set_hsv(hsv);
+    }
+
     // Render two spinning turquoise LEDs
     void spin(void) {
       static uint8_t spin_counter = 0;
-      EVERY_N_MILLIS(SPIN_TIMER) {
-        spin_counter = (spin_counter + 1) % (RING_LIGHT_LEDS / 2);
+      static auto ticker = Ticker(50);
+
+      auto ticks = ticker.get_ticks();
+      if (ticks > 0) {
+        spin_counter = (spin_counter + ticks) % (RING_LIGHT_LEDS / 2);
         set_leds_off();
         leds[spin_counter] = CRGB::Aqua;
         leds[spin_counter+12] = CRGB::Aqua;
@@ -107,6 +119,9 @@ namespace RgbManager {
         switch(mode) {
           case Mode::STATIC:
             set_hsv(hsv);
+            break;
+          case Mode::SHIFT:
+            colour_shift();
             break;
           case Mode::SPIN:
             spin();
