@@ -23,6 +23,8 @@ typedef struct {
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
+extern bool reactive_led;
+
 void hwinit(void);
 void hardware_timer1_init(void);
 void set_led(volatile uint8_t* PORT,
@@ -44,7 +46,7 @@ void update_lighting(int8_t tt1_report,
                      config current_config);
 void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer,
-			    config current_config);
+                            config current_config);
 bool is_pressed(uint16_t button_bits);
 bool is_pressed_strict(uint16_t button_bits);
 
