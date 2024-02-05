@@ -18,8 +18,9 @@ namespace RgbManager {
       STATIC,
       SPIN,
       SHIFT,
-      PLACEHOLDER3, // static rainbow
-      PLACEHOLDER4, // reactive rainbow
+      RAINBOW_STATIC,
+      RAINBOW_REACT,
+      RAINBOW_SPIN,
       REACT_TO_SCR,
       PLACEHOLDER5, // breathing
       HID,

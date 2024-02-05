@@ -1,4 +1,4 @@
-#define CONFIG_VERSION 5
+#define CONFIG_VERSION 6
 
 #define CONFIG_BASE_ADDR (uint8_t*)2
 #define CONFIG_VERSION_ADDR CONFIG_BASE_ADDR
@@ -57,6 +57,11 @@ bool update_config(config* self) {
     self->tt_hsv = default_colour;
     self->version++;
     update = true;
+  case 5:
+    if (self->tt_effect >= RgbManager::Turntable::Mode::RAINBOW_SPIN) // Added new effect
+      self->tt_effect = RgbManager::Turntable::Mode(uint8_t(self->tt_effect)+1);
+    self->version++;
+    update = true;
   }
 
   return update;
@@ -92,9 +97,7 @@ void cycle_tt_effects(config* self) {
   using namespace RgbManager::Turntable;
   do {
     self->tt_effect = Mode((uint8_t(self->tt_effect) + 1) % uint8_t(Mode::COUNT));
-  } while (self->tt_effect == Mode::PLACEHOLDER3 ||
-           self->tt_effect == Mode::PLACEHOLDER4 ||
-           self->tt_effect == Mode::PLACEHOLDER5);
+  } while (self->tt_effect == Mode::PLACEHOLDER5);
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
   RgbManager::Turntable::set_leds_off();

@@ -71,6 +71,16 @@ namespace RgbManager {
       }
     }
 
+    void render_rainbow(uint8_t pos = 0) {
+      fill_rainbow_circular(leds, RING_LIGHT_LEDS, pos);
+    }
+
+    void render_rainbow_pos(int8_t tt_report) {
+      static uint8_t pos = 0;
+      pos += -tt_report;
+      render_rainbow(pos);
+    }
+
     void react_to_scr(int8_t tt_report) {
       if (tt_report == 1) {
         set_leds_blue();
@@ -125,6 +135,15 @@ namespace RgbManager {
             break;
           case Mode::SPIN:
             spin();
+            break;
+          case Mode::RAINBOW_STATIC:
+            render_rainbow();
+            break;
+          case Mode::RAINBOW_REACT:
+            render_rainbow_pos(tt_report);
+            break;
+          case Mode::RAINBOW_SPIN:
+            render_rainbow_pos(1);
             break;
           case Mode::REACT_TO_SCR:
             react_to_scr(tt_report);
