@@ -59,15 +59,17 @@ namespace RgbManager {
 
     // Render two spinning turquoise LEDs
     void spin(void) {
+      static bool first_call = true;
       static uint8_t spin_counter = 0;
       static auto ticker = Ticker(50);
 
       auto ticks = ticker.get_ticks();
-      if (ticks > 0) {
+      if (ticks > 0 || first_call) {
         spin_counter = (spin_counter + ticks) % (RING_LIGHT_LEDS / 2);
         set_leds_off();
         leds[spin_counter] = CRGB::Aqua;
         leds[spin_counter+12] = CRGB::Aqua;
+        first_call = false;
       }
     }
 
@@ -76,9 +78,16 @@ namespace RgbManager {
     }
 
     void render_rainbow_pos(int8_t tt_report) {
+      static bool first_call = true;
       static uint8_t pos = 0;
+      static auto last_pos = pos;
+
       pos += -tt_report;
-      render_rainbow(pos);
+      if (last_pos != pos || first_call) {
+        render_rainbow(pos);
+        first_call = false;
+        last_pos = pos;
+      }
     }
 
     void react_to_scr(int8_t tt_report) {
