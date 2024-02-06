@@ -78,16 +78,9 @@ namespace RgbManager {
     }
 
     void render_rainbow_pos(int8_t tt_report) {
-      static bool first_call = true;
       static uint8_t pos = 0;
-      static auto last_pos = pos;
-
-      pos += -tt_report;
-      if (last_pos != pos || first_call) {
-        render_rainbow(pos);
-        first_call = false;
-        last_pos = pos;
-      }
+      pos += -tt_report * BEEF_TT_RAINBOW_SPIN_MUL;
+      render_rainbow(pos);
     }
 
     void react_to_scr(int8_t tt_report) {
