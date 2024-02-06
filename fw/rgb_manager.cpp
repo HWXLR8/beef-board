@@ -79,7 +79,7 @@ namespace RgbManager {
 
     void render_rainbow_pos(int8_t tt_report) {
       static uint8_t pos = 0;
-      pos += -tt_report * BEEF_TT_RAINBOW_SPIN_MUL;
+      pos += -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
       render_rainbow(pos);
     }
 
