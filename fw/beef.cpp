@@ -302,7 +302,7 @@ void update_lighting(int8_t tt1_report,
     // computationally expensive calls to FastLED.show()
     // basically what FastLED does but without spin waiting
     static uint32_t last_show = 0;
-    auto min_micros = 1000000 / BEEF_LED_REFRESH;
+    uint32_t min_micros = 1000000 / BEEF_LED_REFRESH;
     uint32_t now = micros();
     if (now-last_show < min_micros)
       return;

@@ -7,6 +7,7 @@ OPTIMIZATION = 2
 TARGET = beef
 BEEF_LED_REFRESH ?= 40
 BEEF_TT_RATIO ?= 2
+BEEF_TT_RAINBOW_SPIN_SPEED ?= 1
 FASTLED_SRC = FastLED/src
 SRC = $(wildcard *.c) $(wildcard *.cpp) \
 	$(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/hsv2rgb.cpp $(FASTLED_SRC)/lib8tion.cpp \
@@ -14,7 +15,7 @@ SRC = $(wildcard *.c) $(wildcard *.cpp) \
 LUFA_PATH = LUFA
 CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -include fastled_shim.h \
 	-DFASTLED_NO_PINMAP \
-	-DBEEF_LED_REFRESH=$(BEEF_LED_REFRESH) -DBEEF_TT_RATIO=$(BEEF_TT_RATIO)
+	-DBEEF_LED_REFRESH=$(BEEF_LED_REFRESH) -DBEEF_TT_RATIO=$(BEEF_TT_RATIO) -DBEEF_TT_RAINBOW_SPIN_SPEED=$(BEEF_TT_RAINBOW_SPIN_SPEED)
 LD_FLAGS =
 
 # Default target
