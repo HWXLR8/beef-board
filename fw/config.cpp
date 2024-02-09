@@ -20,8 +20,6 @@
 #include "analog_turntable.h"
 #include "config.h"
 
-const auto default_colour = HSV{ 127, 255, 255 }; // Aqua
-
 // initialize config with default values
 void init_config(config* self) {
   self->version = CONFIG_VERSION;
@@ -95,12 +93,10 @@ void toggle_reverse_tt(config* self) {
 
 void cycle_tt_effects(config* self) {
   using namespace RgbManager::Turntable;
-  do {
-    self->tt_effect = Mode((uint8_t(self->tt_effect) + 1) % uint8_t(Mode::COUNT));
-  } while (self->tt_effect == Mode::PLACEHOLDER5);
+  self->tt_effect = Mode((uint8_t(self->tt_effect) + 1) % uint8_t(Mode::COUNT));
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
-  RgbManager::Turntable::set_leds_off();
+  set_leds_off();
 }
 
 void tt_hsv_set_hue(config* self) {
@@ -187,7 +183,7 @@ void cycle_bar_effects(config* self) {
            self->bar_effect == Mode::PLACEHOLDER4);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
-  RgbManager::Bar::set_leds_off();
+  set_leds_off();
 }
 
 void toggle_disable_led(config* self) {
