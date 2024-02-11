@@ -8,6 +8,8 @@
 #define RING_LIGHT_LEDS 24
 #define LIGHT_BAR_LEDS 16
 
+const auto default_colour = HSV{ 127, 255, 255 }; // Aqua
+
 namespace RgbManager {
   namespace Turntable {
     extern timer combo_timer;
@@ -22,7 +24,7 @@ namespace RgbManager {
       RAINBOW_REACT,
       RAINBOW_SPIN,
       REACT_TO_SCR,
-      PLACEHOLDER5, // breathing
+      BREATHING,
       HID,
       DISABLE,
       COUNT

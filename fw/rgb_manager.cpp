@@ -1,25 +1,28 @@
 #include "rgb_manager.h"
 #include "ticker.h"
 
-// Pin mapping can be found in FastLED/src/paltforms/avr/fastpin_avr.h
+// Pin mapping can be found in FastLED/src/platforms/avr/fastpin_avr.h
 #define BAR_DATA_PIN 14 // C4
 #define TT_DATA_PIN  15 // C5
 
 #define SPIN_TIMER 50
+#define BREATHING_TIMER 3000
 
 namespace RgbManager {
   namespace Turntable {
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS] = {0};
     timer scr_timer;
+    timer breathing_timer;
 
     void init() {
       static bool inited = false;
       if (!inited) {
         inited = true;
 
-        timer_init(&scr_timer);
         timer_init(&combo_timer);
+        timer_init(&scr_timer);
+        timer_arm(&breathing_timer, BREATHING_TIMER);
 
         FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS)
           .setDither(DISABLE_DITHER);
@@ -96,6 +99,28 @@ namespace RgbManager {
       }
     }
 
+    // Cycle from zero to full-bright to zero in around 2 seconds
+    // with a second-long rest period
+    void breathing(uint8_t h, uint8_t s) {
+      static auto theta = 0;
+      static auto sin_ticker = Ticker(8, 2048);
+      static HSV hsv;
+      hsv.h = h, hsv.s = s;
+
+      auto ticks = sin_ticker.get_ticks();
+      if (ticks > 0) {
+        theta += ticks;
+        hsv.v = quadwave8(theta);
+      }
+
+      if (timer_is_expired(&breathing_timer)) {
+        sin_ticker.reset();
+        timer_arm(&breathing_timer, BREATHING_TIMER);
+      }
+
+      set_hsv(hsv);
+    }
+
     // Illuminate + as blue, - as red in two halves
     void reverse_tt(uint8_t reverse_tt) {
       int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
@@ -149,6 +174,9 @@ namespace RgbManager {
             break;
           case Mode::REACT_TO_SCR:
             react_to_scr(tt_report);
+            break;
+          case Mode::BREATHING:
+            breathing(default_colour.h, default_colour.s);
             break;
           case Mode::HID:
             set_rgb(lights);
