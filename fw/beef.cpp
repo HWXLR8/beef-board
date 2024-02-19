@@ -32,6 +32,7 @@ hid_lights led_state_from_hid_report;
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
 bool reactive_led = true;
+bool rgb_standby = true;
 // temporary hack? because set_led() needs access to buttons[]
 button_pins* buttons_ptr;
 
@@ -91,7 +92,6 @@ int main(void) {
     USB_USBTask();
 
     if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
-      reactive_led = true;
       set_hid_standby_lighting(&led_state_from_hid_report);
     }
 
@@ -152,7 +152,6 @@ void hwinit(void) {
   USB_Init();
   hardware_timer1_init();
 
-  reactive_led = true;
   set_hid_standby_lighting(&led_state_from_hid_report);
 }
 
@@ -176,6 +175,7 @@ void EVENT_USB_Device_ControlRequest(void){}
 // process last received report from the host.
 void ProcessGenericHIDReport(hid_lights led_state) {
   reactive_led = false;
+  rgb_standby = false;
   timer_arm(&hid_lights_expiry_timer, HID_LIGHTS_EXPIRY_TIME);
 
   // update the lighting data
@@ -236,9 +236,10 @@ void set_led(volatile uint8_t* PORT,
 }
 
 void set_hid_standby_lighting(hid_lights* lights) {
+  reactive_led = true;
+  rgb_standby = true;
+
   lights->buttons = 0;
-  lights->tt_lights = { 255, 255, 255 };
-  lights->bar_lights = { 255, 255, 255 };
 }
 
 void process_button(volatile uint8_t* PIN,

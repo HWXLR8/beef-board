@@ -56,7 +56,7 @@ namespace RgbManager {
     };
 
     void init();
-    void set_leds(rgb_light lights);
+    void set_rgb(rgb_light lights);
     void set_leds_off(void);
     void update(rgb_light lights,
                 Mode mode);

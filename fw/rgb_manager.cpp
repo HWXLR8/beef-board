@@ -1,3 +1,4 @@
+#include "beef.h"
 #include "rgb_manager.h"
 #include "ticker.h"
 
@@ -9,11 +10,53 @@
 #define BREATHING_TIMER 3000
 
 namespace RgbManager {
+  void set_rgb(CRGB* leds, uint8_t n, rgb_light lights) {
+    fill_solid(leds, n,
+               CRGB(lights.r, lights.g, lights.b));
+  }
+
+  void set_hsv(CRGB* leds, uint8_t n, HSV hsv) {
+    CRGB rgb;
+    hsv2rgb_spectrum(CHSV{hsv.h, hsv.s, hsv.v}, rgb);
+    fill_solid(leds, n, rgb);
+  }
+
+  // Cycle from zero to full-bright to zero in around 2 seconds
+  // Share same lighting state between TT and light bar
+  template<int DURATION, int TIMER>
+  void breathing(CRGB* leds, int n,
+                 uint8_t h, uint8_t s) {
+    static uint8_t theta = 0;
+    static auto sin_ticker = Ticker(8, DURATION);
+    static timer breathing_timer = {0};
+    static uint8_t v = 0;
+
+    if (!timer_is_active(&breathing_timer)) {
+      sin_ticker.reset();
+      timer_arm(&breathing_timer, TIMER);
+    }
+
+    auto ticks = sin_ticker.get_ticks();
+    if (ticks > 0) {
+      theta += ticks;
+      v = quadwave8(theta);
+    }
+
+    set_hsv(leds, n, HSV{h, s, v});
+  }
+
+  void hid(CRGB* leds, int n,
+           rgb_light lights) {
+    if (rgb_standby)
+      breathing<0, 0>(leds, n, 0, 0);
+    else
+      set_rgb(leds, n, lights);
+  }
+
   namespace Turntable {
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS] = {0};
     timer scr_timer;
-    timer breathing_timer;
 
     void init() {
       static bool inited = false;
@@ -22,7 +65,6 @@ namespace RgbManager {
 
         timer_init(&combo_timer);
         timer_init(&scr_timer);
-        timer_arm(&breathing_timer, BREATHING_TIMER);
 
         FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS)
           .setDither(DISABLE_DITHER);
@@ -30,14 +72,11 @@ namespace RgbManager {
     }
 
     void set_rgb(rgb_light lights) {
-      fill_solid(leds, RING_LIGHT_LEDS,
-                 CRGB(lights.r, lights.g, lights.b));
+      RgbManager::set_rgb(leds, RING_LIGHT_LEDS, lights);
     }
 
     void set_hsv(HSV hsv) {
-      CRGB rgb;
-      hsv2rgb_spectrum(CHSV{hsv.h, hsv.s, hsv.v}, rgb);
-      fill_solid(leds, RING_LIGHT_LEDS, rgb);
+      RgbManager::set_hsv(leds, RING_LIGHT_LEDS, hsv);
     }
 
     void set_leds_blue(void) {
@@ -99,28 +138,6 @@ namespace RgbManager {
       }
     }
 
-    // Cycle from zero to full-bright to zero in around 2 seconds
-    // with a second-long rest period
-    void breathing(uint8_t h, uint8_t s) {
-      static auto theta = 0;
-      static auto sin_ticker = Ticker(8, 2048);
-      static HSV hsv;
-      hsv.h = h, hsv.s = s;
-
-      auto ticks = sin_ticker.get_ticks();
-      if (ticks > 0) {
-        theta += ticks;
-        hsv.v = quadwave8(theta);
-      }
-
-      if (timer_is_expired(&breathing_timer)) {
-        sin_ticker.reset();
-        timer_arm(&breathing_timer, BREATHING_TIMER);
-      }
-
-      set_hsv(hsv);
-    }
-
     // Illuminate + as blue, - as red in two halves
     void reverse_tt(uint8_t reverse_tt) {
       int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
@@ -176,10 +193,12 @@ namespace RgbManager {
             react_to_scr(tt_report);
             break;
           case Mode::BREATHING:
-            breathing(default_colour.h, default_colour.s);
+            // Add a second-long rest period
+            breathing<2048, 3000>(leds, RING_LIGHT_LEDS,
+              default_colour.h, default_colour.s);
             break;
           case Mode::HID:
-            set_rgb(lights);
+            hid(leds, RING_LIGHT_LEDS, lights);
             break;
           case Mode::DISABLE:
             set_leds_off();
@@ -204,9 +223,8 @@ namespace RgbManager {
       }
     }
 
-    void set_leds(rgb_light lights) {
-      fill_solid(leds, LIGHT_BAR_LEDS,
-                 CRGB(lights.r, lights.g, lights.b));
+    void set_rgb(rgb_light lights) {
+      RgbManager::set_rgb(leds, LIGHT_BAR_LEDS, lights);
     }
 
     void set_leds_off(void) {
@@ -217,7 +235,7 @@ namespace RgbManager {
                 Mode mode) {
       switch(mode) {
         case Mode::HID:
-          set_leds(lights);
+          hid(leds, LIGHT_BAR_LEDS, lights);
           break;
         case Mode::DISABLE:
           set_leds_off();

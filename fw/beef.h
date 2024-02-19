@@ -24,6 +24,7 @@ typedef struct {
 } USB_JoystickReport_Data_t;
 
 extern bool reactive_led;
+extern bool rgb_standby;
 
 void hwinit(void);
 void hardware_timer1_init(void);
