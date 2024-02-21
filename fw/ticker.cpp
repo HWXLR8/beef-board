@@ -26,6 +26,9 @@ uint32_t Ticker::get_ticks() {
 }
 
 void Ticker::reset() {
+  if (tick_limit == 0)
+    return;
+
   auto now = milliseconds;
   last_tick_time = now;
   current_ticks = 0;
