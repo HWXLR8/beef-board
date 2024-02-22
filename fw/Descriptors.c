@@ -29,17 +29,18 @@ HID_RI_COLLECTION(8, 0x01),
     HID_RI_END_COLLECTION(0),
 
     // Buttons
+    // 11 physical (7 + 1 alignment (Infinitas) + 4 extra) + digital TT (+/-)
     HID_RI_USAGE_PAGE(8, 0x09),
     HID_RI_USAGE_MINIMUM(8, 0x01),
-    HID_RI_USAGE_MAXIMUM(8, 13), // 11 physical + digital TT
+    HID_RI_USAGE_MAXIMUM(8, 14),
     HID_RI_LOGICAL_MINIMUM(8, 0x00),
     HID_RI_LOGICAL_MAXIMUM(8, 0x01),
     HID_RI_REPORT_SIZE(8, 0x01),
-    HID_RI_REPORT_COUNT(8, 13),
+    HID_RI_REPORT_COUNT(8, 14),
     HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
 
     // Padding
-    HID_RI_REPORT_SIZE(8, 3),
+    HID_RI_REPORT_SIZE(8, 2),
     HID_RI_REPORT_COUNT(8, 0x01),
     HID_RI_INPUT(8, HID_IOF_CONSTANT),
 

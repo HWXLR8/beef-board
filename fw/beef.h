@@ -3,9 +3,6 @@
 #include <avr/wdt.h>
 #include <avr/power.h>
 #include <avr/interrupt.h>
-#include <string.h>
-
-#include "Descriptors.h"
 
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
@@ -16,7 +13,7 @@
 
 // HID report structure, for creating and sending HID reports to the
 // host PC. This mirrors the layout described to the host in the HID
-// report descriptor in descriptors.c.
+// report descriptor in Descriptors.c.
 typedef struct {
   uint8_t  X;
   uint8_t  Y;
