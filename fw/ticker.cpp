@@ -1,4 +1,5 @@
 #include "ticker.h"
+#include "timer.h"
 
 Ticker::Ticker(uint32_t tick_duration, uint32_t total_duration) :
   tick_duration(tick_duration),

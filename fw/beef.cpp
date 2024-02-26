@@ -1,3 +1,5 @@
+#include "Descriptors.h"
+
 #include "analog_turntable.h"
 #include "beef.h"
 #include "combo.h"
@@ -44,7 +46,6 @@ timer hid_lights_expiry_timer;
 // e.g. if a_pin is on F0 and b_pin is on D0
 // PIN : [a_pin] : [b_pin] : [prev] : [tt_position]
 tt_pins tt_x = { &PINF, 0, 1, -1, 0 };
-// tt_pins tt_y = { &PIN?, ?, ?, -1, 0 };
 
 config current_config;
 
@@ -163,11 +164,9 @@ void EVENT_USB_Device_Disconnect(void){}
 
 // event handler for USB config change event
 void EVENT_USB_Device_ConfigurationChanged(void) {
-  bool ConfigSuccess = true;
-
   // setup HID report endpoints
-  ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
-  ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 }
 
 void EVENT_USB_Device_ControlRequest(void){}
@@ -209,10 +208,14 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          const uint8_t ReportType,
                                          void* ReportData,
                                          uint16_t* const ReportSize) {
-  USB_JoystickReport_Data_t* JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
+  auto JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
 
+  // Infinitas only reads bits 1-7, 9-12,
+  // so bit-shift bits 8 and up once
+  uint16_t upper = button_state >> 7;
+  uint8_t lower = button_state & 0x7F;
   JoystickReport->X = tt_x.tt_position / BEEF_TT_RATIO;
-  JoystickReport->Button = button_state;
+  JoystickReport->Button = (upper << 8) | lower;
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;

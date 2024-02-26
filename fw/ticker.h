@@ -1,7 +1,5 @@
 #pragma once
 
-#include "timer.h"
-
 class Ticker {
   public:
     Ticker(uint32_t tick_duration, uint32_t total_duration = 0);
