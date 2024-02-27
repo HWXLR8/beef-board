@@ -79,6 +79,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 #define BUTTON_9 1 << 8
 #define BUTTON_10 1 << 9
 #define BUTTON_11 1 << 10
+#define EFFECTORS_ALL (BUTTON_8 | BUTTON_9 | BUTTON_10 | BUTTON_11)
 
 // Digital TT
 #define BUTTON_12 1 << 11

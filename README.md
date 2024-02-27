@@ -26,7 +26,6 @@ Various configuration options can be changed on-the-fly by holding a button comb
 | Change turntable saturation (static mode) | B4 + B11 + TT |
 | Change turntable brightness (static mode) | B6 + B11 + TT |
 
-
 ## BOM
 ```
 ### PIN HEADERS ###
@@ -64,5 +63,8 @@ Various configuration options can be changed on-the-fly by holding a button comb
 * FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
 * Implementation of the WS2812 protocol provided by [FastLED](https://github.com/FastLED/FastLED)
-* [kinetic-flow](https://github.com/kinetic-flow)'s [arcin-infinitas](https://github.com/kinetic-flow/arcin-infinitas) as a template for RGB HID functionality and the FastLED shims
+* [kinetic-flow](https://github.com/kinetic-flow)'s [arcin-infinitas](https://github.com/kinetic-flow/arcin-infinitas) for:
+  * RGB HID functionality
+  * FastLED shims
+  * Debounce code
 * Special thanks to Mechada and Cryto for beta testing

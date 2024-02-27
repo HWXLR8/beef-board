@@ -4,8 +4,7 @@
 Ticker::Ticker(uint32_t tick_duration, uint32_t total_duration) :
   tick_duration(tick_duration),
   last_tick_time(milliseconds),
-  tick_limit(total_duration / tick_duration),
-  current_ticks(0){};
+  tick_limit(total_duration / tick_duration){}
 
 uint32_t Ticker::get_ticks() {
   if (tick_limit != 0 && current_ticks >= tick_limit)

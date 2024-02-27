@@ -3,6 +3,7 @@
 #include "analog_turntable.h"
 #include "beef.h"
 #include "combo.h"
+#include "debounce.h"
 #include "fastled_shim.h"
 #include "rgb_manager.h"
 
@@ -35,8 +36,7 @@ hid_lights led_state_from_hid_report;
 // button is held
 bool reactive_led = true;
 bool rgb_standby = true;
-// temporary hack? because set_led() needs access to buttons[]
-button_pins* buttons_ptr;
+button_pins buttons[] = CONFIG_ALL_HW_PIN;
 
 #define HID_LIGHTS_EXPIRY_TIME 1000
 timer hid_lights_expiry_timer;
@@ -51,6 +51,12 @@ config current_config;
 
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
+}
+
+void debounce(DebounceState* debounce, uint16_t mask) {
+	button_state =
+		(button_state & ~mask) |
+		(debounce->debounce(button_state & mask));
 }
 
 int main(void) {
@@ -70,19 +76,18 @@ int main(void) {
   RgbManager::Turntable::init();
   RgbManager::Bar::init();
 
+  auto effectors_debounce = DebounceState(4);
+
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
   PORTF |= 0b00000011;
 
-  button_pins buttons[] = CONFIG_ALL_HW_PIN;
-  buttons_ptr = buttons;
+  for (auto &button : buttons) {
+    CONFIG_DDR_INPUT(button.INPUT_PORT.DDR, button.input_pin);
+    CONFIG_DDR_LED(button.LED_PORT.DDR, button.led_pin);
 
-  for (int i = 0; i < int(sizeof(buttons)/sizeof(buttons[0])); ++i) {
-    CONFIG_DDR_INPUT(buttons[i].INPUT_PORT.DDR, buttons[i].input_pin);
-    CONFIG_DDR_LED(buttons[i].LED_PORT.DDR, buttons[i].led_pin);
-
-    CONFIG_PORT_INPUT(buttons[i].INPUT_PORT.PORT, buttons[i].input_pin);
-    CONFIG_PORT_LED(buttons[i].LED_PORT.PORT, buttons[i].led_pin);
+    CONFIG_PORT_INPUT(button.INPUT_PORT.PORT, button.input_pin);
+    CONFIG_PORT_LED(button.LED_PORT.PORT, button.led_pin);
   }
 
   GlobalInterruptEnable();
@@ -109,6 +114,7 @@ int main(void) {
                      i,
                      buttons[i].input_pin);
     }
+    debounce(&effectors_debounce, EFFECTORS_ALL);
     process_combos(&current_config,
                    &combo_timer,
                    &combo_lights_timer);
@@ -336,9 +342,9 @@ void update_button_lighting(uint16_t led_state,
   }
 
   for (int i = 0; i < BUTTONS; ++i) {
-    set_led(buttons_ptr[i].LED_PORT.PORT,
+    set_led(buttons[i].LED_PORT.PORT,
             i,
-            buttons_ptr[i].led_pin,
+            buttons[i].led_pin,
             led_state);
   }
 }
