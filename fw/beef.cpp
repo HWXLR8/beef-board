@@ -76,7 +76,7 @@ int main(void) {
   RgbManager::Turntable::init();
   RgbManager::Bar::init();
 
-  auto effectors_debounce = DebounceState(4);
+  DebounceState effectors_debounce(4);
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
