@@ -54,9 +54,9 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void debounce(DebounceState* debounce, uint16_t mask) {
-	button_state =
-		(button_state & ~mask) |
-		(debounce->debounce(button_state & mask));
+  button_state =
+    (button_state & ~mask) |
+    (debounce->debounce(button_state & mask));
 }
 
 int main(void) {
