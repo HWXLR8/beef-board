@@ -28,6 +28,7 @@ USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
 };
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
+// bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
 hid_lights led_state_from_hid_report;
 
@@ -76,8 +77,6 @@ int main(void) {
   RgbManager::Turntable::init();
   RgbManager::Bar::init();
 
-  DebounceState effectors_debounce(4);
-
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
   PORTF |= 0b00000011;
@@ -109,12 +108,8 @@ int main(void) {
                current_config);
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
 
-    for (int i = 0; i < BUTTONS; ++i) {
-      process_button(buttons[i].INPUT_PORT.PIN,
-                     i,
-                     buttons[i].input_pin);
-    }
-    debounce(&effectors_debounce, EFFECTORS_ALL);
+    process_buttons(tt1_report);
+
     process_combos(&current_config,
                    &combo_timer,
                    &combo_lights_timer);
@@ -128,22 +123,22 @@ int main(void) {
 // this refers to the hardware timer peripheral
 // unrelated to the timer class in timer.h
 void hardware_timer1_init(void) {
-    // set up Timer1 in CTC (Clear Timer on Compare Match) mode
-    TCCR1B |= (1 << WGM12);
+  // set up Timer1 in CTC (Clear Timer on Compare Match) mode
+  TCCR1B |= (1 << WGM12);
 
-    // set the value to compare to
-    // assuming a 16MHz clock and a prescaler of 64, this will give us a 1ms tick
-    // (16000000 / (64 * 1000)) - 1 = 249
-    OCR1A = 249;
+  // set the value to compare to
+  // assuming a 16MHz clock and a prescaler of 64, this will give us a 1ms tick
+  // (16000000 / (64 * 1000)) - 1 = 249
+  OCR1A = 249;
 
-    // enable the compare match interrupt
-    TIMSK1 |= (1 << OCIE1A);
+  // enable the compare match interrupt
+  TIMSK1 |= (1 << OCIE1A);
 
-    // enable global interrupts
-    sei();
+  // enable global interrupts
+  sei();
 
-    // start the timer with a prescaler of 64
-    TCCR1B |= (1 << CS10) | (1 << CS11);
+  // start the timer with a prescaler of 64
+  TCCR1B |= (1 << CS10) | (1 << CS11);
 }
 
 // configure board hardware and chip peripherals
@@ -218,7 +213,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 
   // Infinitas only reads bits 1-7, 9-12,
   // so bit-shift bits 8 and up once
-  uint16_t upper = button_state >> 7;
+  uint8_t upper = button_state >> 7;
   uint8_t lower = button_state & 0x7F;
   JoystickReport->X = tt_x.tt_position / BEEF_TT_RATIO;
   JoystickReport->Button = (upper << 8) | lower;
@@ -251,14 +246,35 @@ void set_hid_standby_lighting(hid_lights* lights) {
   lights->buttons = 0;
 }
 
+void process_buttons(int8_t tt1_report) {
+  static DebounceState effectors_debounce(4);
+
+  button_state = 0;
+  for (int i = 0; i < BUTTONS; ++i) {
+    process_button(buttons[i].INPUT_PORT.PIN,
+                   i,
+                   buttons[i].input_pin);
+  }
+
+  switch (tt1_report) {
+  case -1:
+    button_state |= BUTTON_TT_NEG;
+    break;
+  case 1:
+    button_state |= BUTTON_TT_POS;
+    break;
+  default:
+    break;
+  }
+
+  debounce(&effectors_debounce, EFFECTORS_ALL);
+}
+
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin) {
-  if (~*PIN & (1 << input_pin)) {
-    button_state |= (1 << button_number);
-  } else {
-    button_state &= ~(1 << button_number);
-  }
+  bool pressed = ~*PIN & (1 << input_pin);
+  button_state |= pressed << button_number;
 }
 
 void process_tt(volatile uint8_t* PIN,

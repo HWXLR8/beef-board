@@ -22,7 +22,7 @@ int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
   int8_t delta = observed - self->center;
 
   // is the current value sufficiently far away from the center?
-  uint8_t direction = 0;
+  int8_t direction = 0;
   if (delta >= (int8_t)self->deadzone) {
     direction = 1;
   } else if (delta <= -(int8_t)self->deadzone) {
