@@ -27,7 +27,7 @@ namespace RgbManager {
   void breathing(CRGB* leds, int n,
                  uint8_t h, uint8_t s) {
     static uint8_t theta = 0;
-    static auto sin_ticker = Ticker(8, DURATION);
+    static Ticker sin_ticker(8, DURATION);
     static timer breathing_timer = {0};
     static uint8_t v = 0;
 
@@ -93,7 +93,7 @@ namespace RgbManager {
 
     void colour_shift() {
       static HSV hsv = { 0, 255, 255 };
-      static auto ticker = Ticker(100);
+      static Ticker ticker(100);
 
       hsv.h += ticker.get_ticks();
       set_hsv(hsv);
@@ -103,7 +103,7 @@ namespace RgbManager {
     void spin(void) {
       static bool first_call = true;
       static uint8_t spin_counter = 0;
-      static auto ticker = Ticker(50);
+      static Ticker ticker(SPIN_TIMER);
 
       auto ticks = ticker.get_ticks();
       if (ticks > 0 || first_call) {
@@ -194,7 +194,7 @@ namespace RgbManager {
             break;
           case Mode::BREATHING:
             // Add a second-long rest period
-            breathing<2048, 3000>(leds, RING_LIGHT_LEDS,
+            breathing<2048, BREATHING_TIMER>(leds, RING_LIGHT_LEDS,
               default_colour.h, default_colour.s);
             break;
           case Mode::HID:
