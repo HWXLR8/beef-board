@@ -63,7 +63,7 @@ void process_combos(config* current_config,
 
   for (uint8_t i = 0; i < NUM_OF_COMBOS; ++i) {
     auto button_combo = button_combos[i];
-    if (is_pressed_strict(button_combo.button_combo)) {
+    if (is_pressed_strict(button_combo.button_combo, BUTTON_TT_NEG | BUTTON_TT_POS)) {
       last_combo = button_combo;
 
       if (!combo_activated) {

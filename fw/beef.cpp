@@ -369,6 +369,6 @@ bool is_pressed(uint16_t button_bits) {
   return button_state & button_bits;
 }
 
-bool is_pressed_strict(uint16_t button_bits) {
-  return button_state == button_bits;
+bool is_pressed_strict(uint16_t button_bits, uint16_t ignore) {
+  return (button_state & ~ignore) == button_bits;
 }
