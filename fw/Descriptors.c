@@ -29,7 +29,7 @@ HID_RI_COLLECTION(8, 0x01),
     HID_RI_END_COLLECTION(0),
 
     // Buttons
-    // 11 physical (7 + 1 alignment (Infinitas) + 4 extra) + digital TT (+/-)
+    // 11 physical (7 + 1 alignment (Infinitas) + 4 extra) + digital TT (-/+)
     HID_RI_USAGE_PAGE(8, 0x09),
     HID_RI_USAGE_MINIMUM(8, 0x01),
     HID_RI_USAGE_MAXIMUM(8, 14),

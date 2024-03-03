@@ -30,6 +30,7 @@ void set_led(volatile uint8_t* PORT,
              uint8_t led_pin,
              uint16_t OutputData);
 void set_hid_standby_lighting(hid_lights* lights);
+void process_buttons(int8_t tt1_report);
 void process_button(volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
@@ -46,7 +47,7 @@ void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer,
                             config current_config);
 bool is_pressed(uint16_t button_bits);
-bool is_pressed_strict(uint16_t button_bits);
+bool is_pressed_strict(uint16_t button_bits, uint16_t ignore = 0);
 
 // HID functions
 void HID_Task(void);
@@ -79,8 +80,6 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 #define BUTTON_9 1 << 8
 #define BUTTON_10 1 << 9
 #define BUTTON_11 1 << 10
+#define BUTTON_TT_NEG 1 << 11
+#define BUTTON_TT_POS 1 << 12
 #define EFFECTORS_ALL (BUTTON_8 | BUTTON_9 | BUTTON_10 | BUTTON_11)
-
-// Digital TT
-#define BUTTON_12 1 << 11
-#define BUTTON_13 1 << 12
