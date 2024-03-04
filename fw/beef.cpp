@@ -60,7 +60,7 @@ void debounce(DebounceState* debounce, uint16_t mask) {
     (debounce->debounce(button_state & mask));
 }
 
-int main(void) {
+int main() {
   hwinit();
 
   config_init(&current_config);
@@ -91,7 +91,7 @@ int main(void) {
 
   GlobalInterruptEnable();
 
-  while (1) {
+  while (true) {
     HID_Device_USBTask(&Joystick_HID_Interface);
     HID_Task();
     USB_USBTask();
@@ -104,8 +104,7 @@ int main(void) {
                tt_x.a_pin,
                tt_x.b_pin,
                &tt_x.prev,
-               &tt_x.tt_position,
-               current_config);
+               &tt_x.tt_position);
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
 
     process_buttons(tt1_report);
@@ -115,14 +114,13 @@ int main(void) {
                    &combo_lights_timer);
 
     update_lighting(tt1_report,
-                    &combo_lights_timer,
-                    current_config);
+                    &combo_lights_timer);
   }
 }
 
 // this refers to the hardware timer peripheral
 // unrelated to the timer class in timer.h
-void hardware_timer1_init(void) {
+void hardware_timer1_init() {
   // set up Timer1 in CTC (Clear Timer on Compare Match) mode
   TCCR1B |= (1 << WGM12);
 
@@ -142,7 +140,7 @@ void hardware_timer1_init(void) {
 }
 
 // configure board hardware and chip peripherals
-void hwinit(void) {
+void hwinit() {
   // disable watchdog if enabled by bootloader/fuses
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
@@ -157,20 +155,12 @@ void hwinit(void) {
   set_hid_standby_lighting(&led_state_from_hid_report);
 }
 
-// event handler for USB connection event
-void EVENT_USB_Device_Connect(void){}
-
-// event handler for USB disconnection event
-void EVENT_USB_Device_Disconnect(void){}
-
 // event handler for USB config change event
-void EVENT_USB_Device_ConfigurationChanged(void) {
+void EVENT_USB_Device_ConfigurationChanged() {
   // setup HID report endpoints
   Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
   Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 }
-
-void EVENT_USB_Device_ControlRequest(void){}
 
 // process last received report from the host.
 void ProcessGenericHIDReport(hid_lights led_state) {
@@ -182,7 +172,7 @@ void ProcessGenericHIDReport(hid_lights led_state) {
   led_state_from_hid_report = led_state;
 }
 
-void HID_Task(void) {
+void HID_Task() {
   Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
 
   // check if a packet has been sent from the host
@@ -193,7 +183,7 @@ void HID_Task(void) {
       hid_lights led_state;
 
       // read generic report data
-      Endpoint_Read_Stream_LE(&led_state, sizeof(led_state), NULL);
+      Endpoint_Read_Stream_LE(&led_state, sizeof(led_state), nullptr);
 
       // process generic report data
       ProcessGenericHIDReport(led_state);
@@ -221,12 +211,6 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
   return false;
 }
-
-void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                          const uint8_t ReportID,
-                                          const uint8_t ReportType,
-                                          const void* ReportData,
-                                          const uint16_t ReportSize){}
 
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
@@ -270,19 +254,18 @@ void process_buttons(int8_t tt1_report) {
   debounce(&effectors_debounce, EFFECTORS_ALL);
 }
 
-void process_button(volatile uint8_t* PIN,
+void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin) {
   bool pressed = ~*PIN & (1 << input_pin);
   button_state |= pressed << button_number;
 }
 
-void process_tt(volatile uint8_t* PIN,
+void process_tt(const volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                uint16_t* tt_position,
-                config current_config) {
+                uint16_t* tt_position) {
   // tt logic
   // example where tt_x wired to F0/F1:
   // curr is binary number ab
@@ -291,7 +274,7 @@ void process_tt(volatile uint8_t* PIN,
   // therefore when F0 == 1 and F1 == 0, then curr == 0b10
   int8_t a = *PIN & (1 << a_pin) ? 1 : 0;
   int8_t b = *PIN & (1 << b_pin) ? 1 : 0;
-  int8_t curr = (a << 1) | b;
+  int8_t curr = a << 1 | b;
 
   int8_t direction = current_config.reverse_tt ? -1 : 1;
 
@@ -311,16 +294,13 @@ void process_tt(volatile uint8_t* PIN,
 }
 
 void update_lighting(int8_t tt1_report,
-                     timer* combo_lights_timer,
-                     config current_config) {
+                     timer* combo_lights_timer) {
   if (reactive_led) {
     update_button_lighting(button_state,
-                           combo_lights_timer,
-                           current_config);
+                           combo_lights_timer);
   } else {
     update_button_lighting(led_state_from_hid_report.buttons,
-                           combo_lights_timer,
-                           current_config);
+                           combo_lights_timer);
   }
 
   if (!current_config.disable_led) {
@@ -346,8 +326,7 @@ void update_lighting(int8_t tt1_report,
 }
 
 void update_button_lighting(uint16_t led_state,
-                            timer* combo_lights_timer,
-                            config current_config) {
+                            timer* combo_lights_timer) {
   if (current_config.disable_led) {
     led_state = 0;
   }
@@ -365,10 +344,6 @@ void update_button_lighting(uint16_t led_state,
   }
 }
 
-bool is_pressed(uint16_t button_bits) {
-  return button_state & button_bits;
-}
-
-bool is_pressed_strict(uint16_t button_bits, uint16_t ignore) {
+bool is_pressed(uint16_t button_bits, uint16_t ignore) {
   return (button_state & ~ignore) == button_bits;
 }

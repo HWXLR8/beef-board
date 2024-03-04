@@ -34,7 +34,7 @@ void Ticker::reset() {
   current_ticks = 0;
 }
 
-uint32_t Ticker::get_nearest_tick(uint32_t now) {
+uint32_t Ticker::get_nearest_tick(uint32_t now) const {
   // Round down to nearest tick
   return now - (now % tick_duration);
 }

@@ -13,5 +13,5 @@ private:
   uint32_t tick_limit;
   uint32_t current_ticks{};
 
-  uint32_t get_nearest_tick(uint32_t now);
+  uint32_t get_nearest_tick(uint32_t now) const;
 };

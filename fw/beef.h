@@ -7,7 +7,6 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
-#include "config.h"
 #include "rgb.h"
 #include "timer.h"
 
@@ -23,50 +22,32 @@ typedef struct {
 extern bool reactive_led;
 extern bool rgb_standby;
 
-void hwinit(void);
-void hardware_timer1_init(void);
+void hwinit();
+void hardware_timer1_init();
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
              uint8_t led_pin,
              uint16_t OutputData);
 void set_hid_standby_lighting(hid_lights* lights);
 void process_buttons(int8_t tt1_report);
-void process_button(volatile uint8_t* PIN,
+void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
-void process_tt(volatile uint8_t* PIN,
+void process_tt(const volatile uint8_t* PIN,
                 uint8_t a_pin,
                 uint8_t b_pin,
                 int8_t* prev,
-                uint16_t* tt_position,
-                config current_config);
+                uint16_t* tt_position);
 void update_lighting(int8_t tt1_report,
-                     timer* combo_lights_timer,
-                     config current_config);
+                     timer* combo_lights_timer);
 void update_button_lighting(uint16_t led_state,
-                            timer* combo_lights_timer,
-                            config current_config);
-bool is_pressed(uint16_t button_bits);
-bool is_pressed_strict(uint16_t button_bits, uint16_t ignore = 0);
+                            timer* combo_lights_timer);
+
+bool is_pressed(uint16_t button_bits, uint16_t ignore = 0);
 
 // HID functions
-void HID_Task(void);
-void EVENT_USB_Device_Connect(void);
-void EVENT_USB_Device_Disconnect(void);
-void EVENT_USB_Device_ConfigurationChanged(void);
-void EVENT_USB_Device_ControlRequest(void);
-void EVENT_USB_Device_StartOfFrame(void);
+void HID_Task();
 void ProcessGenericHIDReport(hid_lights led_state);
-bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                         uint8_t* const ReportID,
-                                         const uint8_t ReportType,
-                                         void* ReportData,
-                                         uint16_t* const ReportSize);
-void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                          const uint8_t ReportID,
-                                          const uint8_t ReportType,
-                                          const void* ReportData,
-                                          const uint16_t ReportSize);
 
 // button macros to map to bit positions within button_state
 #define BUTTON_1 1 << 0

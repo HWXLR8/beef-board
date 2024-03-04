@@ -341,6 +341,8 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
       Address = &ProductString;
       Size    = pgm_read_byte(&ProductString.Header.Size);
       break;
+    default:
+      break;
     }
     break;
   case HID_DTYPE_HID:
@@ -350,6 +352,8 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
   case HID_DTYPE_Report:
     Address = &JoystickReport;
     Size    = sizeof(JoystickReport);
+    break;
+  default:
     break;
   }
   *DescriptorAddress = Address;
