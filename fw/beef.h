@@ -7,6 +7,7 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
+#include "pin.h"
 #include "rgb.h"
 #include "timer.h"
 
@@ -33,11 +34,7 @@ void process_buttons(int8_t tt1_report);
 void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
-void process_tt(const volatile uint8_t* PIN,
-                uint8_t a_pin,
-                uint8_t b_pin,
-                int8_t* prev,
-                uint16_t* tt_position);
+void process_tt(tt_pins& tt_pin);
 void update_lighting(int8_t tt1_report,
                      timer* combo_lights_timer);
 void update_button_lighting(uint16_t led_state,

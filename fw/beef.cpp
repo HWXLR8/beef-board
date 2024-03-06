@@ -100,11 +100,7 @@ int main() {
       set_hid_standby_lighting(&led_state_from_hid_report);
     }
 
-    process_tt(tt_x.PIN,
-               tt_x.a_pin,
-               tt_x.b_pin,
-               &tt_x.prev,
-               &tt_x.tt_position);
+    process_tt(tt_x);
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
 
     process_buttons(tt1_report);
@@ -261,36 +257,32 @@ void process_button(const volatile uint8_t* PIN,
   button_state |= pressed << button_number;
 }
 
-void process_tt(const volatile uint8_t* PIN,
-                uint8_t a_pin,
-                uint8_t b_pin,
-                int8_t* prev,
-                uint16_t* tt_position) {
+void process_tt(tt_pins& tt_pin) {
   // tt logic
   // example where tt_x wired to F0/F1:
   // curr is binary number ab
   // where a is the signal of F0
   // and b is the signal of F1
   // therefore when F0 == 1 and F1 == 0, then curr == 0b10
-  int8_t a = *PIN & (1 << a_pin) ? 1 : 0;
-  int8_t b = *PIN & (1 << b_pin) ? 1 : 0;
-  int8_t curr = a << 1 | b;
+  int8_t a = (*tt_pin.PIN >> tt_pin.a_pin) & 1;
+  int8_t b = (*tt_pin.PIN >> tt_pin.b_pin) & 1;
+  int8_t curr = (a << 1) | b;
 
   int8_t direction = current_config.reverse_tt ? -1 : 1;
 
-  if ((*prev == 3 && curr == 1) ||
-      (*prev == 1 && curr == 0) ||
-      (*prev == 0 && curr == 2) ||
-      (*prev == 2 && curr == 3)) {
-    *tt_position -= direction;
-  } else if ((*prev == 1 && curr == 3) ||
-             (*prev == 0 && curr == 1) ||
-             (*prev == 2 && curr == 0) ||
-             (*prev == 3 && curr == 2)) {
-    *tt_position += direction;
+  if ((tt_pin.prev == 3 && curr == 1) ||
+      (tt_pin.prev == 1 && curr == 0) ||
+      (tt_pin.prev == 0 && curr == 2) ||
+      (tt_pin.prev == 2 && curr == 3)) {
+    tt_pin.tt_position -= direction;
+  } else if ((tt_pin.prev == 1 && curr == 3) ||
+             (tt_pin.prev == 0 && curr == 1) ||
+             (tt_pin.prev == 2 && curr == 0) ||
+             (tt_pin.prev == 3 && curr == 2)) {
+    tt_pin.tt_position += direction;
   }
-  *tt_position %= 256 * BEEF_TT_RATIO;
-  *prev = curr;
+  tt_pin.tt_position %= 256 * BEEF_TT_RATIO;
+  tt_pin.prev = curr;
 }
 
 void update_lighting(int8_t tt1_report,
