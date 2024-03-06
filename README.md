@@ -26,6 +26,8 @@ Various configuration options can be changed on-the-fly by holding a button comb
 | Change turntable saturation (static mode) | B4 + B11 + TT |
 | Change turntable brightness (static mode) | B6 + B11 + TT |
 
+Note: TT deadzone only affects digital TT output.
+
 ## BOM
 ```
 ### PIN HEADERS ###
