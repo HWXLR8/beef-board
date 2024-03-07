@@ -14,7 +14,7 @@ DebounceState::DebounceState(uint8_t window) {
 /*
  * Perform debounce processing. The buttons input is sampled at most once per ms
  * (when update is true); buttons is then set to the last stable state for each
- * bit (i.e., the last state maintained for {debounce_window} consecutive samples
+ * bit (i.e., the last state maintained for {debounce_window} consecutive samples)
  *
  * We use update to sync to the USB polls; this helps avoid additional latency when
  * debounce samples just after the USB poll.

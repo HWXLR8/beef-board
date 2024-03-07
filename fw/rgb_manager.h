@@ -13,7 +13,6 @@ const auto default_colour = HSV{ 127, 255, 255 }; // Aqua
 namespace RgbManager {
   namespace Turntable {
     extern timer combo_timer;
-    extern CRGB leds[RING_LIGHT_LEDS];
 
     // tentative names for LED ring modes
     enum class Mode : uint8_t {
@@ -33,7 +32,7 @@ namespace RgbManager {
     void init();
     void set_rgb(rgb_light lights);
     void set_hsv(HSV hsv);
-    void set_leds_off(void);
+    void set_leds_off();
     void reverse_tt(uint8_t reverse_tt);
     void display_tt_change(uint8_t deadzone, int range);
     void update(int8_t tt_report,
@@ -43,8 +42,6 @@ namespace RgbManager {
   }
 
   namespace Bar {
-    extern CRGB leds[LIGHT_BAR_LEDS];
-
     enum class Mode : uint8_t {
       PLACEHOLDER1, // beat
       PLACEHOLDER2, // reactive p1
@@ -57,7 +54,7 @@ namespace RgbManager {
 
     void init();
     void set_rgb(rgb_light lights);
-    void set_leds_off(void);
+    void set_leds_off();
     void update(rgb_light lights,
                 Mode mode);
   }

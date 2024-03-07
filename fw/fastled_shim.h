@@ -8,11 +8,11 @@
 
 #include "timer.h"
 
-static unsigned long millis(void) {
+static unsigned long millis() {
   return milliseconds;
 }
 
-static unsigned long micros(void) {
+static unsigned long micros() {
   uint8_t oldSREG = SREG;
   cli();
   uint32_t m = milliseconds;

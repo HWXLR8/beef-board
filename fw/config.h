@@ -31,6 +31,8 @@
   #define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
 #endif
 
+static_assert(BEEF_TT_RATIO != 0, "BEEF_TT_RATIO must not be 0");
+
 // Do not reorder these fields
 typedef struct {
   uint8_t version;

@@ -10,46 +10,46 @@ struct combo {
 
 combo button_combos[NUM_OF_COMBOS] = {
   {
-    button_combo: REVERSE_TT_COMBO,
-    config_set: toggle_reverse_tt
+    .button_combo = REVERSE_TT_COMBO,
+    .config_set = toggle_reverse_tt
   },
   {
-    button_combo: TT_EFFECTS_COMBO,
-    config_set: cycle_tt_effects
+    .button_combo = TT_EFFECTS_COMBO,
+    .config_set = cycle_tt_effects
   },
   {
-    button_combo: TT_DEADZONE_INCR_COMBO,
-    config_set: increase_deadzone
+    .button_combo = TT_DEADZONE_INCR_COMBO,
+    .config_set = increase_deadzone
   },
   {
-    button_combo: TT_DEADZONE_DECR_COMBO,
-    config_set: decrease_deadzone
+    .button_combo = TT_DEADZONE_DECR_COMBO,
+    .config_set = decrease_deadzone
   },
   {
-    button_combo: BAR_EFFECTS_COMBO,
-    config_set: cycle_bar_effects
+    .button_combo = BAR_EFFECTS_COMBO,
+    .config_set = cycle_bar_effects
   },
   {
-    button_combo: DISABLE_LED_COMBO,
-    config_set: toggle_disable_led
+    .button_combo = DISABLE_LED_COMBO,
+    .config_set = toggle_disable_led
   },
   {
-    button_combo: TT_HSV_HUE_COMBO,
-    continuous: true,
-    config_set: tt_hsv_set_hue,
-    config_update: tt_hsv_update_hue
+    .button_combo = TT_HSV_HUE_COMBO,
+    .continuous = true,
+    .config_set = tt_hsv_set_hue,
+    .config_update = tt_hsv_update_hue
   },
   {
-    button_combo: TT_HSV_SAT_COMBO,
-    continuous: true,
-    config_set: tt_hsv_set_sat,
-    config_update: tt_hsv_update_sat
+    .button_combo = TT_HSV_SAT_COMBO,
+    .continuous = true,
+    .config_set = tt_hsv_set_sat,
+    .config_update = tt_hsv_update_sat
   },
   {
-    button_combo: TT_HSV_VAL_COMBO,
-    continuous: true,
-    config_set: tt_hsv_set_val,
-    config_update: tt_hsv_update_val
+    .button_combo = TT_HSV_VAL_COMBO,
+    .continuous = true,
+    .config_set = tt_hsv_set_val,
+    .config_update = tt_hsv_update_val
   },
 };
 
@@ -61,9 +61,8 @@ void process_combos(config* current_config,
   static bool in_hid = false;
   static combo last_combo;
 
-  for (uint8_t i = 0; i < NUM_OF_COMBOS; ++i) {
-    auto button_combo = button_combos[i];
-    if (is_pressed_strict(button_combo.button_combo, BUTTON_TT_NEG | BUTTON_TT_POS)) {
+  for (auto button_combo : button_combos) {
+    if (is_pressed(button_combo.button_combo, BUTTON_TT_NEG | BUTTON_TT_POS)) {
       last_combo = button_combo;
 
       if (!combo_activated) {

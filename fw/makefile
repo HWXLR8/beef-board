@@ -31,12 +31,7 @@ include $(DMBS_LUFA_PATH)/lufa-gcc.mk
 # Include common DMBS build system modules
 DMBS_PATH ?= $(LUFA_PATH)/Build/DMBS/DMBS
 include $(DMBS_PATH)/core.mk
-include $(DMBS_PATH)/cppcheck.mk
-include $(DMBS_PATH)/dfu.mk
 include $(DMBS_PATH)/gcc.mk
-include $(DMBS_PATH)/hid.mk
-include $(DMBS_PATH)/avrdude.mk
-include $(DMBS_PATH)/atprogram.mk
 
 .PHONY: dfu
 dfu: all

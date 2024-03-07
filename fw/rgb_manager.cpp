@@ -16,7 +16,7 @@ namespace RgbManager {
   }
 
   void set_hsv(CRGB* leds, uint8_t n, HSV hsv) {
-    CRGB rgb;
+    CRGB rgb{};
     hsv2rgb_spectrum(CHSV{hsv.h, hsv.s, hsv.v}, rgb);
     fill_solid(leds, n, rgb);
   }
@@ -28,7 +28,7 @@ namespace RgbManager {
                  uint8_t h, uint8_t s) {
     static uint8_t theta = 0;
     static Ticker sin_ticker(8, DURATION);
-    static timer breathing_timer = {0};
+    static timer breathing_timer{};
     static uint8_t v = 0;
 
     if (!timer_is_active(&breathing_timer)) {
@@ -79,15 +79,15 @@ namespace RgbManager {
       RgbManager::set_hsv(leds, RING_LIGHT_LEDS, hsv);
     }
 
-    void set_leds_blue(void) {
+    void set_leds_blue() {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Blue);
     }
 
-    void set_leds_red(void) {
+    void set_leds_red() {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Red);
     }
 
-    void set_leds_off(void) {
+    void set_leds_off() {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
     }
 
@@ -100,7 +100,7 @@ namespace RgbManager {
     }
 
     // Render two spinning turquoise LEDs
-    void spin(void) {
+    void spin() {
       static bool first_call = true;
       static uint8_t spin_counter = 0;
       static Ticker ticker(SPIN_TIMER);
@@ -227,7 +227,7 @@ namespace RgbManager {
       RgbManager::set_rgb(leds, LIGHT_BAR_LEDS, lights);
     }
 
-    void set_leds_off(void) {
+    void set_leds_off() {
       fill_solid(leds, LIGHT_BAR_LEDS, CRGB::Black);
     }
 

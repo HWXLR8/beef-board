@@ -14,8 +14,6 @@
 #define MAGIC 0xBEEF
 
 #include <avr/eeprom.h>
-#include <stdbool.h>
-#include <stdint.h>
 
 #include "analog_turntable.h"
 #include "config.h"
@@ -38,23 +36,18 @@ bool update_config(config* self) {
   case 0:
     self->tt_effect = RgbManager::Turntable::Mode::SPIN;
     self->version++;
-    update = true;
   case 1:
     self->tt_deadzone = 4;
     self->version++;
-    update = true;
   case 2:
     self->bar_effect = RgbManager::Bar::Mode::HID;
     self->version++;
-    update = true;
   case 3:
     self->disable_led = 0;
     self->version++;
-    update = true;
   case 4:
     self->tt_hsv = default_colour;
     self->version++;
-    update = true;
   case 5:
     if (self->tt_effect >= RgbManager::Turntable::Mode::RAINBOW_SPIN) // Added new effect
       self->tt_effect = RgbManager::Turntable::Mode(uint8_t(self->tt_effect)+1);
@@ -68,11 +61,11 @@ bool update_config(config* self) {
 void config_init(config* self) {
   eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
 
-  bool update = false;
-  uint16_t magic = eeprom_read_word(0);
+  bool update;
+  uint16_t magic = eeprom_read_word(nullptr);
   if (magic != MAGIC) {
     update = true;
-    eeprom_write_word(0, MAGIC);
+    eeprom_write_word(nullptr, MAGIC);
     init_config(self);
   } else {
     update = update_config(self);
