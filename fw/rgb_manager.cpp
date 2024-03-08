@@ -72,7 +72,7 @@ namespace RgbManager {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
     }
 
-    // Render two spinning turquoise LEDs
+    // Render two spinning LEDs
     void spin(const HSV &hsv) {
       static bool first_call = true;
       static uint8_t spin_counter = 0;
