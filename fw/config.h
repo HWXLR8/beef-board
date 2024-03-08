@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pin.h"
-#include "rgb_manager.h"
+#include "rgb.h"
 
 #define CONFIG_ALL_HW_PIN { \
   CONFIG_HW_PIN(E0, E1),  /* BUTTON 1  */ \
@@ -34,32 +34,38 @@
 static_assert(BEEF_TT_RATIO != 0, "BEEF_TT_RATIO must not be 0");
 
 // Do not reorder these fields
-typedef struct {
+struct config {
   uint8_t version;
   uint8_t reverse_tt;
-  RgbManager::Turntable::Mode tt_effect;
+  TurntableMode tt_effect;
   uint8_t tt_deadzone;
-  RgbManager::Bar::Mode bar_effect;
+  BarMode bar_effect;
   uint8_t disable_led;
-  HSV tt_hsv;
-} config;
+  HSV tt_static_hsv;
+  HSV tt_spin_hsv;
+  HSV tt_shift_hsv;
+  HSV tt_react_hsv;
+  HSV tt_breathing_hsv;
+};
+
+struct callback {
+  uint8_t* addr;
+  uint8_t val;
+};
 
 void config_init(config* self);
-void toggle_reverse_tt(config* self);
-void cycle_tt_effects(config* self);
-void tt_hsv_set_hue(config* self);
-void tt_hsv_update_hue(config* self);
-void tt_hsv_set_sat(config* self);
-void tt_hsv_update_sat(config* self);
-void tt_hsv_set_val(config* self);
-void tt_hsv_update_val(config* sel);
-void increase_deadzone(config* self);
-void decrease_deadzone(config* self);
-void cycle_bar_effects(config* self);
-void toggle_disable_led(config* self);
+void config_update(uint8_t* addr, uint8_t val);
+callback toggle_reverse_tt(config* self);
+callback cycle_tt_effects(config* self);
+callback tt_hsv_set_hue(config* self);
+callback tt_hsv_set_sat(config* self);
+callback tt_hsv_set_val(config* self);
+callback increase_deadzone(config* self);
+callback decrease_deadzone(config* self);
+callback cycle_bar_effects(config* self);
+callback toggle_disable_led(config* self);
 
 // button combos
-#define NUM_OF_COMBOS 9
 #define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)
 #define TT_EFFECTS_COMBO (BUTTON_2 | BUTTON_8 | BUTTON_11)
 #define TT_DEADZONE_INCR_COMBO (BUTTON_3 | BUTTON_8 | BUTTON_11)
