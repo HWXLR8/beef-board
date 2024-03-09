@@ -98,14 +98,28 @@ namespace RgbManager {
       set_hsv({ h, hsv.s, hsv.v });
     }
 
-    void render_rainbow(uint8_t pos = 0) {
+    void render_rainbow(const HSV &hsv, const uint8_t pos = 0) {
       fill_rainbow_circular(leds, RING_LIGHT_LEDS, pos);
+
+      // Emulate HSV adjustments
+      for (auto &led : leds) {
+        led += (CRGB::White - led).
+          scale8(255 - hsv.s);
+        led.nscale8(hsv.v);
+      }
     }
 
-    void render_rainbow_pos(int8_t tt_report) {
+    void render_rainbow_pos(const HSV &hsv, const int8_t tt_report) {
+      static bool first_call = true;
       static uint8_t pos = 0;
-      pos += -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
-      render_rainbow(pos);
+      static Ticker t(3);
+
+      const auto ticks = t.get_ticks();
+      if (ticks > 0 || first_call) {
+        pos += ticks * -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
+        render_rainbow(hsv, pos);
+        first_call = false;
+      }
     }
 
     void react(const int8_t tt_report, const HSV &hsv) {
@@ -172,13 +186,14 @@ namespace RgbManager {
             colour_shift(current_config.tt_shift_hsv);
             break;
           case TurntableMode::RAINBOW_STATIC:
-            render_rainbow();
+            render_rainbow(current_config.tt_rainbow_static_hsv);
             break;
           case TurntableMode::RAINBOW_REACT:
-            render_rainbow_pos(tt_report);
+            render_rainbow_pos(current_config.tt_rainbow_react_hsv,
+                               tt_report);
             break;
           case TurntableMode::RAINBOW_SPIN:
-            render_rainbow_pos(1);
+            render_rainbow_pos(current_config.tt_rainbow_spin_hsv, 1);
             break;
           case TurntableMode::REACT:
             react(tt_report, current_config.tt_react_hsv);

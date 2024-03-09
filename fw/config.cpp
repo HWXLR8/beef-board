@@ -12,6 +12,12 @@
 #define CONFIG_TT_SPIN_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_spin_hsv.h))
 #define CONFIG_TT_SHIFT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_shift_hsv.s))
 #define CONFIG_TT_SHIFT_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_shift_hsv.v))
+#define CONFIG_TT_RAINBOW_STATIC_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_static_hsv.s))
+#define CONFIG_TT_RAINBOW_STATIC_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_static_hsv.v))
+#define CONFIG_TT_RAINBOW_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_react_hsv.s))
+#define CONFIG_TT_RAINBOW_REACT_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_react_hsv.v))
+#define CONFIG_TT_RAINBOW_SPIN_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_spin_hsv.s))
+#define CONFIG_TT_RAINBOW_SPIN_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_spin_hsv.v))
 #define CONFIG_TT_REACT_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.h))
 #define CONFIG_TT_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.s))
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
@@ -38,6 +44,9 @@ void init_config(config* self) {
   self->tt_static_hsv = DEFAULT_COLOUR;
   self->tt_spin_hsv = DEFAULT_COLOUR;
   self->tt_shift_hsv = { 0, 255, 255 };
+  self->tt_rainbow_react_hsv = { 0, 255, 255 };
+  self->tt_rainbow_react_hsv = { 0, 255, 255 };
+  self->tt_rainbow_spin_hsv = { 0, 255, 255 };
   self->tt_react_hsv = DEFAULT_COLOUR;
   self->tt_breathing_hsv = DEFAULT_COLOUR;
 }
@@ -68,6 +77,9 @@ bool update_config(config* self) {
     case 6:
       self->tt_spin_hsv = DEFAULT_COLOUR;
       self->tt_shift_hsv = { 0, 255, 255 };
+      self->tt_rainbow_react_hsv = { 0, 255, 255 };
+      self->tt_rainbow_react_hsv = { 0, 255, 255 };
+      self->tt_rainbow_spin_hsv = { 0, 255, 255 };
       self->tt_react_hsv = DEFAULT_COLOUR;
       self->tt_breathing_hsv = DEFAULT_COLOUR;
       self->version++;
@@ -162,6 +174,18 @@ callback tt_hsv_set_sat(config* self) {
       addr = CONFIG_TT_SHIFT_SAT_ADDR;
       s = &self->tt_shift_hsv;
       break;
+    case TurntableMode::RAINBOW_STATIC:
+      addr = CONFIG_TT_RAINBOW_STATIC_SAT_ADDR;
+      s = &self->tt_rainbow_static_hsv;
+      break;
+    case TurntableMode::RAINBOW_REACT:
+      addr = CONFIG_TT_RAINBOW_REACT_SAT_ADDR;
+      s = &self->tt_rainbow_react_hsv;
+      break;
+    case TurntableMode::RAINBOW_SPIN:
+      addr = CONFIG_TT_RAINBOW_SPIN_SAT_ADDR;
+      s = &self->tt_rainbow_spin_hsv;
+      break;
     case TurntableMode::REACT:
       addr = CONFIG_TT_REACT_SAT_ADDR;
       s = &self->tt_react_hsv;
@@ -197,6 +221,18 @@ callback tt_hsv_set_val(config* self) {
     case TurntableMode::SHIFT:
       addr = CONFIG_TT_SHIFT_VAL_ADDR;
       v = &self->tt_shift_hsv;
+      break;
+    case TurntableMode::RAINBOW_STATIC:
+      addr = CONFIG_TT_RAINBOW_STATIC_SAT_ADDR;
+      v = &self->tt_rainbow_static_hsv;
+      break;
+    case TurntableMode::RAINBOW_REACT:
+      addr = CONFIG_TT_RAINBOW_REACT_SAT_ADDR;
+      v = &self->tt_rainbow_react_hsv;
+      break;
+    case TurntableMode::RAINBOW_SPIN:
+      addr = CONFIG_TT_RAINBOW_SPIN_SAT_ADDR;
+      v = &self->tt_rainbow_spin_hsv;
       break;
     default:
       return callback{};

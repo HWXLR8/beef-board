@@ -44,6 +44,9 @@ struct config {
   HSV tt_static_hsv;
   HSV tt_spin_hsv;
   HSV tt_shift_hsv;
+  HSV tt_rainbow_static_hsv;
+  HSV tt_rainbow_react_hsv;
+  HSV tt_rainbow_spin_hsv;
   HSV tt_react_hsv;
   HSV tt_breathing_hsv;
 };
