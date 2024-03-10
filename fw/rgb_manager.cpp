@@ -7,6 +7,7 @@
 #define TT_DATA_PIN  15 // C5
 
 #define SPIN_TIMER 50
+#define REACT_TIMER 500
 #define BREATHING_TIMER 3000
 
 namespace RgbManager {
@@ -17,15 +18,14 @@ namespace RgbManager {
 
   void set_hsv(CRGB* leds, uint8_t n, HSV hsv) {
     CRGB rgb{};
-    hsv2rgb_spectrum(CHSV{hsv.h, hsv.s, hsv.v}, rgb);
+    hsv2rgb_spectrum(CHSV(hsv.h, hsv.s, hsv.v), rgb);
     fill_solid(leds, n, rgb);
   }
 
   // Cycle from zero to full-bright to zero in around 2 seconds
   // Share same lighting state between TT and light bar
   template<int DURATION, int TIMER>
-  void breathing(CRGB* leds, int n,
-                 uint8_t h, uint8_t s) {
+  void breathing(CRGB* leds, const int n, const HSV hsv) {
     static uint8_t theta = 0;
     static Ticker sin_ticker(8, DURATION);
     static timer breathing_timer{};
@@ -42,13 +42,13 @@ namespace RgbManager {
       v = quadwave8(theta);
     }
 
-    set_hsv(leds, n, HSV{h, s, v});
+    set_hsv(leds, n, { hsv.h, hsv.s, v });
   }
 
   void hid(CRGB* leds, int n,
            rgb_light lights) {
     if (rgb_standby)
-      breathing<0, 0>(leds, n, 0, 0);
+      breathing<0, 0>(leds, n, {});
     else
       set_rgb(leds, n, lights);
   }
@@ -56,51 +56,24 @@ namespace RgbManager {
   namespace Turntable {
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS] = {0};
-    timer scr_timer;
 
     void init() {
-      static bool inited = false;
-      if (!inited) {
-        inited = true;
+      timer_init(&combo_timer);
 
-        timer_init(&combo_timer);
-        timer_init(&scr_timer);
-
-        FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS)
-          .setDither(DISABLE_DITHER);
-      } 
-    }
-
-    void set_rgb(rgb_light lights) {
-      RgbManager::set_rgb(leds, RING_LIGHT_LEDS, lights);
+      FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, RING_LIGHT_LEDS)
+        .setDither(DISABLE_DITHER);
     }
 
     void set_hsv(HSV hsv) {
       RgbManager::set_hsv(leds, RING_LIGHT_LEDS, hsv);
     }
 
-    void set_leds_blue() {
-      fill_solid(leds, RING_LIGHT_LEDS, CRGB::Blue);
-    }
-
-    void set_leds_red() {
-      fill_solid(leds, RING_LIGHT_LEDS, CRGB::Red);
-    }
-
     void set_leds_off() {
       fill_solid(leds, RING_LIGHT_LEDS, CRGB::Black);
     }
 
-    void colour_shift() {
-      static HSV hsv = { 0, 255, 255 };
-      static Ticker ticker(100);
-
-      hsv.h += ticker.get_ticks();
-      set_hsv(hsv);
-    }
-
-    // Render two spinning turquoise LEDs
-    void spin() {
+    // Render two spinning LEDs
+    void spin(const HSV &hsv) {
       static bool first_call = true;
       static uint8_t spin_counter = 0;
       static Ticker ticker(SPIN_TIMER);
@@ -109,33 +82,66 @@ namespace RgbManager {
       if (ticks > 0 || first_call) {
         spin_counter = (spin_counter + ticks) % (RING_LIGHT_LEDS / 2);
         set_leds_off();
-        leds[spin_counter] = CRGB::Aqua;
-        leds[spin_counter+12] = CRGB::Aqua;
+
+        const auto colour = CHSV(hsv.h, 255, 255);
+        leds[spin_counter] = colour;
+        leds[spin_counter+12] = colour;
         first_call = false;
       }
     }
 
-    void render_rainbow(uint8_t pos = 0) {
+    void colour_shift(const HSV &hsv) {
+      static uint8_t h;
+      static Ticker ticker(100);
+
+      h += ticker.get_ticks();
+      set_hsv({ h, hsv.s, hsv.v });
+    }
+
+    void render_rainbow(const HSV &hsv, const uint8_t pos = 0) {
       fill_rainbow_circular(leds, RING_LIGHT_LEDS, pos);
+
+      // Emulate HSV adjustments
+      for (auto &led : leds) {
+        led += (CRGB::White - led).
+          scale8(255 - hsv.s);
+        led.nscale8(hsv.v);
+      }
     }
 
-    void render_rainbow_pos(int8_t tt_report) {
+    void render_rainbow_pos(const HSV &hsv, const int8_t tt_report) {
+      static bool first_call = true;
       static uint8_t pos = 0;
-      pos += -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
-      render_rainbow(pos);
+      static Ticker t(3);
+
+      const auto ticks = t.get_ticks();
+      if (ticks > 0 || first_call) {
+        pos += ticks * -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
+        render_rainbow(hsv, pos);
+        first_call = false;
+      }
     }
 
-    void react_to_scr(int8_t tt_report) {
-      if (tt_report == 1) {
-        set_leds_blue();
-        timer_arm(&scr_timer, 500);
-      } else if (tt_report == -1) {
-        set_leds_red();
-        timer_arm(&scr_timer, 500);
+    void react(const int8_t tt_report, const HSV &hsv) {
+      static uint8_t h = hsv.h;
+      static timer scr_timer;
+
+      switch (tt_report) {
+        case 1:
+          h = hsv.h;
+          timer_arm(&scr_timer, REACT_TIMER);
+          break;
+        case -1:
+          h = hsv.h + 128;
+          timer_arm(&scr_timer, REACT_TIMER);
+          break;
+        default:
+          break;
       }
-      if (!timer_is_active(&scr_timer)) {
-        set_leds_off();
-      }
+
+      const uint8_t v = timer_is_active(&scr_timer) ? 255 : 64;
+
+      set_hsv({ h, hsv.s, v });
     }
 
     // Illuminate + as blue, - as red in two halves
@@ -164,43 +170,44 @@ namespace RgbManager {
     }
 
     // tt +1 is counter-clockwise, -1 is clockwise
-    void update(int8_t tt_report,
-                rgb_light lights,
-                HSV hsv,
-                Mode mode) {
-      // Ignore turtable effect if notifying a mode change
+    void update(const int8_t tt_report,
+                const rgb_light &lights,
+                const config &current_config) {
+      // Ignore turntable effect if notifying a mode change
       if (!timer_is_active(&combo_timer)) {
-        switch(mode) {
-          case Mode::STATIC:
-            set_hsv(hsv);
+        switch(current_config.tt_effect) {
+          case TurntableMode::STATIC:
+            set_hsv(current_config.tt_static_hsv);
             break;
-          case Mode::SHIFT:
-            colour_shift();
+          case TurntableMode::SPIN:
+            spin(current_config.tt_spin_hsv);
             break;
-          case Mode::SPIN:
-            spin();
+          case TurntableMode::SHIFT:
+            colour_shift(current_config.tt_shift_hsv);
             break;
-          case Mode::RAINBOW_STATIC:
-            render_rainbow();
+          case TurntableMode::RAINBOW_STATIC:
+            render_rainbow(current_config.tt_rainbow_static_hsv);
             break;
-          case Mode::RAINBOW_REACT:
-            render_rainbow_pos(tt_report);
+          case TurntableMode::RAINBOW_REACT:
+            render_rainbow_pos(current_config.tt_rainbow_react_hsv,
+                               tt_report);
             break;
-          case Mode::RAINBOW_SPIN:
-            render_rainbow_pos(1);
+          case TurntableMode::RAINBOW_SPIN:
+            render_rainbow_pos(current_config.tt_rainbow_spin_hsv, 1);
             break;
-          case Mode::REACT_TO_SCR:
-            react_to_scr(tt_report);
+          case TurntableMode::REACT:
+            react(tt_report, current_config.tt_react_hsv);
             break;
-          case Mode::BREATHING:
+          case TurntableMode::BREATHING:
             // Add a second-long rest period
-            breathing<2048, BREATHING_TIMER>(leds, RING_LIGHT_LEDS,
-              default_colour.h, default_colour.s);
+            breathing<2048, BREATHING_TIMER>(
+              leds, RING_LIGHT_LEDS,
+              current_config.tt_breathing_hsv);
             break;
-          case Mode::HID:
+          case TurntableMode::HID:
             hid(leds, RING_LIGHT_LEDS, lights);
             break;
-          case Mode::DISABLE:
+          case TurntableMode::DISABLE:
             set_leds_off();
             break;
           default:
@@ -214,35 +221,31 @@ namespace RgbManager {
     CRGB leds[LIGHT_BAR_LEDS] = {0};
 
     void init() {
-      static bool inited = false;
-      if (!inited) {
-        inited = true;
-
-        FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS)
-          .setDither(DISABLE_DITHER);
-      }
-    }
-
-    void set_rgb(rgb_light lights) {
-      RgbManager::set_rgb(leds, LIGHT_BAR_LEDS, lights);
+      FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS)
+        .setDither(DISABLE_DITHER);
     }
 
     void set_leds_off() {
       fill_solid(leds, LIGHT_BAR_LEDS, CRGB::Black);
     }
 
-    void update(rgb_light lights,
-                Mode mode) {
-      switch(mode) {
-        case Mode::HID:
+    void update(const rgb_light &lights,
+                const config &current_config) {
+      switch(current_config.bar_effect) {
+        case BarMode::HID:
           hid(leds, LIGHT_BAR_LEDS, lights);
           break;
-        case Mode::DISABLE:
+        case BarMode::DISABLE:
           set_leds_off();
           break;
         default:
           break;
       }
     }
+  }
+
+  void init() {
+    Turntable::init();
+    Bar::init();
   }
 }

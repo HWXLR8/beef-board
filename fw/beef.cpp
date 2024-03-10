@@ -74,8 +74,7 @@ int main() {
 
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
-  RgbManager::Turntable::init();
-  RgbManager::Bar::init();
+  RgbManager::init();
 
   // tt_x DATA lines wired to F0/F1
   DDRF  &= 0b11111100;
@@ -257,7 +256,7 @@ void process_button(const volatile uint8_t* PIN,
   button_state |= pressed << button_number;
 }
 
-void process_tt(tt_pins& tt_pin) {
+void process_tt(tt_pins &tt_pin) {
   // tt logic
   // example where tt_x wired to F0/F1:
   // curr is binary number ab
@@ -308,10 +307,9 @@ void update_lighting(int8_t tt1_report,
 
     RgbManager::Turntable::update(tt1_report,
                                   led_state_from_hid_report.tt_lights,
-                                  current_config.tt_hsv,
-                                  current_config.tt_effect);
+                                  current_config);
     RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                            current_config.bar_effect);
+                            current_config);
 
     FastLED.show();
   }
