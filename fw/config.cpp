@@ -1,4 +1,3 @@
-#pragma region Addresses
 #define CONFIG_BASE_ADDR (uint8_t*)2
 #define CONFIG_VERSION_ADDR (CONFIG_BASE_ADDR + offsetof(config, version))
 #define CONFIG_REVERSE_TT_ADDR (CONFIG_BASE_ADDR + offsetof(config, reverse_tt))
@@ -22,7 +21,6 @@
 #define CONFIG_TT_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.s))
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
 #define CONFIG_TT_BREATHING_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.s))
-#pragma endregion Addresses
 
 #define CONFIG_VERSION 7
 #define MAGIC 0xBEEF
