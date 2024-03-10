@@ -1,3 +1,9 @@
+#include <avr/wdt.h>
+#include <avr/power.h>
+#include <avr/interrupt.h>
+
+#include <LUFA/Drivers/USB/USB.h>
+#include <LUFA/Platform/Platform.h>
 #include "Descriptors.h"
 
 #include "analog_turntable.h"
@@ -200,7 +206,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
   // so bit-shift bits 8 and up once
   uint8_t upper = button_state >> 7;
   uint8_t lower = button_state & 0x7F;
-  JoystickReport->X = tt_x.tt_position / BEEF_TT_RATIO;
+  JoystickReport->X = tt_x.tt_position / current_config.tt_ratio;
   JoystickReport->Button = (upper << 8) | lower;
 
   *ReportSize = sizeof(USB_JoystickReport_Data_t);
@@ -280,7 +286,7 @@ void process_tt(tt_pins &tt_pin) {
              (tt_pin.prev == 3 && curr == 2)) {
     tt_pin.tt_position += direction;
   }
-  tt_pin.tt_position %= 256 * BEEF_TT_RATIO;
+  tt_pin.tt_position %= 256 * current_config.tt_ratio;
   tt_pin.prev = curr;
 }
 

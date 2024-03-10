@@ -1,12 +1,5 @@
 #pragma once
 
-#include <avr/wdt.h>
-#include <avr/power.h>
-#include <avr/interrupt.h>
-
-#include <LUFA/Drivers/USB/USB.h>
-#include <LUFA/Platform/Platform.h>
-
 #include "pin.h"
 #include "rgb.h"
 #include "timer.h"
@@ -20,6 +13,7 @@ typedef struct {
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
+extern uint16_t button_state;
 extern bool reactive_led;
 extern bool rgb_standby;
 

@@ -19,7 +19,9 @@ namespace RgbManager {
 
     void set_leds_off();
     void reverse_tt(uint8_t reverse_tt);
-    void display_tt_change(uint8_t deadzone, int range);
+    void display_tt_change(const CRGB &colour,
+                           uint8_t value,
+                           const uint8_t range);
     void update(int8_t tt_report,
                 const rgb_light &lights,
                 const config &current_config);

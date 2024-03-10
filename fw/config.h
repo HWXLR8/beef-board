@@ -31,8 +31,6 @@
   #define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
 #endif
 
-static_assert(BEEF_TT_RATIO != 0, "BEEF_TT_RATIO must not be 0");
-
 // Do not reorder these fields
 struct config {
   uint8_t version;
@@ -49,6 +47,7 @@ struct config {
   HSV tt_rainbow_spin_hsv;
   HSV tt_react_hsv;
   HSV tt_breathing_hsv;
+  uint8_t tt_ratio;
 };
 
 struct callback {
@@ -65,16 +64,7 @@ callback tt_hsv_set_sat(config* self);
 callback tt_hsv_set_val(config* self);
 callback increase_deadzone(config* self);
 callback decrease_deadzone(config* self);
+callback increase_ratio(config* self);
+callback decrease_ratio(config* self);
 callback cycle_bar_effects(config* self);
 callback toggle_disable_led(config* self);
-
-// button combos
-#define REVERSE_TT_COMBO (BUTTON_1 | BUTTON_7 | BUTTON_8)
-#define TT_EFFECTS_COMBO (BUTTON_2 | BUTTON_8 | BUTTON_11)
-#define TT_DEADZONE_INCR_COMBO (BUTTON_3 | BUTTON_8 | BUTTON_11)
-#define TT_DEADZONE_DECR_COMBO (BUTTON_1 | BUTTON_8 | BUTTON_11)
-#define BAR_EFFECTS_COMBO (BUTTON_6 | BUTTON_8 | BUTTON_10)
-#define DISABLE_LED_COMBO (BUTTON_4 | BUTTON_8 | BUTTON_11)
-#define TT_HSV_HUE_COMBO (BUTTON_2 | BUTTON_11)
-#define TT_HSV_SAT_COMBO (BUTTON_4 | BUTTON_11)
-#define TT_HSV_VAL_COMBO (BUTTON_6 | BUTTON_11)
