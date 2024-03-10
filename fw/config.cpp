@@ -253,40 +253,47 @@ callback tt_hsv_set_val(config* self) {
 
 #define DEADZONE_MAX 6
 #define DEADZONE_MIN 1
+void update_deadzone(const uint8_t deadzone) {
+  eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, deadzone);
+
+  tt1.deadzone = deadzone;
+
+  RgbManager::Turntable::display_tt_change(CRGB::Red, deadzone, DEADZONE_MAX);
+}
+
 callback increase_deadzone(config* self) {
-  if (++self->tt_deadzone > DEADZONE_MAX) {
+  if (++self->tt_deadzone > DEADZONE_MAX)
     self->tt_deadzone = DEADZONE_MAX;
-  }
-  eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, self->tt_deadzone);
 
-  tt1.deadzone = self->tt_deadzone;
-
-  RgbManager::Turntable::display_tt_change(CRGB::Red, self->tt_deadzone, DEADZONE_MAX);
+  update_deadzone(self->tt_deadzone);
 
   return callback{};
 }
 
 callback decrease_deadzone(config* self) {
-  if (--self->tt_deadzone < DEADZONE_MIN) {
+  if (--self->tt_deadzone < DEADZONE_MIN)
     self->tt_deadzone = DEADZONE_MIN;
-  }
-  eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, self->tt_deadzone);
 
-  tt1.deadzone = self->tt_deadzone;
-
-  RgbManager::Turntable::display_tt_change(CRGB::Red, self->tt_deadzone, DEADZONE_MAX);
+  update_deadzone(self->tt_deadzone);
 
   return callback{};
 }
 
 #define RATIO_MAX 6
 #define RATIO_MIN 1
+void update_ratio(const uint8_t ratio) {
+  eeprom_update_byte(CONFIG_TT_RATIO_ADDR, ratio);
+
+  // Present TT ratio as TT sensitivity to the user
+  RgbManager::Turntable::display_tt_change(CRGB::Green,
+                                           RATIO_MAX+1-ratio, RATIO_MAX);
+}
+
 callback increase_ratio(config* self) {
   if (++self->tt_ratio > RATIO_MAX)
     self->tt_ratio = RATIO_MAX;
-  eeprom_update_byte(CONFIG_TT_RATIO_ADDR, self->tt_ratio);
 
-  RgbManager::Turntable::display_tt_change(CRGB::Green, self->tt_ratio, RATIO_MAX);
+  update_ratio(self->tt_ratio);
 
   return callback{};
 }
@@ -294,9 +301,8 @@ callback increase_ratio(config* self) {
 callback decrease_ratio(config* self) {
   if (--self->tt_ratio < RATIO_MIN)
     self->tt_ratio = RATIO_MIN;
-  eeprom_update_byte(CONFIG_TT_RATIO_ADDR, self->tt_ratio);
 
-  RgbManager::Turntable::display_tt_change(CRGB::Green, self->tt_ratio, RATIO_MAX);
+  update_ratio(self->tt_ratio);
 
   return callback{};
 }
