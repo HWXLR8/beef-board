@@ -21,8 +21,9 @@
 #define CONFIG_TT_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.s))
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
 #define CONFIG_TT_BREATHING_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.s))
+#define CONFIG_TT_RATIO_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_ratio))
 
-#define CONFIG_VERSION 7
+#define CONFIG_VERSION 8
 #define MAGIC 0xBEEF
 
 #include <avr/eeprom.h>
@@ -47,6 +48,7 @@ void init_config(config* self) {
   self->tt_rainbow_spin_hsv = { 0, 255, 255 };
   self->tt_react_hsv = DEFAULT_COLOUR;
   self->tt_breathing_hsv = DEFAULT_COLOUR;
+  self->tt_ratio = 2;
 }
 
 bool update_config(config* self) {
@@ -81,6 +83,9 @@ bool update_config(config* self) {
       self->tt_react_hsv = DEFAULT_COLOUR;
       self->tt_breathing_hsv = DEFAULT_COLOUR;
       self->version++;
+    case 7:
+      self->tt_ratio = 2;
+      self->version++;
       update = true;
     default:
       break;
@@ -90,15 +95,14 @@ bool update_config(config* self) {
 }
 
 void config_init(config* self) {
-  eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
-
   bool update;
-  const uint16_t magic = eeprom_read_word(nullptr);
+  const auto magic = eeprom_read_word(nullptr);
   if (magic != MAGIC) {
     update = true;
     eeprom_write_word(nullptr, MAGIC);
     init_config(self);
   } else {
+    eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
     update = update_config(self);
   }
 
@@ -247,36 +251,58 @@ callback tt_hsv_set_val(config* self) {
   return callback{addr, v->v};
 }
 
-void display_tt_change(const uint8_t deadzone, const int range) {
-  RgbManager::Turntable::display_tt_change(deadzone, range);
-  timer_arm(&RgbManager::Turntable::combo_timer,
-            CONFIG_CHANGE_NOTIFY_TIME);
-}
-
 #define DEADZONE_MAX 6
 #define DEADZONE_MIN 1
+void update_deadzone(const uint8_t deadzone) {
+  eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, deadzone);
+
+  tt1.deadzone = deadzone;
+
+  RgbManager::Turntable::display_tt_change(CRGB::Red, deadzone, DEADZONE_MAX);
+}
+
 callback increase_deadzone(config* self) {
-  if (++self->tt_deadzone > DEADZONE_MAX) {
+  if (++self->tt_deadzone > DEADZONE_MAX)
     self->tt_deadzone = DEADZONE_MAX;
-  }
-  eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, self->tt_deadzone);
 
-  tt1.deadzone = self->tt_deadzone;
-
-  display_tt_change(self->tt_deadzone, DEADZONE_MAX);
+  update_deadzone(self->tt_deadzone);
 
   return callback{};
 }
 
 callback decrease_deadzone(config* self) {
-  if (--self->tt_deadzone < DEADZONE_MIN) {
+  if (--self->tt_deadzone < DEADZONE_MIN)
     self->tt_deadzone = DEADZONE_MIN;
-  }
-  eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, self->tt_deadzone);
 
-  tt1.deadzone = self->tt_deadzone;
+  update_deadzone(self->tt_deadzone);
 
-  display_tt_change(self->tt_deadzone, DEADZONE_MAX);
+  return callback{};
+}
+
+#define RATIO_MAX 6
+#define RATIO_MIN 1
+void update_ratio(const uint8_t ratio) {
+  eeprom_update_byte(CONFIG_TT_RATIO_ADDR, ratio);
+
+  // Present TT ratio as TT sensitivity to the user
+  RgbManager::Turntable::display_tt_change(CRGB::Green,
+                                           RATIO_MAX+1-ratio, RATIO_MAX);
+}
+
+callback increase_ratio(config* self) {
+  if (++self->tt_ratio > RATIO_MAX)
+    self->tt_ratio = RATIO_MAX;
+
+  update_ratio(self->tt_ratio);
+
+  return callback{};
+}
+
+callback decrease_ratio(config* self) {
+  if (--self->tt_ratio < RATIO_MIN)
+    self->tt_ratio = RATIO_MIN;
+
+  update_ratio(self->tt_ratio);
 
   return callback{};
 }

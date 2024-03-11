@@ -159,14 +159,19 @@ namespace RgbManager {
       }
     }
 
-    void display_tt_change(uint8_t deadzone, int range) {
-      int num_of_leds = deadzone * (RING_LIGHT_LEDS / range);
-      for (int i = 0; i < num_of_leds; ++i) {
-        leds[i] = CRGB::Red;
+    void display_tt_change(const CRGB &colour,
+                           const uint8_t value,
+                           const uint8_t range) {
+      const uint8_t num_of_leds = value * (RING_LIGHT_LEDS / range);
+      uint8_t i = 0;
+      for (; i < num_of_leds; ++i) {
+        leds[i] = colour;
       }
-      for (int i = num_of_leds; i < RING_LIGHT_LEDS; ++i) {
+      for (; i < RING_LIGHT_LEDS; ++i) {
         leds[i] = CRGB::Black;
       }
+      timer_arm(&combo_timer,
+                CONFIG_CHANGE_NOTIFY_TIME);
     }
 
     // tt +1 is counter-clockwise, -1 is clockwise
