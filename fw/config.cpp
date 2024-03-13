@@ -311,9 +311,7 @@ callback cycle_bar_effects(config* self) {
   do {
     self->bar_effect = BarMode((uint8_t(self->bar_effect) + 1) % uint8_t(BarMode::COUNT));
   } while (self->bar_effect == BarMode::PLACEHOLDER1 ||
-           self->bar_effect == BarMode::PLACEHOLDER2 ||
-           self->bar_effect == BarMode::PLACEHOLDER3 ||
-           self->bar_effect == BarMode::PLACEHOLDER4);
+           self->bar_effect == BarMode::PLACEHOLDER3);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
   RgbManager::Bar::set_leds_off();

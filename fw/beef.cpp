@@ -80,6 +80,8 @@ int main() {
 
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
+  Bpm bpm(LIGHT_BAR_LEDS);
+
   RgbManager::init();
 
   // tt_x DATA lines wired to F0/F1
@@ -114,8 +116,11 @@ int main() {
                    &combo_timer,
                    &combo_lights_timer);
 
+    bpm.update(button_state);
+
     update_lighting(tt1_report,
-                    &combo_lights_timer);
+                    &combo_lights_timer,
+                    bpm);
   }
 }
 
@@ -291,7 +296,8 @@ void process_tt(tt_pins &tt_pin) {
 }
 
 void update_lighting(int8_t tt1_report,
-                     timer* combo_lights_timer) {
+                     timer* combo_lights_timer,
+                     const Bpm &bpm) {
   if (reactive_led) {
     update_button_lighting(button_state,
                            combo_lights_timer);
@@ -315,7 +321,8 @@ void update_lighting(int8_t tt1_report,
                                   led_state_from_hid_report.tt_lights,
                                   current_config);
     RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                            current_config);
+                            current_config,
+                            bpm);
 
     FastLED.show();
   }

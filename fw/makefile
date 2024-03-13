@@ -10,7 +10,7 @@ BEEF_TT_RAINBOW_SPIN_SPEED ?= 1
 BEEF_DEBOUNCE ?= 1
 FASTLED_SRC = FastLED/src
 SRC = $(wildcard *.c) $(wildcard *.cpp) \
-	$(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/hsv2rgb.cpp $(FASTLED_SRC)/lib8tion.cpp \
+	$(FASTLED_SRC)/colorpalettes.cpp $(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/hsv2rgb.cpp $(FASTLED_SRC)/lib8tion.cpp \
 	$(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH = LUFA
 CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -include fastled_shim.h \
