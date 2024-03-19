@@ -225,6 +225,11 @@ namespace RgbManager {
   namespace Bar {
     CRGB leds[LIGHT_BAR_LEDS] = {0};
 
+    enum class SpectrumSide : uint8_t {
+      P1,
+      P2
+    };
+
     void init() {
       FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(leds, LIGHT_BAR_LEDS)
         .setDither(DISABLE_DITHER);
@@ -234,9 +239,34 @@ namespace RgbManager {
       fill_solid(leds, LIGHT_BAR_LEDS, CRGB::Black);
     }
 
+    void spectrum(const uint8_t level, const SpectrumSide side) {
+      static uint8_t last_level;
+
+      if (last_level != level) {
+        set_leds_off();
+        fill_rainbow(leds, level, 0, -16);
+        if (side == SpectrumSide::P1) {
+          for (uint8_t i = 0; i < LIGHT_BAR_LEDS / 2; i++) {
+            const auto tmp = leds[i];
+            leds[i] = leds[LIGHT_BAR_LEDS-1-i];
+            leds[LIGHT_BAR_LEDS-1-i] = tmp;
+          }
+        }
+      }
+
+      last_level = level;
+    }
+
     void update(const rgb_light &lights,
-                const config &current_config) {
+                const config &current_config,
+                const Bpm &bpm) {
       switch(current_config.bar_effect) {
+        case BarMode::KEY_SPECTRUM_P1:
+          spectrum(bpm.get(), SpectrumSide::P1);
+          break;
+        case BarMode::KEY_SPECTRUM_P2:
+          spectrum(bpm.get(), SpectrumSide::P2);
+          break;
         case BarMode::HID:
           hid(leds, LIGHT_BAR_LEDS, lights);
           break;

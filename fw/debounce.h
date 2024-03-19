@@ -7,6 +7,7 @@ public:
   explicit DebounceState(uint8_t window);
 
   uint16_t debounce(uint16_t buttons);
+
 private:
   uint16_t history[10]{};
   uint8_t window;

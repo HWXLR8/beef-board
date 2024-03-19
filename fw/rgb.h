@@ -32,9 +32,9 @@ enum class TurntableMode : uint8_t {
 
 enum class BarMode : uint8_t {
   PLACEHOLDER1, // beat
-  PLACEHOLDER2, // reactive p1
+  KEY_SPECTRUM_P1,
+  KEY_SPECTRUM_P2,
   PLACEHOLDER3, // audio spectrum
-  PLACEHOLDER4, // reactive p2
   HID,
   DISABLE,
   COUNT

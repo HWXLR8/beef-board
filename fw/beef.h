@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bpm.h"
 #include "pin.h"
 #include "rgb.h"
 #include "timer.h"
@@ -30,7 +31,8 @@ void process_button(const volatile uint8_t* PIN,
                     uint8_t input_pin);
 void process_tt(tt_pins &tt_pin);
 void update_lighting(int8_t tt1_report,
-                     timer* combo_lights_timer);
+                     timer* combo_lights_timer,
+                     const Bpm &bpm);
 void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer);
 
