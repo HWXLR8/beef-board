@@ -10,6 +10,7 @@ fw/*.sym
 pcb/*-backups
 pcb/*.kicad_prl
 pcb/*.bak
+pcb/*.lck
 pcb/fp-info-cache
 pcb/sym-lib-table
 
