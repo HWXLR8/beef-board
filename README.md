@@ -55,7 +55,6 @@ Note: TT deadzone only affects digital TT output.
 ### RESISTORS ###
 1    1K 0805
 2    22 ohm 0805
-1    4.7K 0805
 
 ### REMOTE BOARD ###
 2   JST XH 4pin
