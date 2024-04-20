@@ -3978,6 +3978,12 @@
 		(uuid "203827be-8b43-4b5f-87a0-502c71f5d450")
 	)
 	(junction
+		(at 247.65 186.69)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "22509c37-3849-44df-8d36-f52c38d4589f")
+	)
+	(junction
 		(at 146.05 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5405,6 +5411,16 @@
 	)
 	(wire
 		(pts
+			(xy 247.65 186.69) (xy 247.65 189.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "baaad33a-d7df-4952-9f63-fd411ae42aed")
+	)
+	(wire
+		(pts
 			(xy 182.88 76.2) (xy 200.66 76.2)
 		)
 		(stroke
@@ -6799,6 +6815,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+5VA")
+		(at 247.65 195.58 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "199e7acd-aec8-4e87-a118-a56acf8c217e")
+		(property "Reference" "#PWR01"
+			(at 243.84 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5VA"
+			(at 250.19 195.58 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 247.65 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 247.65 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 247.65 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "27684188-dfeb-4747-943c-76207a28fef7")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector:Conn_01x04_Pin")
 		(at 102.87 173.99 0)
 		(unit 1)
@@ -7297,7 +7379,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "25d4eb99-69ff-4523-b792-4c8bcffb0c70")
 		(property "Reference" "#PWR079"
 			(at 254 215.9 0)
@@ -7309,7 +7390,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 251.46 216.535 90)
+			(at 250.444 215.9 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8040,73 +8121,6 @@
 			(project "beef-board"
 				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
 					(reference "J15")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 247.65 195.58 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "3aa59277-60dc-4c58-972e-717472d14393")
-		(property "Reference" "#PWR072"
-			(at 254 195.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 251.46 194.945 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 247.65 195.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 247.65 195.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 247.65 195.58 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "092fb260-645e-4bba-82d1-c7ea1693cbf9")
-		)
-		(instances
-			(project "beef-board"
-				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
-					(reference "#PWR072")
 					(unit 1)
 				)
 			)
@@ -9842,7 +9856,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "64f0c0ca-c507-4d37-b177-021ee150693a")
 		(property "Reference" "#PWR081"
 			(at 254 207.01 0)
@@ -9854,7 +9867,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 251.46 207.645 90)
+			(at 250.444 207.01 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10191,7 +10204,7 @@
 				)
 			)
 		)
-		(property "Value" "AUX"
+		(property "Value" "GND"
 			(at 237.49 187.96 0)
 			(effects
 				(font
@@ -10249,7 +10262,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "6d26b964-3bd5-4c0c-9f86-6759a5cae772")
 		(property "Reference" "#PWR083"
 			(at 254 186.69 0)
@@ -10261,7 +10273,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 251.46 186.055 90)
+			(at 250.698 186.69 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12246,7 +12258,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "a7a89008-8e3b-40ab-ad40-8b5f86d0a13a")
 		(property "Reference" "#PWR073"
 			(at 243.84 198.12 0)
@@ -12258,7 +12269,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 251.46 198.755 90)
+			(at 250.19 198.12 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13465,72 +13476,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+5VA")
-		(at 247.65 189.23 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ccecd193-407b-46a8-a65f-bcc78958973f")
-		(property "Reference" "#PWR01"
-			(at 243.84 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5VA"
-			(at 250.19 189.23 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 247.65 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 247.65 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 247.65 189.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "afe1661c-1f02-4248-a9a3-229cbc50b752")
-		)
-		(instances
-			(project "beef-board"
-				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
-					(reference "#PWR01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Transistor_FET:2N7002")
 		(at 251.46 143.51 270)
 		(unit 1)
@@ -14562,7 +14507,7 @@
 				)
 			)
 		)
-		(property "Value" "BUS"
+		(property "Value" "5V"
 			(at 237.49 196.85 0)
 			(effects
 				(font
