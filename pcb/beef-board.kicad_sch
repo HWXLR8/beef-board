@@ -4100,10 +4100,6 @@
 		(uuid "48d0c4d9-8c0d-4dd0-b7b9-7d127b69e98e")
 	)
 	(no_connect
-		(at 187.96 101.6)
-		(uuid "5829c0fe-9a0e-4b03-a4e7-563ef80bf4c8")
-	)
-	(no_connect
 		(at 156.21 133.35)
 		(uuid "84b9e9a0-41c9-46e7-8383-1ea578bb8749")
 	)
@@ -4114,10 +4110,6 @@
 	(no_connect
 		(at 156.21 135.89)
 		(uuid "b80c4664-11bb-469e-ab13-c4c9b5b5fdc7")
-	)
-	(no_connect
-		(at 185.42 101.6)
-		(uuid "c3b7ff8b-a36c-4dad-b2dd-8fd16693e9bf")
 	)
 	(no_connect
 		(at 200.66 101.6)
@@ -4591,6 +4583,16 @@
 	)
 	(wire
 		(pts
+			(xy 241.3 62.23) (xy 241.3 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "410a39e4-1a7d-4cc5-8a75-00efb1403dd9")
+	)
+	(wire
+		(pts
 			(xy 128.27 104.14) (xy 128.27 68.58)
 		)
 		(stroke
@@ -4858,6 +4860,16 @@
 			(type default)
 		)
 		(uuid "6d06d9d9-85f0-4f46-bda3-7b208c892a34")
+	)
+	(wire
+		(pts
+			(xy 227.33 78.74) (xy 185.42 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6eed3969-38a6-4e8b-af4e-30fead433f9c")
 	)
 	(wire
 		(pts
@@ -5191,6 +5203,16 @@
 	)
 	(wire
 		(pts
+			(xy 185.42 78.74) (xy 185.42 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b6964fb-5bfe-4ea0-897c-973ad669c63a")
+	)
+	(wire
+		(pts
 			(xy 127 71.12) (xy 93.98 71.12)
 		)
 		(stroke
@@ -5278,6 +5300,16 @@
 			(type default)
 		)
 		(uuid "a7189528-448b-4259-96d3-2abc5ff6b570")
+	)
+	(wire
+		(pts
+			(xy 227.33 62.23) (xy 227.33 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a73c941e-db54-4e30-8f9d-ac8e6f5ce333")
 	)
 	(wire
 		(pts
@@ -5381,6 +5413,16 @@
 	)
 	(wire
 		(pts
+			(xy 241.3 81.28) (xy 187.96 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af0689f3-1d38-4122-8926-c8fce2d4a37b")
+	)
+	(wire
+		(pts
 			(xy 120.65 198.12) (xy 143.51 198.12)
 		)
 		(stroke
@@ -5418,6 +5460,16 @@
 			(type default)
 		)
 		(uuid "baaad33a-d7df-4952-9f63-fd411ae42aed")
+	)
+	(wire
+		(pts
+			(xy 187.96 81.28) (xy 187.96 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bdd73f7e-9833-4fa9-95ae-77b52defd5c6")
 	)
 	(wire
 		(pts
@@ -6264,6 +6316,77 @@
 			(project "beef-board"
 				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
 					(reference "C5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Pin")
+		(at 241.3 57.15 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0abe67d4-6972-4015-b1cb-dc21eb630845")
+		(property "Reference" "J30"
+			(at 241.3 53.34 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SDVX2"
+			(at 241.3 55.626 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "BEEF-BOARD:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical_0.9mm_holes"
+			(at 241.3 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 241.3 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 241.3 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a70dee1c-95e2-40d0-9e6a-825406e1ed85")
+		)
+		(pin "2"
+			(uuid "cf9e8ecf-bc93-4440-92df-19311905ff26")
+		)
+		(pin "3"
+			(uuid "cf64d582-3d2a-4995-8804-7f4a1ddc7ee3")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "J30")
 					(unit 1)
 				)
 			)
@@ -7777,6 +7900,71 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 224.79 62.23 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2f852744-1da2-4377-b343-8d8281fab20d")
+		(property "Reference" "#PWR072"
+			(at 224.79 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 224.79 66.548 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 224.79 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 224.79 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 224.79 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bfee98c5-8a30-4bfc-9fdd-0925bbdc45f8")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "#PWR072")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 107.95 260.35 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -8542,6 +8730,71 @@
 			(project "beef-board"
 				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
 					(reference "#PWR061")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 243.84 62.23 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4d5f3270-8276-4bc6-ad0e-b79f7a4f4635")
+		(property "Reference" "#PWR082"
+			(at 243.84 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 243.84 66.548 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 243.84 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 243.84 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 243.84 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d1594491-ccff-4889-a728-b75efc08fe91")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "#PWR082")
 					(unit 1)
 				)
 			)
@@ -9915,6 +10168,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+5V")
+		(at 229.87 62.23 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "66828549-5a2e-4c04-ba92-14a5b6c2d9e4")
+		(property "Reference" "#PWR080"
+			(at 229.87 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 229.87 66.548 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 229.87 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 229.87 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 229.87 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3ddd45a9-4a14-45f9-b07c-17a07d4b1d1e")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "#PWR080")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 93.98 54.61 90)
 		(unit 1)
@@ -10339,7 +10657,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 219.71 72.39 0)
+			(at 217.17 72.898 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13139,6 +13457,71 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 238.76 62.23 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c25cf2c0-9705-4231-87e7-ddd5a18a2117")
+		(property "Reference" "#PWR084"
+			(at 238.76 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 238.76 66.548 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 238.76 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 238.76 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 238.76 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fcb6e678-d2f2-4812-a526-7bef71250ef7")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "#PWR084")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Small")
 		(at 161.29 82.55 90)
 		(unit 1)
@@ -15024,6 +15407,77 @@
 			(project "beef-board"
 				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
 					(reference "#PWR074")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:Conn_01x03_Pin")
+		(at 227.33 57.15 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f0a99541-4b9b-4fe3-8b4b-222446056caa")
+		(property "Reference" "J29"
+			(at 227.33 53.34 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SDVX1"
+			(at 227.33 55.626 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "BEEF-BOARD:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical_0.9mm_holes"
+			(at 227.33 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 227.33 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 227.33 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c3561136-af26-44e6-8f3f-0e3d415f3e91")
+		)
+		(pin "2"
+			(uuid "6a82c1d3-50ac-4e2c-825f-aa96eeadb800")
+		)
+		(pin "3"
+			(uuid "c68ed6fa-861e-4e58-a201-73d42500bcd0")
+		)
+		(instances
+			(project "beef-board"
+				(path "/603cab36-5bc1-4050-9595-d50dcdf15559"
+					(reference "J29")
 					(unit 1)
 				)
 			)
