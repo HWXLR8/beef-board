@@ -43,6 +43,7 @@ hid_lights led_state_from_hid_report;
 // button is held
 bool reactive_led = true;
 bool rgb_standby = true;
+int8_t tt_transitions[4][4];
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
 
 #define HID_LIGHTS_EXPIRY_TIME 1000
@@ -267,6 +268,17 @@ void process_button(const volatile uint8_t* PIN,
   button_state |= pressed << button_number;
 }
 
+void update_tt_transitions(uint8_t reverse_tt) {
+  const int8_t direction = reverse_tt ? -1 : 1;
+  const int8_t tt_transitions_values[4][4] = {
+      {0, direction, -direction, 0},
+      {-direction, 0, 0, direction},
+      {direction, 0, 0, -direction},
+      {0, -direction, direction, 0}
+  };
+  memcpy(tt_transitions, tt_transitions_values, sizeof(tt_transitions));
+}
+
 void process_tt(tt_pins &tt_pin) {
   // tt logic
   // example where tt_x wired to F0/F1:
@@ -278,19 +290,8 @@ void process_tt(tt_pins &tt_pin) {
   int8_t b = (*tt_pin.PIN >> tt_pin.b_pin) & 1;
   int8_t curr = (a << 1) | b;
 
-  int8_t direction = current_config.reverse_tt ? -1 : 1;
-
-  if ((tt_pin.prev == 3 && curr == 1) ||
-      (tt_pin.prev == 1 && curr == 0) ||
-      (tt_pin.prev == 0 && curr == 2) ||
-      (tt_pin.prev == 2 && curr == 3)) {
-    tt_pin.tt_position -= direction;
-  } else if ((tt_pin.prev == 1 && curr == 3) ||
-             (tt_pin.prev == 0 && curr == 1) ||
-             (tt_pin.prev == 2 && curr == 0) ||
-             (tt_pin.prev == 3 && curr == 2)) {
-    tt_pin.tt_position += direction;
-  }
+  auto direction = tt_transitions[tt_pin.prev][curr];
+  tt_pin.tt_position += direction;
   tt_pin.tt_position %= 256 * current_config.tt_ratio;
   tt_pin.prev = curr;
 }

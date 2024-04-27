@@ -6,6 +6,7 @@ public:
 
   uint32_t get_ticks();
   void reset();
+  void reset(uint32_t tick_duration, uint32_t total_duration = 0);
 
 private:
   uint32_t tick_duration;

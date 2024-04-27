@@ -12,11 +12,8 @@
 #define CONFIG_TT_SHIFT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_shift_hsv.s))
 #define CONFIG_TT_SHIFT_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_shift_hsv.v))
 #define CONFIG_TT_RAINBOW_STATIC_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_static_hsv.s))
-#define CONFIG_TT_RAINBOW_STATIC_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_static_hsv.v))
 #define CONFIG_TT_RAINBOW_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_react_hsv.s))
-#define CONFIG_TT_RAINBOW_REACT_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_react_hsv.v))
 #define CONFIG_TT_RAINBOW_SPIN_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_spin_hsv.s))
-#define CONFIG_TT_RAINBOW_SPIN_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_spin_hsv.v))
 #define CONFIG_TT_REACT_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.h))
 #define CONFIG_TT_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.s))
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
@@ -29,6 +26,7 @@
 #include <avr/eeprom.h>
 
 #include "analog_turntable.h"
+#include "beef.h"
 #include "config.h"
 #include "rgb_manager.h"
 
@@ -108,6 +106,8 @@ void config_init(config* self) {
 
   if (update)
     eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
+
+  update_tt_transitions(self->reverse_tt);
 }
 
 void config_update(uint8_t* addr, const uint8_t val) {
@@ -118,6 +118,7 @@ callback toggle_reverse_tt(config* self) {
   self->reverse_tt ^= 1;
   eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, self->reverse_tt);
 
+  update_tt_transitions(self->reverse_tt);
   RgbManager::Turntable::reverse_tt(self->reverse_tt);
   timer_arm(&RgbManager::Turntable::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
 

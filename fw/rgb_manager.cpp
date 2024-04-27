@@ -1,5 +1,6 @@
 #include "beef.h"
 #include "rgb_manager.h"
+#include "rgb_patterns.h"
 #include "ticker.h"
 
 // Pin mapping can be found in FastLED/src/platforms/avr/fastpin_avr.h
@@ -7,7 +8,9 @@
 #define TT_DATA_PIN  15 // C5
 
 #define SPIN_TIMER 50
+#define FAST_SPIN_TIMER 25
 #define REACT_TIMER 500
+#define BREATHING_DURATION 2048
 #define BREATHING_TIMER 3000
 
 namespace RgbManager {
@@ -22,38 +25,27 @@ namespace RgbManager {
     fill_solid(leds, n, rgb);
   }
 
-  // Cycle from zero to full-bright to zero in around 2 seconds
-  // Share same lighting state between TT and light bar
-  template<int DURATION, int TIMER>
-  void breathing(CRGB* leds, const int n, const HSV hsv) {
-    static uint8_t theta = 0;
-    static Ticker sin_ticker(8, DURATION);
-    static timer breathing_timer{};
-    static uint8_t v = 0;
-
-    if (!timer_is_active(&breathing_timer)) {
-      sin_ticker.reset();
-      timer_arm(&breathing_timer, TIMER);
-    }
-
-    auto ticks = sin_ticker.get_ticks();
-    if (ticks > 0) {
-      theta += ticks;
-      v = quadwave8(theta);
-    }
-
+  void breathing(BreathingPattern &breathing_pattern,
+                 CRGB* leds, const int n, const HSV hsv) {
+    const auto v = breathing_pattern.update();
     set_hsv(leds, n, { hsv.h, hsv.s, v });
   }
 
   void hid(CRGB* leds, int n,
            rgb_light lights) {
+    // Share same lighting state between TT and light bar for HID standby animation
+    static BreathingPattern hid_standby = BreathingPattern();
+
     if (rgb_standby)
-      breathing<0, 0>(leds, n, {});
+      breathing(hid_standby, leds, n, {});
     else
       set_rgb(leds, n, lights);
   }
 
   namespace Turntable {
+    // Add a second-long rest period
+    BreathingPattern breathing_pattern(BREATHING_DURATION,
+                                       BREATHING_TIMER);
     timer combo_timer;
     CRGB leds[RING_LIGHT_LEDS] = {0};
 
@@ -73,20 +65,22 @@ namespace RgbManager {
     }
 
     // Render two spinning LEDs
-    void spin(const HSV &hsv) {
+    void spin(const HSV &hsv, int8_t tt_report) {
       static bool first_call = true;
-      static uint8_t spin_counter = 0;
-      static Ticker ticker(SPIN_TIMER);
+      static uint8_t last_spin_counter = 0;
+      static SpinPattern spin_pattern(SPIN_TIMER,
+                                      FAST_SPIN_TIMER,
+                                      RING_LIGHT_LEDS / 2);
 
-      auto ticks = ticker.get_ticks();
-      if (ticks > 0 || first_call) {
-        spin_counter = (spin_counter + ticks) % (RING_LIGHT_LEDS / 2);
+      auto spin_counter = spin_pattern.update(tt_report);
+      if (spin_counter != last_spin_counter || first_call) {
         set_leds_off();
 
         const auto colour = CHSV(hsv.h, 255, 255);
         leds[spin_counter] = colour;
         leds[spin_counter+12] = colour;
         first_call = false;
+        last_spin_counter = spin_counter;
       }
     }
 
@@ -109,7 +103,7 @@ namespace RgbManager {
       }
     }
 
-    void render_rainbow_pos(const HSV &hsv, const int8_t tt_report) {
+    void render_rainbow_react(const HSV &hsv, const int8_t tt_report) {
       static bool first_call = true;
       static uint8_t pos = 0;
       static Ticker t(3);
@@ -120,6 +114,13 @@ namespace RgbManager {
         render_rainbow(hsv, pos);
         first_call = false;
       }
+    }
+
+    void render_rainbow_spin(const HSV &hsv, const int8_t tt_report) {
+      static SpinPattern spin_pattern(3, 2);
+
+      auto pos = spin_pattern.update(tt_report) * BEEF_TT_RAINBOW_SPIN_SPEED;
+      render_rainbow(hsv, -pos);
     }
 
     void react(const int8_t tt_report, const HSV &hsv) {
@@ -174,8 +175,14 @@ namespace RgbManager {
                 CONFIG_CHANGE_NOTIFY_TIME);
     }
 
-    // tt +1 is counter-clockwise, -1 is clockwise
-    void update(const int8_t tt_report,
+    // Match tt_report with physical turntable movement
+    // -1 is clockwise, +1 is counter-clockwise
+    int8_t normalise_tt_report(const bool reverse_tt,
+                               const int8_t tt_report) {
+      return reverse_tt ? tt_report : -tt_report;
+    }
+
+    void update(int8_t tt_report,
                 const rgb_light &lights,
                 const config &current_config) {
       // Ignore turntable effect if notifying a mode change
@@ -185,7 +192,9 @@ namespace RgbManager {
             set_hsv(current_config.tt_static_hsv);
             break;
           case TurntableMode::SPIN:
-            spin(current_config.tt_spin_hsv);
+            tt_report = normalise_tt_report(current_config.reverse_tt,
+                                            tt_report);
+            spin(current_config.tt_spin_hsv, tt_report);
             break;
           case TurntableMode::SHIFT:
             colour_shift(current_config.tt_shift_hsv);
@@ -194,20 +203,24 @@ namespace RgbManager {
             render_rainbow(current_config.tt_rainbow_static_hsv);
             break;
           case TurntableMode::RAINBOW_REACT:
-            render_rainbow_pos(current_config.tt_rainbow_react_hsv,
-                               tt_report);
+            tt_report = normalise_tt_report(current_config.reverse_tt,
+                                            tt_report);
+            render_rainbow_react(current_config.tt_rainbow_react_hsv,
+                                 tt_report);
             break;
           case TurntableMode::RAINBOW_SPIN:
-            render_rainbow_pos(current_config.tt_rainbow_spin_hsv, 1);
+            tt_report = normalise_tt_report(current_config.reverse_tt,
+                                            tt_report);
+            render_rainbow_spin(current_config.tt_rainbow_spin_hsv,
+                                tt_report);
             break;
           case TurntableMode::REACT:
             react(tt_report, current_config.tt_react_hsv);
             break;
           case TurntableMode::BREATHING:
-            // Add a second-long rest period
-            breathing<2048, BREATHING_TIMER>(
-              leds, RING_LIGHT_LEDS,
-              current_config.tt_breathing_hsv);
+            breathing(breathing_pattern,
+                      leds, RING_LIGHT_LEDS,
+                      current_config.tt_breathing_hsv);
             break;
           case TurntableMode::HID:
             hid(leds, RING_LIGHT_LEDS, lights);
