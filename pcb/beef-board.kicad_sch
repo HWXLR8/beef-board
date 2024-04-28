@@ -6347,7 +6347,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BEEF-BOARD:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical_0.9mm_holes"
+		(property "Footprint" "BEEF-BOARD:JST_ZH_B3B-ZR_1x03_P1.50mm_Vertical"
 			(at 241.3 57.15 0)
 			(effects
 				(font
@@ -7900,7 +7900,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 224.79 62.23 0)
+		(at 229.87 62.23 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7908,7 +7908,7 @@
 		(dnp no)
 		(uuid "2f852744-1da2-4377-b343-8d8281fab20d")
 		(property "Reference" "#PWR072"
-			(at 224.79 68.58 0)
+			(at 229.87 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7917,7 +7917,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 224.79 66.548 0)
+			(at 229.87 66.548 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7925,7 +7925,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 224.79 62.23 0)
+			(at 229.87 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7934,7 +7934,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 224.79 62.23 0)
+			(at 229.87 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7943,7 +7943,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 224.79 62.23 0)
+			(at 229.87 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8737,7 +8737,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 243.84 62.23 180)
+		(at 238.76 62.23 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8745,7 +8745,7 @@
 		(dnp no)
 		(uuid "4d5f3270-8276-4bc6-ad0e-b79f7a4f4635")
 		(property "Reference" "#PWR082"
-			(at 243.84 58.42 0)
+			(at 238.76 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8754,7 +8754,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 243.84 66.548 0)
+			(at 238.76 66.548 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8762,7 +8762,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 243.84 62.23 0)
+			(at 238.76 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8771,7 +8771,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 243.84 62.23 0)
+			(at 238.76 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8780,7 +8780,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 243.84 62.23 0)
+			(at 238.76 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10169,7 +10169,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 229.87 62.23 180)
+		(at 224.79 62.23 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -10177,7 +10177,7 @@
 		(dnp no)
 		(uuid "66828549-5a2e-4c04-ba92-14a5b6c2d9e4")
 		(property "Reference" "#PWR080"
-			(at 229.87 58.42 0)
+			(at 224.79 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10186,7 +10186,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 229.87 66.548 0)
+			(at 224.79 66.548 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10194,7 +10194,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 229.87 62.23 0)
+			(at 224.79 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10203,7 +10203,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 229.87 62.23 0)
+			(at 224.79 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10212,7 +10212,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 229.87 62.23 0)
+			(at 224.79 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13458,7 +13458,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 238.76 62.23 0)
+		(at 243.84 62.23 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -13466,7 +13466,7 @@
 		(dnp no)
 		(uuid "c25cf2c0-9705-4231-87e7-ddd5a18a2117")
 		(property "Reference" "#PWR084"
-			(at 238.76 68.58 0)
+			(at 243.84 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13475,7 +13475,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 238.76 66.548 0)
+			(at 243.84 66.548 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13483,7 +13483,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 238.76 62.23 0)
+			(at 243.84 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13492,7 +13492,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 238.76 62.23 0)
+			(at 243.84 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13501,7 +13501,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 238.76 62.23 0)
+			(at 243.84 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15438,7 +15438,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BEEF-BOARD:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical_0.9mm_holes"
+		(property "Footprint" "BEEF-BOARD:JST_ZH_B3B-ZR_1x03_P1.50mm_Vertical"
 			(at 227.33 57.15 0)
 			(effects
 				(font
