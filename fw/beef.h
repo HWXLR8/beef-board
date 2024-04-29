@@ -29,6 +29,7 @@ void process_buttons(int8_t tt1_report);
 void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
+void update_tt_transitions(uint8_t reverse_tt);
 void process_tt(tt_pins &tt_pin);
 void update_lighting(int8_t tt1_report,
                      timer* combo_lights_timer,
