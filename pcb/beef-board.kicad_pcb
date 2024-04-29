@@ -1267,6 +1267,7 @@
 		(property "Value" "ISP"
 			(at 1.29 -6.24 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "4be329bd-d266-48a6-ba2c-95faf945795c")
 			(effects
 				(font
