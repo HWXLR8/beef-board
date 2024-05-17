@@ -79,6 +79,8 @@ int main() {
   timer_init(&combo_timer);
   timer_init(&combo_lights_timer);
 
+  // Centre tt_position to prevent misfire on first input
+  tt_x.tt_position = 128 * current_config.tt_ratio;
   analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
 
   Bpm bpm(LIGHT_BAR_LEDS);

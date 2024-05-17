@@ -10,7 +10,6 @@
 // report descriptor in Descriptors.c.
 typedef struct {
   uint8_t  X;
-  uint8_t  Y;
   uint16_t Button; // bit-field representing which buttons have been pressed
 } USB_JoystickReport_Data_t;
 
