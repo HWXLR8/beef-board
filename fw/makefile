@@ -40,6 +40,10 @@ dfu: all
 isp: all
 	sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U flash:w:$(TARGET).hex
 
-.PHONY: fuse
+.PHONY: flash-factory-fuse
 fuse:
 	sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U lfuse:w:0xde:m -U hfuse:w:0x99:m -U efuse:w:0xf3:m
+
+.PHONY: fuse-dump
+fuse-dump:
+	sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U lfuse:r:-:h -U hfuse:r:-:h -U efuse:r:-:h
