@@ -67,11 +67,20 @@ void debounce(DebounceState* debounce, uint16_t mask) {
     (debounce->debounce(button_state & mask));
 }
 
+void check_for_dfu() {
+  for (int i = 0; i < BUTTONS; ++i) {
+    process_button(buttons[i].INPUT_PORT.PIN,
+                   i,
+                   buttons[i].input_pin);
+  }
+  if (button_state == (BUTTON_1 | BUTTON_2)) {
+    jump_to_bootloader();
+  }
+}
+
 int main() {
   hwinit();
-
   config_init(&current_config);
-
   timer_init(&hid_lights_expiry_timer);
 
   timer combo_timer;
@@ -99,6 +108,9 @@ int main() {
 
   GlobalInterruptEnable();
 
+  // check if we need to jump to bootloader
+  check_for_dfu();
+
   while (true) {
     HID_Device_USBTask(&Joystick_HID_Interface);
     HID_Task();
@@ -110,15 +122,11 @@ int main() {
 
     process_tt(tt_x);
     int8_t tt1_report = analog_turntable_poll(&tt1, tt_x.tt_position);
-
     process_buttons(tt1_report);
-
     process_combos(&current_config,
                    &combo_timer,
                    &combo_lights_timer);
-
     bpm.update(button_state);
-
     update_lighting(tt1_report,
                     &combo_lights_timer,
                     bpm);
@@ -350,4 +358,39 @@ void update_button_lighting(uint16_t led_state,
 
 bool is_pressed(uint16_t button_bits, uint16_t ignore) {
   return (button_state & ~ignore) == button_bits;
+}
+
+void jump_to_bootloader() {
+  // disable interrupts
+  cli();
+  // clear registers
+  UDCON = 1;
+  USBCON = (1<<FRZCLK);
+  UCSR1B = 0;
+  _delay_ms(5);
+  EIMSK = 0;
+  PCICR = 0;
+  SPCR = 0;
+  ACSR = 0;
+  EECR = 0;
+  ADCSRA = 0;
+  TIMSK0 = 0;
+  TIMSK1 = 0;
+  TIMSK2 = 0;
+  TIMSK3 = 0;
+  UCSR1B = 0;
+  TWCR = 0;
+  DDRA = 0;
+  DDRB = 0;
+  DDRC = 0;
+  DDRD = 0;
+  DDRE = 0;
+  DDRF = 0;
+  PORTA = 0;
+  PORTB = 0;
+  PORTC = 0;
+  PORTD = 0;
+  PORTE = 0;
+  PORTF = 0;
+  asm volatile("jmp 0xF000");
 }

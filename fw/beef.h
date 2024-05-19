@@ -38,6 +38,8 @@ void update_button_lighting(uint16_t led_state,
                             timer* combo_lights_timer);
 
 bool is_pressed(uint16_t button_bits, uint16_t ignore = 0);
+void check_for_dfu();
+void jump_to_bootloader();
 
 // HID functions
 void HID_Task();
