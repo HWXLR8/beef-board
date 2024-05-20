@@ -13,7 +13,7 @@ enum class Combo {
   DISABLE_LED      = BUTTON_4 | BUTTON_8 | BUTTON_11,
   TT_HSV_HUE       = BUTTON_2 | BUTTON_11,
   TT_HSV_SAT       = BUTTON_4 | BUTTON_11,
-  TT_HSV_VAL       = BUTTON_6 | BUTTON_11
+  TT_HSV_VAL       = BUTTON_6 | BUTTON_11,
 };
 
 void process_combos(config* current_config,
