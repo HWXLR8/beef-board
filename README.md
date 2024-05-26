@@ -76,3 +76,7 @@ There also exist button combinations which perform special actions if held while
   * FastLED shims
   * Debounce code
 * Special thanks to Mechada and Cryto for beta testing
+
+# PCB APPROVED BY KORS K
+![image](pcb/pics/korsk.jpg)
+![image](pcb/pics/sig.jpg)
