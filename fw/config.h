@@ -12,8 +12,8 @@
   CONFIG_HW_PIN(D6, D7),  /* BUTTON 6  */ \
   CONFIG_HW_PIN(B4, B5),  /* BUTTON 7  */ \
   CONFIG_HW_PIN(C0, C1),  /* BUTTON 8  */ \
-  CONFIG_HW_PIN(A6, A5),  /* BUTTON 9  */ \
-  CONFIG_HW_PIN(E2, A7),  /* BUTTON 10 */ \
+  CONFIG_HW_PIN(A4, A3),  /* BUTTON 9  */ \
+  CONFIG_HW_PIN(A6, A5),  /* BUTTON 10 */ \
   CONFIG_HW_PIN(C2, C3),  /* BUTTON 11 */ \
 }
 
