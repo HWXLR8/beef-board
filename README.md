@@ -43,8 +43,9 @@ There also exist button combinations which perform special actions if held while
 6    JST XH 3pin
 2    JST XH 2pin
 1    JST PH 2pin
+2    JST PH 3pin
 2    1x2 2.54mm pin header
-1    IDC header 2x3pin 2.54mm
+1    IDC header 2x3pin 2.54mm (optional)
 
 ### MCU ###
 1    AT90USB1286 TQFP
@@ -62,7 +63,7 @@ There also exist button combinations which perform special actions if held while
 2    22 ohm 0805
 
 ### REMOTE BOARD ###
-2   JST XH 4pin
+2   JST XH 4pin (angled)
 2   USB-B (ED2983-ND)
 ```
 
