@@ -17,11 +17,9 @@
   CONFIG_HW_PIN(C2, C3),  /* BUTTON 11 */ \
 }
 
-// you still need to assign DDR and PORT manually in main() for now
-// DDRF  &= 0b11111100;
-// PORTF |= 0b00000011;
-
-#define BUTTONS 11
+enum {
+  BUTTONS = 11
+};
 
 #define CONFIG_CHANGE_NOTIFY_TIME 1000
 
@@ -30,6 +28,11 @@
 #elif BEEF_LED_REFRESH > 400
   #define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
 #endif
+
+enum class UsbMode {
+  IIDX,
+  SDVX
+};
 
 // Do not reorder these fields
 struct config {
@@ -48,6 +51,7 @@ struct config {
   HSV tt_react_hsv;
   HSV tt_breathing_hsv;
   uint8_t tt_ratio;
+  UsbMode usb_mode;
 };
 
 struct callback {
@@ -57,6 +61,7 @@ struct callback {
 
 void config_init(config* self);
 void config_update(uint8_t* addr, uint8_t val);
+void set_mode(config &self, UsbMode mode);
 callback toggle_reverse_tt(config* self);
 callback cycle_tt_effects(config* self);
 callback tt_hsv_set_hue(config* self);

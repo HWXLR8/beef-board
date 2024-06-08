@@ -19,16 +19,21 @@
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
 #define CONFIG_TT_BREATHING_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.s))
 #define CONFIG_TT_RATIO_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_ratio))
+#define CONFIG_USB_MODE (CONFIG_BASE_ADDR + offsetof(config, usb_mode))
 
-#define CONFIG_VERSION 8
-#define MAGIC 0xBEEF
+enum {
+  CONFIG_VERSION = 9,
+  MAGIC = 0xBEEF
+};
 
 #include <avr/eeprom.h>
+
+#include "devices/iidx/iidx_rgb_manager.h"
 
 #include "analog_turntable.h"
 #include "beef.h"
 #include "config.h"
-#include "rgb_manager.h"
+#include "rgb_helper.h"
 
 // initialize config with default values
 void init_config(config* self) {
@@ -84,6 +89,9 @@ bool update_config(config* self) {
     case 7:
       self->tt_ratio = 2;
       self->version++;
+    case 8:
+      self->usb_mode = UsbMode::IIDX;
+      self->version++;
       update = true;
     default:
       break;
@@ -106,12 +114,15 @@ void config_init(config* self) {
 
   if (update)
     eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
-
-  update_tt_transitions(self->reverse_tt);
 }
 
 void config_update(uint8_t* addr, const uint8_t val) {
   eeprom_update_byte(addr, val);
+}
+
+void set_mode(config &self, UsbMode mode) {
+  self.usb_mode = mode;
+  eeprom_update_byte(CONFIG_USB_MODE, static_cast<uint8_t>(self.usb_mode));
 }
 
 callback toggle_reverse_tt(config* self) {
@@ -119,8 +130,7 @@ callback toggle_reverse_tt(config* self) {
   eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, self->reverse_tt);
 
   update_tt_transitions(self->reverse_tt);
-  RgbManager::Turntable::reverse_tt(self->reverse_tt);
-  timer_arm(&RgbManager::Turntable::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
+  Iidx::RgbManager::Turntable::reverse_tt(self->reverse_tt);
 
   return callback{};
 }
@@ -129,7 +139,7 @@ callback cycle_tt_effects(config* self) {
   self->tt_effect = TurntableMode((uint8_t(self->tt_effect) + 1) % uint8_t(TurntableMode::COUNT));
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
-  RgbManager::Turntable::set_leds_off();
+  Iidx::RgbManager::Turntable::set_leds_off();
 
   return callback{};
 }
@@ -252,14 +262,18 @@ callback tt_hsv_set_val(config* self) {
   return callback{addr, v->v};
 }
 
-#define DEADZONE_MAX 6
-#define DEADZONE_MIN 1
+enum {
+  DEADZONE_MAX = 6,
+  DEADZONE_MIN = 1
+};
 void update_deadzone(const uint8_t deadzone) {
   eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, deadzone);
 
   tt1.deadzone = deadzone;
 
-  RgbManager::Turntable::display_tt_change(CRGB::Red, deadzone, DEADZONE_MAX);
+  Iidx::RgbManager::Turntable::display_tt_change(CRGB::Green,
+                                                 deadzone,
+                                                 DEADZONE_MAX);
 }
 
 callback increase_deadzone(config* self) {
@@ -280,14 +294,17 @@ callback decrease_deadzone(config* self) {
   return callback{};
 }
 
-#define RATIO_MAX 6
-#define RATIO_MIN 1
+enum {
+  RATIO_MAX = 6,
+  RATIO_MIN = 1
+};
 void update_ratio(const uint8_t ratio) {
   eeprom_update_byte(CONFIG_TT_RATIO_ADDR, ratio);
 
   // Present TT ratio as TT sensitivity to the user
-  RgbManager::Turntable::display_tt_change(CRGB::Green,
-                                           RATIO_MAX+1-ratio, RATIO_MAX);
+  Iidx::RgbManager::Turntable::display_tt_change(CRGB::Red,
+                                                 RATIO_MAX+1-ratio,
+                                                 RATIO_MAX);
 }
 
 callback increase_ratio(config* self) {
@@ -315,7 +332,7 @@ callback cycle_bar_effects(config* self) {
            self->bar_effect == BarMode::PLACEHOLDER3);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
-  RgbManager::Bar::set_leds_off();
+  Iidx::RgbManager::Bar::set_leds_off();
 
   return callback{};
 }

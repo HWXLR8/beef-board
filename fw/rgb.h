@@ -10,12 +10,6 @@ struct HSV {
   uint8_t h, s, v;
 };
 
-struct hid_lights {
-  uint16_t buttons;
-  rgb_light tt_lights;
-  rgb_light bar_lights;
-};
-
 enum class TurntableMode : uint8_t {
   STATIC,
   SPIN,
