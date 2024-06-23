@@ -1,7 +1,7 @@
 #include "iidx_combo.h"
 #include "iidx_usb.h"
 
-namespace Iidx {
+namespace IIDX {
   enum {
     REVERSE_TT       = BUTTON_1 | BUTTON_7 | BUTTON_8,
     TT_EFFECTS       = BUTTON_2 | BUTTON_8 | BUTTON_11,

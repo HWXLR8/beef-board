@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Sdvx {
+namespace SDVX {
   namespace RgbManager {
   }
 }

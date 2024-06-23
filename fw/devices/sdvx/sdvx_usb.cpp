@@ -5,7 +5,7 @@
 #include "sdvx_usb.h"
 #include "sdvx_usb_desc.h"
 
-namespace Sdvx {
+namespace SDVX {
   struct USB_JoystickReport_Data_t {
     uint8_t X;
     uint8_t Y;
@@ -35,8 +35,8 @@ namespace Sdvx {
   }
 
   void update_analog_tt(const config &config) {
-    process_tt(tt_x, config.tt_ratio);
-    process_tt(tt_y, config.tt_ratio);
+    process_tt(tt_x, 1);
+    process_tt(tt_y, 1);
   }
 
   bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const,
@@ -57,9 +57,6 @@ namespace Sdvx {
     HID_Task(&led_state_from_hid_report);
     update_analog(config);
 
-    //const auto start_button = led_state_from_hid_report.buttons & BUTTON_7;
-    //led_state_from_hid_report.buttons &= 0x3F; // Clear start button light state
-    //led_state_from_hid_report.buttons |= start_button << 2;
     update_lighting(led_state_from_hid_report.buttons);
   }
 

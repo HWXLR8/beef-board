@@ -130,7 +130,7 @@ callback toggle_reverse_tt(config* self) {
   eeprom_write_byte(CONFIG_REVERSE_TT_ADDR, self->reverse_tt);
 
   update_tt_transitions(self->reverse_tt);
-  Iidx::RgbManager::Turntable::reverse_tt(self->reverse_tt);
+  IIDX::RgbManager::Turntable::reverse_tt(self->reverse_tt);
 
   return callback{};
 }
@@ -139,7 +139,7 @@ callback cycle_tt_effects(config* self) {
   self->tt_effect = TurntableMode((uint8_t(self->tt_effect) + 1) % uint8_t(TurntableMode::COUNT));
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
-  Iidx::RgbManager::Turntable::set_leds_off();
+  IIDX::RgbManager::Turntable::set_leds_off();
 
   return callback{};
 }
@@ -271,7 +271,7 @@ void update_deadzone(const uint8_t deadzone) {
 
   tt1.deadzone = deadzone;
 
-  Iidx::RgbManager::Turntable::display_tt_change(CRGB::Green,
+  IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
                                                  deadzone,
                                                  DEADZONE_MAX);
 }
@@ -302,7 +302,7 @@ void update_ratio(const uint8_t ratio) {
   eeprom_update_byte(CONFIG_TT_RATIO_ADDR, ratio);
 
   // Present TT ratio as TT sensitivity to the user
-  Iidx::RgbManager::Turntable::display_tt_change(CRGB::Red,
+  IIDX::RgbManager::Turntable::display_tt_change(CRGB::Red,
                                                  RATIO_MAX+1-ratio,
                                                  RATIO_MAX);
 }
@@ -332,7 +332,7 @@ callback cycle_bar_effects(config* self) {
            self->bar_effect == BarMode::PLACEHOLDER3);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
-  Iidx::RgbManager::Bar::set_leds_off();
+  IIDX::RgbManager::Bar::set_leds_off();
 
   return callback{};
 }

@@ -3,7 +3,7 @@
 #include "../beef.h"
 #include "../config.h"
 
-namespace Iidx {
+namespace IIDX {
   void usb_init(config &config);
 
   enum {

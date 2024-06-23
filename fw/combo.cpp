@@ -53,7 +53,7 @@ void process_combos(config* current_config,
 
     timer_init(&combo_timer);
     timer_init(combo_lights_timer);
-    timer_init(&Iidx::RgbManager::Turntable::combo_timer);
+    timer_init(&IIDX::RgbManager::Turntable::combo_timer);
 
     if (config_update_callback.addr != nullptr)
       config_update(config_update_callback.addr, config_update_callback.val);

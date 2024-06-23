@@ -1,6 +1,6 @@
 #include "sdvx_rgb_manager.h"
 
-namespace Sdvx {
+namespace SDVX {
   namespace RgbManager {
   }
 }

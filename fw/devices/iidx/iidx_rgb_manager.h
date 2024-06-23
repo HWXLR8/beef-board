@@ -4,9 +4,13 @@
 
 #include "../bpm.h"
 #include "../config.h"
+#include "iidx_rgb.h"
 
-namespace Iidx {
+namespace IIDX {
   namespace RgbManager {
+    void update(const config &config,
+                const int8_t tt_report,
+                const hid_lights &led_state_from_hid_report);
     namespace Turntable {
       extern timer combo_timer;
 
@@ -15,16 +19,10 @@ namespace Iidx {
       void display_tt_change(const CRGB &colour,
                              uint8_t value,
                              uint8_t range);
-      void update(int8_t tt_report,
-                  const rgb_light &lights,
-                  const config &current_config);
     }
 
     namespace Bar {
       void set_leds_off();
-      void update(const rgb_light &lights,
-                  const config &current_config,
-                  Bpm &bpm);
     }
   }
 }

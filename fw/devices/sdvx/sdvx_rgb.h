@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace Sdvx {
+namespace SDVX {
   struct hid_lights {
     uint16_t buttons;
   };

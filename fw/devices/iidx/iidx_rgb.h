@@ -4,7 +4,7 @@
 
 #include "../rgb.h"
 
-namespace Iidx {
+namespace IIDX {
   struct hid_lights {
     uint16_t buttons;
     rgb_light tt_lights;

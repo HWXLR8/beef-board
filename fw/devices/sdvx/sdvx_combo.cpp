@@ -1,7 +1,7 @@
 #include "../beef.h"
 #include "sdvx_combo.h"
 
-namespace Sdvx {
+namespace SDVX {
   enum {
     DISABLE_LED = BUTTON_1 | BUTTON_2 | BUTTON_3 | BUTTON_4 | BUTTON_9
   };

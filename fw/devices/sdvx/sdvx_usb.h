@@ -2,6 +2,6 @@
 
 #include "../config.h"
 
-namespace Sdvx {
+namespace SDVX {
   void usb_init(config &config);
 }

@@ -9,7 +9,7 @@
 // may be sent back from the host. Refer to the HID specification for
 // more details on HID report descriptors.
 
-namespace Iidx {
+namespace IIDX {
   const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] = {
   HID_RI_USAGE_PAGE(8, 0x01),
   HID_RI_USAGE(8, 0x04),

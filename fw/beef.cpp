@@ -167,11 +167,11 @@ void usb_init(config &config) {
 
   switch (config.usb_mode) {
     case UsbMode::SDVX:
-      Sdvx::usb_init(config);
+      SDVX::usb_init(config);
       break;
     case UsbMode::IIDX:
     default:
-      Iidx::usb_init(config);
+      IIDX::usb_init(config);
   }
 
   USB_Init();

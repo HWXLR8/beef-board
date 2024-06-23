@@ -8,16 +8,13 @@
 #define BREATHING_DURATION 2048
 #define BREATHING_TIMER 3000
 
-namespace Iidx {
+namespace IIDX {
   namespace RgbManager {
     namespace Turntable {
       // Add a second-long rest period
       BreathingPattern breathing_pattern(BREATHING_DURATION,
                                          BREATHING_TIMER);
       timer combo_timer{};
-
-      void init() {
-      }
 
       void set_hsv(HSV hsv) {
         RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
@@ -110,11 +107,11 @@ namespace Iidx {
 
       // Illuminate + as blue, - as red in two halves
       void reverse_tt(uint8_t reverse_tt) {
-        int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
-        int blue_start = offset;
-        int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
-        int red_start = (12 + offset) % RING_LIGHT_LEDS;
-        int red_end = red_start + (RING_LIGHT_LEDS / 2);
+        const int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
+        const int blue_start = offset;
+        const int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
+        const int red_start = (12 + offset) % RING_LIGHT_LEDS;
+        const int red_end = red_start + (RING_LIGHT_LEDS / 2);
         for (int i = blue_start; i < blue_end; ++i) {
           tt_leds[i] = CRGB::Blue;
         }
@@ -211,7 +208,8 @@ namespace Iidx {
         fill_solid(bar_leds, LIGHT_BAR_LEDS, CRGB::Black);
       }
 
-      void spectrum(Bpm &bpm, const SpectrumSide side) {
+      void spectrum(const SpectrumSide side) {
+        static Bpm bpm(LIGHT_BAR_LEDS);
         static uint8_t last_level;
 
         const auto level = bpm.update(button_state);
@@ -232,14 +230,13 @@ namespace Iidx {
       }
 
       void update(const rgb_light &lights,
-                  const config &current_config,
-                  Bpm &bpm) {
+                  const config &current_config) {
         switch(current_config.bar_effect) {
           case BarMode::KEY_SPECTRUM_P1:
-            spectrum(bpm, SpectrumSide::P1);
+            spectrum(SpectrumSide::P1);
             break;
           case BarMode::KEY_SPECTRUM_P2:
-            spectrum(bpm, SpectrumSide::P2);
+            spectrum(SpectrumSide::P2);
             break;
           case BarMode::HID:
             RgbHelper::hid(bar_leds, LIGHT_BAR_LEDS, lights);
@@ -251,6 +248,22 @@ namespace Iidx {
             break;
         }
       }
+    }
+
+    void update(const config &config,
+                const int8_t tt_report,
+                const hid_lights &led_state_from_hid_report) {
+      if (config.disable_led || !RgbHelper::ready_to_present()) {
+        return;
+      }
+
+      Turntable::update(tt_report,
+                        led_state_from_hid_report.tt_lights,
+                        config);
+      Bar::update(led_state_from_hid_report.bar_lights,
+                  config);
+
+      FastLED.show();
     }
   }
 }

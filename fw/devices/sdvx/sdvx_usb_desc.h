@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Sdvx {
+namespace SDVX {
   uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
                                       const uint16_t wIndex,
                                       const void** const DescriptorAddress);

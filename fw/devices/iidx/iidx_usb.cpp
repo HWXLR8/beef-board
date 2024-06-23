@@ -1,14 +1,13 @@
 #include "../analog_turntable.h"
 #include "../beef.h"
 #include "../hid.h"
-#include "../rgb_helper.h"
 #include "iidx_combo.h"
 #include "iidx_usb.h"
 #include "iidx_usb_desc.h"
 #include "iidx_rgb.h"
 #include "iidx_rgb_manager.h"
 
-namespace Iidx {
+namespace IIDX {
   struct USB_JoystickReport_Data_t {
     uint8_t  X;
     uint16_t Button; // bit-field representing which buttons have been pressed
@@ -54,8 +53,6 @@ namespace Iidx {
   }
 
   void update(const config &config) {
-    static Bpm bpm(LIGHT_BAR_LEDS);
-
     HID_Task(&led_state_from_hid_report);
 
     process_tt(tt_x, config.tt_ratio);
@@ -63,15 +60,9 @@ namespace Iidx {
     process_buttons(tt1_report);
 
     update_lighting(led_state_from_hid_report.buttons);
-    if (!config.disable_led && RgbHelper::ready_to_present()) {
-      RgbManager::Turntable::update(tt1_report,
-                                    led_state_from_hid_report.tt_lights,
-                                    config);
-      RgbManager::Bar::update(led_state_from_hid_report.bar_lights,
-                              config,
-                              bpm);
-      FastLED.show();
-    }
+    RgbManager::update(config,
+                       tt1_report,
+                       led_state_from_hid_report);
   }
 
   void usb_init(config &config) {
