@@ -25,8 +25,8 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 | E2 | B9 |
 | E3 | B10 |
 | E4/Select | B11 |
-| TT photoemitter 1 | DAO_E1P1 |
-| TT photoemitter 2 | DAO_E1P2 |
+| TT photointerruptor 1 | DAO_E1P1 |
+| TT photointerruptor 2 | DAO_E1P2 |
 | TT RGB LEDs | TT_LED |
 | Bar RGB LEDs | DAO_BAR |
 
