@@ -2,8 +2,8 @@
 #include "../rgb_helper.h"
 #include "iidx_rgb_manager.h"
 
-#define SPIN_TIMER 50
-#define FAST_SPIN_TIMER 25
+#define SPIN_TIMER 50 * RING_ANIM_NORMALISE
+#define FAST_SPIN_TIMER 25 * RING_ANIM_NORMALISE
 #define REACT_TIMER 500
 #define BREATHING_DURATION 2048
 #define BREATHING_TIMER 3000

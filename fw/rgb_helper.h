@@ -11,6 +11,8 @@
 #if !defined(LIGHT_BAR_LEDS)
   #define LIGHT_BAR_LEDS 16
 #endif
+#define RING_ANIM_NORMALISE RING_LIGHT_LEDS / 24
+#define BAR_ANIM_NORMALISE LIGHT_BAR_LEDS / 16
 
 constexpr auto DEFAULT_COLOUR = HSV{ 128, 255, 255 }; // Aqua
 extern CRGB tt_leds[RING_LIGHT_LEDS];
