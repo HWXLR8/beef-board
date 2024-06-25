@@ -5,9 +5,13 @@ F_CPU = 16000000
 F_USB = $(F_CPU)
 OPTIMIZATION = 2
 TARGET = beef
+
 BEEF_LED_REFRESH ?= 240
 BEEF_TT_RAINBOW_SPIN_SPEED ?= 1
 BEEF_DEBOUNCE ?= 1
+RING_LIGHT_LEDS ?= 24
+LIGHT_BAR_LEDS ?= 16
+
 FASTLED_SRC = FastLED/src
 SRC = $(wildcard *.c) $(wildcard *.cpp) $(wildcard devices/iidx/*.cpp) $(wildcard devices/sdvx/*.cpp) \
 	$(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/hsv2rgb.cpp $(FASTLED_SRC)/lib8tion.cpp \
