@@ -2,8 +2,8 @@
 #include "../rgb_helper.h"
 #include "iidx_rgb_manager.h"
 
-#define SPIN_TIMER 50
-#define FAST_SPIN_TIMER 25
+#define SPIN_TIMER 50 * RING_ANIM_NORMALISE
+#define FAST_SPIN_TIMER 25 * RING_ANIM_NORMALISE
 #define REACT_TIMER 500
 #define BREATHING_DURATION 2048
 #define BREATHING_TIMER 3000
@@ -38,7 +38,7 @@ namespace IIDX {
 
           const auto colour = CHSV(hsv.h, 255, 255);
           tt_leds[spin_counter] = colour;
-          tt_leds[spin_counter+12] = colour;
+          tt_leds[spin_counter+(RING_LIGHT_LEDS/2)] = colour;
           first_call = false;
           last_spin_counter = spin_counter;
         }
@@ -110,7 +110,7 @@ namespace IIDX {
         const int offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
         const int blue_start = offset;
         const int blue_end = blue_start + (RING_LIGHT_LEDS / 2);
-        const int red_start = (12 + offset) % RING_LIGHT_LEDS;
+        const int red_start = ((RING_LIGHT_LEDS / 2) + offset) % RING_LIGHT_LEDS;
         const int red_end = red_start + (RING_LIGHT_LEDS / 2);
         for (int i = blue_start; i < blue_end; ++i) {
           tt_leds[i] = CRGB::Blue;

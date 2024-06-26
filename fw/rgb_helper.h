@@ -5,10 +5,14 @@
 #include "rgb.h"
 #include "rgb_patterns.h"
 
-enum {
-  RING_LIGHT_LEDS = 24,
-  LIGHT_BAR_LEDS  = 16
-};
+#if !defined(RING_LIGHT_LEDS)
+  #define RING_LIGHT_LEDS 24
+#endif
+#if !defined(LIGHT_BAR_LEDS)
+  #define LIGHT_BAR_LEDS 16
+#endif
+#define RING_ANIM_NORMALISE RING_LIGHT_LEDS / 24
+#define BAR_ANIM_NORMALISE LIGHT_BAR_LEDS / 16
 
 constexpr auto DEFAULT_COLOUR = HSV{ 128, 255, 255 }; // Aqua
 extern CRGB tt_leds[RING_LIGHT_LEDS];

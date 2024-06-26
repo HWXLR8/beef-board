@@ -1,10 +1,11 @@
-#define DECAY_TIME 30
-// This effectively controls how easy it is to reach max_level
-#define BUTTON_GUARD_TIME 15
-
 #include <FastLED/src/FastLED.h>
 
 #include "bpm.h"
+#include "rgb_helper.h"
+
+#define DECAY_TIME 30 * BAR_ANIM_NORMALISE
+// This effectively controls how easy it is to reach max_level
+#define BUTTON_GUARD_TIME 15 * BAR_ANIM_NORMALISE
 
 Bpm::Bpm(const uint8_t max_level) : max_level(max_level){}
 
