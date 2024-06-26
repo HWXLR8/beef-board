@@ -8,11 +8,7 @@
 
 Bpm::Bpm(const uint8_t max_level) : max_level(max_level){}
 
-uint8_t Bpm::get() const {
-  return current_level;
-}
-
-void Bpm::update(const uint16_t button_state) {
+uint8_t Bpm::update(const uint16_t button_state) {
   EVERY_N_MILLIS(1) {
     if (!timer_is_active(&button_guard)) {
       const bool pressed_or_released = button_state ^ last_button_state;
@@ -33,4 +29,6 @@ void Bpm::update(const uint16_t button_state) {
 
     last_button_state = button_state;
   }
+
+  return current_level;
 }

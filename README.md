@@ -11,17 +11,56 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 * Sound Voltex
 * Pop'n Music
 
+
+## Wiring configuration
+
+<details>
+
+<summary>IIDX</summary>
+
+| Input | Board label |
+|:---|:---|
+| B1-7 | Obvious enough |
+| E1/Start | B8 |
+| E2 | B9 |
+| E3 | B10 |
+| E4/Select | B11 |
+| TT photointerruptor 1 | DAO_E1P1 |
+| TT photointerruptor 2 | DAO_E1P2 |
+| TT RGB LEDs | TT_LED |
+| Bar RGB LEDs | DAO_BAR |
+
+</details>
+
+<details>
+
+<summary>SDVX</summary>
+
+| Input | Board label |
+|:---|:---|
+| BT-A | B1 |
+| BT-B | B2 |
+| BT-C | B3 |
+| BT-D | B4 |
+| FX-L | B5 |
+| FX-R | B6 |
+| Start | B9 |
+| AC-style knobs | SDVX1 and SDVX2 |
+
+</details>
+
 ## Configuration
 Various configuration options can be changed on-the-fly by holding a button combination. Holding the buttons simultaneously for 1 second will cause the change to take affect. Button lights will momentarily shut off to indicate that the change has occurred. Refer to this table for a list of configuration options currently supported:
 
+### IIDX
 | Configuration option | Button combination |
 |:---|:---|
 | Reverse TT direction | B1 + B7 + B8 |
-| Change TT lighting effects| B2 + B8 + B11 |
-| Increase TT deadzone | B3 + B8 + B11 |
-| Decrease TT deadzone | B1 + B8 + B11 |
-| Increase TT sensitivity | B7 + B8 + B11 |
-| Decrease TT sensitivity | B5 + B8 + B11 |
+| Change TT lighting effects | B2 + B8 + B11 |
+| Increase TT deadzone | B7 + B8 + B11 |
+| Decrease TT deadzone | B5 + B8 + B11 |
+| Increase TT sensitivity | B3 + B8 + B11 |
+| Decrease TT sensitivity | B1 + B8 + B11 |
 | Change centre bar lighting effects (PHOENIXWAN only) | B6 + B8 + B10 |
 | Disable LEDs | B4 + B8 + B11 |
 | Change turntable hue | B2 + B11 + TT |
@@ -30,10 +69,18 @@ Various configuration options can be changed on-the-fly by holding a button comb
 
 Note: TT deadzone only affects digital TT output.
 
+### SDVX
+| Configuration option | Button combination |
+|:---|:---|
+| Disable LEDs | B1 + B2 + B3 + B4 + B9 |
+
+### Start up
 There also exist button combinations which perform special actions if held while connecting the device:
 | Special action | Button combination |
 |:---|:---|
 | Enter programming mode | B1 + B2 |
+| IIDX mode (default) | B1 + B8 |
+| SDVX mode | B1 + B9 |
 
 ## BOM
 ```

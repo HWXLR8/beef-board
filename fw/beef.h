@@ -1,61 +1,68 @@
 #pragma once
 
-#include "bpm.h"
-#include "pin.h"
-#include "rgb.h"
-#include "timer.h"
+#include <LUFA/Drivers/USB/USB.h>
 
-// HID report structure, for creating and sending HID reports to the
-// host PC. This mirrors the layout described to the host in the HID
-// report descriptor in Descriptors.c.
-typedef struct {
-  uint8_t  X;
-  uint16_t Button; // bit-field representing which buttons have been pressed
-} USB_JoystickReport_Data_t;
+#include "config.h"
+#include "debounce.h"
+#include "pin.h"
 
 extern uint16_t button_state;
 extern bool reactive_led;
 extern bool rgb_standby;
+extern timer hid_lights_expiry_timer;
+extern config current_config;
+
+extern tt_pins tt_x;
+extern tt_pins tt_y;
+extern encoder_pin encoder_x;
+extern encoder_pin encoder_y;
+
+extern USB_ClassInfo_HID_Device_t* hid_interface;
+
+extern void (*update_callback) (const config &);
+extern uint16_t (*usb_desc_callback) (const uint16_t,
+                                      const uint16_t,
+                                      const void** const);
+extern bool (*create_hid_report_callback) (USB_ClassInfo_HID_Device_t* const,
+                                           uint8_t* const,
+                                           const uint8_t,
+                                           void*,
+                                           uint16_t* const);
 
 void hwinit();
+void usb_init(config &config);
 void hardware_timer1_init();
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
              uint8_t led_pin,
              uint16_t OutputData);
-void set_hid_standby_lighting(hid_lights* lights);
-void process_buttons(int8_t tt1_report);
+void set_hid_standby_lighting();
+void process_buttons();
 void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
 void update_tt_transitions(uint8_t reverse_tt);
-void process_tt(tt_pins &tt_pin);
-void update_lighting(int8_t tt1_report,
-                     timer* combo_lights_timer,
-                     const Bpm &bpm);
-void update_button_lighting(uint16_t led_state,
-                            timer* combo_lights_timer);
+void process_tt(tt_pins &tt_pin, uint8_t tt_ratio);
+void process_encoder(encoder_pin &encoder_pin);
+void update_lighting(uint16_t hid_buttons);
+void update_button_lighting(uint16_t led_state);
 
+void debounce(DebounceState* debounce, uint16_t mask);
 bool is_pressed(uint16_t button_bits, uint16_t ignore = 0);
 void check_for_dfu();
 void jump_to_bootloader();
 
-// HID functions
-void HID_Task();
-void ProcessGenericHIDReport(hid_lights led_state);
-
 // button macros to map to bit positions within button_state
-#define BUTTON_1 1 << 0
-#define BUTTON_2 1 << 1
-#define BUTTON_3 1 << 2
-#define BUTTON_4 1 << 3
-#define BUTTON_5 1 << 4
-#define BUTTON_6 1 << 5
-#define BUTTON_7 1 << 6
-#define BUTTON_8 1 << 7
-#define BUTTON_9 1 << 8
-#define BUTTON_10 1 << 9
-#define BUTTON_11 1 << 10
-#define BUTTON_TT_NEG 1 << 11
-#define BUTTON_TT_POS 1 << 12
-#define EFFECTORS_ALL (BUTTON_8 | BUTTON_9 | BUTTON_10 | BUTTON_11)
+enum {
+  BUTTON_1  = 1 << 0,
+  BUTTON_2  = 1 << 1,
+  BUTTON_3  = 1 << 2,
+  BUTTON_4  = 1 << 3,
+  BUTTON_5  = 1 << 4,
+  BUTTON_6  = 1 << 5,
+  BUTTON_7  = 1 << 6,
+  BUTTON_8  = 1 << 7,
+  BUTTON_9  = 1 << 8,
+  BUTTON_10 = 1 << 9,
+  BUTTON_11 = 1 << 10
+};
