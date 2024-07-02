@@ -14,9 +14,10 @@ namespace RgbHelper {
 
   void init() {
     FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, RING_LIGHT_LEDS)
-        .setDither(DISABLE_DITHER);
+      .setDither(DISABLE_DITHER);
     FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, LIGHT_BAR_LEDS)
-        .setDither(DISABLE_DITHER);
+      .setDither(DISABLE_DITHER);
+    FastLED.setMaxRefreshRate(0); // We have our own frame rate limiter
   }
 
   void set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights) {
