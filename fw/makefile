@@ -55,4 +55,4 @@ fuse-dump:
 # flash the factory DFU bootloader
 .PHONY: bootloader
 bootloader:
-        sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U flash:w:$(BOOTLOADER).hex
+	sudo avrdude -c stk500v1 -b 19200 -p $(MCU) -P /dev/ttyACM0 -U flash:w:$(BOOTLOADER).hex
