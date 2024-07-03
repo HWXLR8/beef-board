@@ -46,7 +46,7 @@ void init_config(config* self) {
   self->tt_static_hsv = DEFAULT_COLOUR;
   self->tt_spin_hsv = DEFAULT_COLOUR;
   self->tt_shift_hsv = { 0, 255, 255 };
-  self->tt_rainbow_react_hsv = { 0, 255, 255 };
+  self->tt_rainbow_static_hsv = { 0, 255, 255 };
   self->tt_rainbow_react_hsv = { 0, 255, 255 };
   self->tt_rainbow_spin_hsv = { 0, 255, 255 };
   self->tt_react_hsv = DEFAULT_COLOUR;
@@ -80,7 +80,7 @@ bool update_config(config* self) {
     case 6:
       self->tt_spin_hsv = DEFAULT_COLOUR;
       self->tt_shift_hsv = { 0, 255, 255 };
-      self->tt_rainbow_react_hsv = { 0, 255, 255 };
+      self->tt_rainbow_static_hsv = { 0, 255, 255 };
       self->tt_rainbow_react_hsv = { 0, 255, 255 };
       self->tt_rainbow_spin_hsv = { 0, 255, 255 };
       self->tt_react_hsv = DEFAULT_COLOUR;
