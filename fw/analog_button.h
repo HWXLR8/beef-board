@@ -22,11 +22,12 @@ typedef struct {
 
   int8_t state; // -1, 0, 1
   int8_t raw_state; // state without sustain period
-} analog_turntable;
-extern analog_turntable tt1;
+} analog_button;
+extern analog_button button_x;
+extern analog_button button_y;
 
-void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t sustain_ms, bool clear);
-int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value);
+void analog_button_init(analog_button* self, uint8_t deadzone, uint32_t sustain_ms, bool clear);
+int8_t analog_button_poll(analog_button* self, uint32_t current_value);
 #ifdef __cplusplus
 }
 #endif

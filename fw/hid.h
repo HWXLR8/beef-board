@@ -2,21 +2,21 @@
 
 #include "Descriptors.h"
 
-template <typename T>
+template <typename T, uint8_t InterfaceNumber, uint8_t Endpoint>
 struct HidReport {
   // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
-  uint8_t PrevJoystickHIDReportBuffer[sizeof(T)]{};
+  uint8_t PrevHIDReportBuffer[sizeof(T)]{};
 
-  USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
+  USB_ClassInfo_HID_Device_t HID_Interface = {
     .Config = {
-      .InterfaceNumber = INTERFACE_ID_Joystick,
+      .InterfaceNumber = InterfaceNumber,
       .ReportINEndpoint = {
-        .Address = JOYSTICK_IN_EPADDR,
-        .Size = JOYSTICK_EPSIZE,
+        .Address = Endpoint,
+        .Size = HID_EPSIZE,
         .Banks = 1,
       },
-      .PrevReportINBuffer = PrevJoystickHIDReportBuffer,
-      .PrevReportINBufferSize = sizeof(PrevJoystickHIDReportBuffer),
+      .PrevReportINBuffer = PrevHIDReportBuffer,
+      .PrevReportINBufferSize = sizeof(PrevHIDReportBuffer),
     },
   };
 };

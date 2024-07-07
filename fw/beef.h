@@ -20,9 +20,6 @@ extern encoder_pin encoder_y;
 extern USB_ClassInfo_HID_Device_t* hid_interface;
 
 extern void (*update_callback) (const config &);
-extern uint16_t (*usb_desc_callback) (const uint16_t,
-                                      const uint16_t,
-                                      const void** const);
 extern bool (*create_hid_report_callback) (USB_ClassInfo_HID_Device_t* const,
                                            uint8_t* const,
                                            const uint8_t,
@@ -31,6 +28,7 @@ extern bool (*create_hid_report_callback) (USB_ClassInfo_HID_Device_t* const,
 
 void hwinit();
 void usb_init(config &config);
+void set_hid_interface(config &config);
 void hardware_timer1_init();
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
@@ -44,10 +42,12 @@ void process_button(const volatile uint8_t* PIN,
 void update_tt_transitions(uint8_t reverse_tt);
 void process_tt(tt_pins &tt_pin, uint8_t tt_ratio);
 void process_encoder(encoder_pin &encoder_pin);
+void process_keyboard(uint8_t* hid_key_codes, const uint8_t* key_codes, uint8_t n);
 void update_lighting(uint16_t hid_buttons);
 void update_button_lighting(uint16_t led_state);
 
 void debounce(DebounceState* debounce, uint16_t mask);
+bool is_only_pressed(uint16_t button_bits, uint16_t ignore = 0);
 bool is_pressed(uint16_t button_bits, uint16_t ignore = 0);
 void check_for_dfu();
 void jump_to_bootloader();

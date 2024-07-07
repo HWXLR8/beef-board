@@ -1,8 +1,9 @@
-#include "analog_turntable.h"
+#include "analog_button.h"
 
-analog_turntable tt1;
+analog_button button_x;
+analog_button button_y;
 
-void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t sustain_ms, bool clear) {
+void analog_button_init(analog_button* self, uint8_t deadzone, uint32_t sustain_ms, bool clear) {
   self->deadzone = deadzone;
   self->sustain_ms = sustain_ms;
   self->clear = clear;
@@ -12,7 +13,7 @@ void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t su
   timer_init(&self->sustain_timer);
 }
 
-int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
+int8_t analog_button_poll(analog_button* self, uint32_t current_value) {
   if (!self->center_valid) {
     self->center_valid = true;
     self->center = current_value;
@@ -45,7 +46,8 @@ int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
   if (direction == -self->state && self->clear) {
     self->state = direction;
     return 0;
-  } else if (direction != 0) {
+  }
+  if (direction != 0) {
     self->state = direction;
   }
 

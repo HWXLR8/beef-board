@@ -19,10 +19,11 @@
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
 #define CONFIG_TT_BREATHING_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.s))
 #define CONFIG_TT_RATIO_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_ratio))
-#define CONFIG_USB_MODE (CONFIG_BASE_ADDR + offsetof(config, usb_mode))
+#define CONFIG_USB_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, usb_mode))
+#define CONFIG_IIDX_INPUT_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, iidx_input_mode))
+#define CONFIG_SDVX_INPUT_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, sdvx_input_mode))
 
 enum {
-  CONFIG_VERSION = 9,
   MAGIC = 0xBEEF
 };
 
@@ -30,36 +31,15 @@ enum {
 
 #include "devices/iidx/iidx_rgb_manager.h"
 
-#include "analog_turntable.h"
+#include "analog_button.h"
 #include "beef.h"
 #include "config.h"
 #include "rgb_helper.h"
 
-// initialize config with default values
-void init_config(config* self) {
-  self->version = CONFIG_VERSION;
-  self->reverse_tt = 0;
-  self->tt_effect = TurntableMode::SPIN;
-  self->tt_deadzone = 4;
-  self->bar_effect = BarMode::HID;
-  self->disable_led = 0;
-  self->tt_static_hsv = DEFAULT_COLOUR;
-  self->tt_spin_hsv = DEFAULT_COLOUR;
-  self->tt_shift_hsv = { 0, 255, 255 };
-  self->tt_rainbow_static_hsv = { 0, 255, 255 };
-  self->tt_rainbow_react_hsv = { 0, 255, 255 };
-  self->tt_rainbow_spin_hsv = { 0, 255, 255 };
-  self->tt_react_hsv = DEFAULT_COLOUR;
-  self->tt_breathing_hsv = DEFAULT_COLOUR;
-  self->tt_ratio = 2;
-}
-
 bool update_config(config* self) {
-  bool update = false;
-
   switch (self->version) {
     case 0:
-      self->tt_effect = TurntableMode::SPIN;
+      self->tt_effect = TurntableMode::Spin;
       self->version++;
     case 1:
       self->tt_deadzone = 4;
@@ -74,7 +54,7 @@ bool update_config(config* self) {
       self->tt_static_hsv = DEFAULT_COLOUR;
       self->version++;
     case 5:
-      if (self->tt_effect >= TurntableMode::RAINBOW_SPIN) // Added new effect
+      if (self->tt_effect >= TurntableMode::RainbowSpin) // Added new effect
         self->tt_effect = TurntableMode(uint8_t(self->tt_effect)+1);
       self->version++;
     case 6:
@@ -92,25 +72,26 @@ bool update_config(config* self) {
     case 8:
       self->usb_mode = UsbMode::IIDX;
       self->version++;
-      update = true;
+    case 9:
+      self->iidx_input_mode = InputMode::Joystick;
+      self->sdvx_input_mode = InputMode::Joystick;
+      self->version++;
+      return true;
     default:
-      break;
+      return false;
   }
-
-  return update;
 }
 
 void config_init(config* self) {
   bool update;
   const auto magic = eeprom_read_word(nullptr);
   if (magic != MAGIC) {
-    update = true;
     eeprom_write_word(nullptr, MAGIC);
-    init_config(self);
+    self->version = 0;
   } else {
     eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
-    update = update_config(self);
   }
+  update = update_config(self);
 
   if (update)
     eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
@@ -122,7 +103,20 @@ void config_update(uint8_t* addr, const uint8_t val) {
 
 void set_mode(config &self, UsbMode mode) {
   self.usb_mode = mode;
-  eeprom_update_byte(CONFIG_USB_MODE, static_cast<uint8_t>(self.usb_mode));
+  eeprom_update_byte(CONFIG_USB_MODE_ADDR, static_cast<uint8_t>(self.usb_mode));
+}
+
+void set_input_mode(config &self, InputMode mode) {
+  switch (self.usb_mode) {
+    case UsbMode::IIDX:
+      self.iidx_input_mode = mode;
+      eeprom_update_byte(CONFIG_IIDX_INPUT_MODE_ADDR, static_cast<uint8_t>(self.iidx_input_mode));
+      break;
+    case UsbMode::SDVX:
+      self.sdvx_input_mode = mode;
+      eeprom_update_byte(CONFIG_SDVX_INPUT_MODE_ADDR, static_cast<uint8_t>(self.sdvx_input_mode));
+      break;
+  }
 }
 
 callback toggle_reverse_tt(config* self) {
@@ -136,7 +130,7 @@ callback toggle_reverse_tt(config* self) {
 }
 
 callback cycle_tt_effects(config* self) {
-  self->tt_effect = TurntableMode((uint8_t(self->tt_effect) + 1) % uint8_t(TurntableMode::COUNT));
+  self->tt_effect = TurntableMode((uint8_t(self->tt_effect) + 1) % uint8_t(TurntableMode::Count));
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
   IIDX::RgbManager::Turntable::set_leds_off();
@@ -149,19 +143,19 @@ callback tt_hsv_set_hue(config* self) {
   HSV* h;
 
   switch (self->tt_effect) {
-    case TurntableMode::STATIC:
+    case TurntableMode::Static:
       addr = CONFIG_TT_STATIC_HUE_ADDR;
       h = &self->tt_static_hsv;
       break;
-    case TurntableMode::SPIN:
+    case TurntableMode::Spin:
       addr = CONFIG_TT_SPIN_HUE_ADDR;
       h = &self->tt_spin_hsv;
       break;
-    case TurntableMode::REACT:
+    case TurntableMode::React:
       addr = CONFIG_TT_REACT_HUE_ADDR;
       h = &self->tt_react_hsv;
       break;
-    case TurntableMode::BREATHING:
+    case TurntableMode::Breathing:
       addr = CONFIG_TT_BREATHING_HUE_ADDR;
       h = &self->tt_breathing_hsv;
       break;
@@ -169,7 +163,7 @@ callback tt_hsv_set_hue(config* self) {
       return callback{};
   }
 
-  h->h += tt1.raw_state;
+  h->h += button_x.raw_state;
 
   return callback{addr, h->h};
 }
@@ -179,31 +173,31 @@ callback tt_hsv_set_sat(config* self) {
   HSV* s;
 
   switch (self->tt_effect) {
-    case TurntableMode::STATIC:
+    case TurntableMode::Static:
       addr = CONFIG_TT_STATIC_SAT_ADDR;
       s = &self->tt_static_hsv;
       break;
-    case TurntableMode::SHIFT:
+    case TurntableMode::Shift:
       addr = CONFIG_TT_SHIFT_SAT_ADDR;
       s = &self->tt_shift_hsv;
       break;
-    case TurntableMode::RAINBOW_STATIC:
+    case TurntableMode::RainbowStatic:
       addr = CONFIG_TT_RAINBOW_STATIC_SAT_ADDR;
       s = &self->tt_rainbow_static_hsv;
       break;
-    case TurntableMode::RAINBOW_REACT:
+    case TurntableMode::RainbowReact:
       addr = CONFIG_TT_RAINBOW_REACT_SAT_ADDR;
       s = &self->tt_rainbow_react_hsv;
       break;
-    case TurntableMode::RAINBOW_SPIN:
+    case TurntableMode::RainbowSpin:
       addr = CONFIG_TT_RAINBOW_SPIN_SAT_ADDR;
       s = &self->tt_rainbow_spin_hsv;
       break;
-    case TurntableMode::REACT:
+    case TurntableMode::React:
       addr = CONFIG_TT_REACT_SAT_ADDR;
       s = &self->tt_react_hsv;
       break;
-    case TurntableMode::BREATHING:
+    case TurntableMode::Breathing:
       addr = CONFIG_TT_BREATHING_SAT_ADDR;
       s = &self->tt_breathing_hsv;
       break;
@@ -211,7 +205,7 @@ callback tt_hsv_set_sat(config* self) {
       return callback{};
   }
 
-  const auto tt1_report = tt1.raw_state;
+  const auto tt1_report = button_x.raw_state;
 
   if ((s->s == 0 && tt1_report < 0) ||
       (s->s == 255 && tt1_report > 0)) // prevent looping around
@@ -227,23 +221,23 @@ callback tt_hsv_set_val(config* self) {
   HSV* v;
 
   switch (self->tt_effect) {
-    case TurntableMode::STATIC:
+    case TurntableMode::Static:
       addr = CONFIG_TT_STATIC_VAL_ADDR;
       v = &self->tt_static_hsv;
       break;
-    case TurntableMode::SHIFT:
+    case TurntableMode::Shift:
       addr = CONFIG_TT_SHIFT_VAL_ADDR;
       v = &self->tt_shift_hsv;
       break;
-    case TurntableMode::RAINBOW_STATIC:
+    case TurntableMode::RainbowStatic:
       addr = CONFIG_TT_RAINBOW_STATIC_SAT_ADDR;
       v = &self->tt_rainbow_static_hsv;
       break;
-    case TurntableMode::RAINBOW_REACT:
+    case TurntableMode::RainbowReact:
       addr = CONFIG_TT_RAINBOW_REACT_SAT_ADDR;
       v = &self->tt_rainbow_react_hsv;
       break;
-    case TurntableMode::RAINBOW_SPIN:
+    case TurntableMode::RainbowSpin:
       addr = CONFIG_TT_RAINBOW_SPIN_SAT_ADDR;
       v = &self->tt_rainbow_spin_hsv;
       break;
@@ -251,7 +245,7 @@ callback tt_hsv_set_val(config* self) {
       return callback{};
   }
 
-  const auto tt1_report = tt1.raw_state;
+  const auto tt1_report = button_x.raw_state;
 
   if ((v->v == 0 && tt1_report < 0) ||
       (v->v == 255 && tt1_report > 0)) // prevent looping around
@@ -269,7 +263,7 @@ enum {
 void update_deadzone(const uint8_t deadzone) {
   eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, deadzone);
 
-  tt1.deadzone = deadzone;
+  button_x.deadzone = deadzone;
 
   IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
                                                  deadzone,
@@ -327,9 +321,9 @@ callback decrease_ratio(config* self) {
 
 callback cycle_bar_effects(config* self) {
   do {
-    self->bar_effect = BarMode((uint8_t(self->bar_effect) + 1) % uint8_t(BarMode::COUNT));
-  } while (self->bar_effect == BarMode::PLACEHOLDER1 ||
-           self->bar_effect == BarMode::PLACEHOLDER3);
+    self->bar_effect = BarMode((uint8_t(self->bar_effect) + 1) % uint8_t(BarMode::Count));
+  } while (self->bar_effect == BarMode::Placeholder1 ||
+           self->bar_effect == BarMode::Placeholder3);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
   IIDX::RgbManager::Bar::set_leds_off();

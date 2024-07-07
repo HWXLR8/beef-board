@@ -1,12 +1,17 @@
 #include "Descriptors.h"
 
+const USB_Descriptor_HIDReport_Datatype_t* JoystickReport;
+uint16_t SizeOfJoystickReport;
+const USB_Descriptor_HIDReport_Datatype_t* KeyboardReport;
+uint16_t SizeOfKeyboardReport;
+const USB_Descriptor_Device_t* DeviceDescriptor;
+const USB_Descriptor_Configuration_t* ConfigurationDescriptor;
+uint8_t LedStringCount;
+const USB_Descriptor_String_t** LedStrings;
+
 const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"SEGV");
 const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(L"BEEF BOARD");
-
-uint16_t (*usb_desc_callback) (const uint16_t,
-                               const uint16_t,
-                               const void** const) = NULL;
 
 // This function is called by the library when in device mode, and
 // must be overridden (see library "USB Descriptors" documentation) by
@@ -18,5 +23,77 @@ uint16_t (*usb_desc_callback) (const uint16_t,
 uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
                                     const uint16_t wIndex,
                                     const void** const DescriptorAddress) {
-  return usb_desc_callback(wValue, wIndex, DescriptorAddress);
+  const uint8_t DescriptorType = (wValue >> 8);
+  const uint8_t DescriptorNumber = (wValue & 0xFF);
+
+  const void* Address = NULL;
+  uint16_t Size = NO_DESCRIPTOR;
+
+  switch (DescriptorType) {
+    case DTYPE_Device:
+      Address = DeviceDescriptor;
+      Size = sizeof(USB_Descriptor_Device_t);
+      break;
+    case DTYPE_Configuration:
+      Address = ConfigurationDescriptor;
+      Size = sizeof(USB_Descriptor_Configuration_t);
+      break;
+    case DTYPE_String:
+      switch (DescriptorNumber) {
+        case STRING_ID_Language:
+          Address = &LanguageString;
+          Size    = pgm_read_byte(&LanguageString.Header.Size);
+          break;
+        case STRING_ID_Manufacturer:
+          Address = &ManufacturerString;
+          Size    = pgm_read_byte(&ManufacturerString.Header.Size);
+          break;
+        case STRING_ID_Product:
+          Address = &ProductString;
+          Size    = pgm_read_byte(&ProductString.Header.Size);
+          break;
+        default:
+          const int index = DescriptorNumber - LedStringBase - 1;
+          if (0 <= index && index < LedStringCount) {
+            Address = LedStrings[index];
+            Size    = pgm_read_byte(&LedStrings[index]->Header.Size);
+          }
+          break;
+      }
+      break;
+    case HID_DTYPE_HID:
+      switch (wIndex)
+      {
+        case (INTERFACE_ID_Joystick):
+          Address = &ConfigurationDescriptor->HID_JoystickHID;
+          Size    = sizeof(USB_HID_Descriptor_HID_t);
+          break;
+        case (INTERFACE_ID_Keyboard):
+          Address = &ConfigurationDescriptor->HID_KeyboardHID;
+          Size    = sizeof(USB_HID_Descriptor_HID_t);
+          break;
+        default:
+          break;
+      }
+      break;
+    case HID_DTYPE_Report:
+      switch (wIndex)
+      {
+        case (INTERFACE_ID_Joystick):
+          Address = JoystickReport;
+          Size    = SizeOfJoystickReport;
+          break;
+        case (INTERFACE_ID_Keyboard):
+          Address = KeyboardReport;
+          Size    = SizeOfKeyboardReport;
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+  *DescriptorAddress = Address;
+  return Size;
 }

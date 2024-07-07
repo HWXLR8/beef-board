@@ -79,8 +79,10 @@ There also exist button combinations which perform special actions if held while
 | Special action | Button combination |
 |:---|:---|
 | Enter programming mode | B1 + B2 |
-| IIDX mode (default) | B1 + B8 |
-| SDVX mode | B1 + B9 |
+| IIDX mode - HID (default) | B1 + B8 |
+| IIDX mode - Keyboard | B2 + B8 |
+| SDVX mode - HID | B1 + B9 |
+| SDVX mode - Keyboard | B2 + B9 |
 
 ## BOM
 ```

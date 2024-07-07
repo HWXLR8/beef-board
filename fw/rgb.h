@@ -11,25 +11,25 @@ struct HSV {
 };
 
 enum class TurntableMode : uint8_t {
-  STATIC,
-  SPIN,
-  SHIFT,
-  RAINBOW_STATIC,
-  RAINBOW_REACT,
-  RAINBOW_SPIN,
-  REACT,
-  BREATHING,
+  Static,
+  Spin,
+  Shift,
+  RainbowStatic,
+  RainbowReact,
+  RainbowSpin,
+  React,
+  Breathing,
   HID,
-  DISABLE,
-  COUNT
+  Disable,
+  Count
 };
 
 enum class BarMode : uint8_t {
-  PLACEHOLDER1, // beat
-  KEY_SPECTRUM_P1,
-  KEY_SPECTRUM_P2,
-  PLACEHOLDER3, // audio spectrum
+  Placeholder1, // beat
+  KeySpectrumP1,
+  KeySpectrumP2,
+  Placeholder3, // audio spectrum
   HID,
-  DISABLE,
-  COUNT
+  Disable,
+  Count
 };

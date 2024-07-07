@@ -6,7 +6,7 @@
 #include "devices/sdvx/sdvx_usb.h"
 #include "Descriptors.h"
 
-#include "analog_turntable.h"
+#include "analog_button.h"
 #include "beef.h"
 #include "combo.h"
 #include "debounce.h"
@@ -55,7 +55,7 @@ void debounce(DebounceState* debounce, uint16_t mask) {
 }
 
 void check_for_dfu() {
-  if (is_pressed(BUTTON_1 | BUTTON_2)) {
+  if (is_only_pressed(BUTTON_1 | BUTTON_2)) {
     jump_to_bootloader();
   }
 }
@@ -69,13 +69,17 @@ int main() {
   timer_init(&hid_lights_expiry_timer);
   timer_init(&combo_lights_timer);
 
-  analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
+  analog_button_init(&button_x, current_config.tt_deadzone, 200, true);
+  analog_button_init(&button_y, current_config.tt_deadzone, 200, true);
 
   RgbHelper::init();
 
   while (true) {
     HID_Device_USBTask(hid_interface);
     USB_USBTask();
+
+    if (USB_DeviceState != DEVICE_STATE_Configured)
+      continue;
 
     if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
       set_hid_standby_lighting();
@@ -157,31 +161,56 @@ void usb_init(config &config) {
   switch (button_state) {
     case BUTTON_1 | BUTTON_8:
       set_mode(config, UsbMode::IIDX);
+      set_input_mode(config, InputMode::Joystick);
+      break;
+    case BUTTON_2 | BUTTON_8:
+      set_mode(config, UsbMode::IIDX);
+      set_input_mode(config, InputMode::Keyboard);
       break;
     case BUTTON_1 | BUTTON_9:
       set_mode(config, UsbMode::SDVX);
+      set_input_mode(config, InputMode::Joystick);
+      break;
+    case BUTTON_2 | BUTTON_9:
+      set_mode(config, UsbMode::SDVX);
+      set_input_mode(config, InputMode::Keyboard);
       break;
     default:
       break;
   }
 
   switch (config.usb_mode) {
+    case UsbMode::IIDX:
+      IIDX::usb_init(config);
+      break;
     case UsbMode::SDVX:
       SDVX::usb_init(config);
       break;
-    case UsbMode::IIDX:
-    default:
-      IIDX::usb_init(config);
   }
+  set_hid_interface(config);
 
   USB_Init();
+}
+
+void set_hid_interface(config &config) {
+  switch (config.usb_mode) {
+    case UsbMode::IIDX:
+      IIDX::update_hid_interface(config);
+      break;
+    case UsbMode::SDVX:
+      SDVX::update_hid_interface(config);
+      break;
+  }
 }
 
 // event handler for USB config change event
 void EVENT_USB_Device_ConfigurationChanged() {
   // setup HID report endpoints
-  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
-  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+
+  // Setup keyboard report endpoint
+  Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
 }
 
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
@@ -218,8 +247,8 @@ void process_buttons() {
 }
 
 void process_button(const volatile uint8_t* PIN,
-                    uint8_t button_number,
-                    uint8_t input_pin) {
+                    const uint8_t button_number,
+                    const uint8_t input_pin) {
   const bool pressed = ~*PIN & (1 << input_pin);
   button_state |= pressed << button_number;
 }
@@ -263,6 +292,17 @@ void process_encoder(encoder_pin &encoder_pin) {
   encoder_pin.position = ADCH;
 }
 
+void process_keyboard(uint8_t* const hid_key_codes,
+                      const uint8_t* const key_codes,
+                      const uint8_t n) {
+  uint8_t used_key_codes = 0;
+  for (uint8_t i = 0; i < n; i++) {
+    if (is_pressed(1 << i)) {
+      hid_key_codes[used_key_codes++] = key_codes[i];
+    }
+  }
+}
+
 void update_lighting(uint16_t hid_buttons) {
   if (reactive_led) {
     update_button_lighting(button_state);
@@ -286,8 +326,12 @@ void update_button_lighting(uint16_t led_state) {
   }
 }
 
-bool is_pressed(uint16_t button_bits, uint16_t ignore) {
+bool is_only_pressed(uint16_t button_bits, uint16_t ignore) {
   return (button_state & ~ignore) == button_bits;
+}
+
+bool is_pressed(uint16_t button_bits, uint16_t ignore) {
+  return (button_state & ~ignore) & button_bits;
 }
 
 void jump_to_bootloader() {

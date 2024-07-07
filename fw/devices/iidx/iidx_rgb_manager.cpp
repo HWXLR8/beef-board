@@ -150,36 +150,36 @@ namespace IIDX {
         // Ignore turntable effect if notifying a setting change
         if (!timer_is_active(&combo_timer)) {
           switch(current_config.tt_effect) {
-            case TurntableMode::STATIC:
+            case TurntableMode::Static:
               set_hsv(current_config.tt_static_hsv);
               break;
-            case TurntableMode::SPIN:
+            case TurntableMode::Spin:
               tt_report = normalise_tt_report(current_config.reverse_tt,
                                               tt_report);
               spin(current_config.tt_spin_hsv, tt_report);
               break;
-            case TurntableMode::SHIFT:
+            case TurntableMode::Shift:
               colour_shift(current_config.tt_shift_hsv);
               break;
-            case TurntableMode::RAINBOW_STATIC:
+            case TurntableMode::RainbowStatic:
               render_rainbow(current_config.tt_rainbow_static_hsv);
               break;
-            case TurntableMode::RAINBOW_REACT:
+            case TurntableMode::RainbowReact:
               tt_report = normalise_tt_report(current_config.reverse_tt,
                                               tt_report);
               render_rainbow_react(current_config.tt_rainbow_react_hsv,
                                    tt_report);
               break;
-            case TurntableMode::RAINBOW_SPIN:
+            case TurntableMode::RainbowSpin:
               tt_report = normalise_tt_report(current_config.reverse_tt,
                                               tt_report);
               render_rainbow_spin(current_config.tt_rainbow_spin_hsv,
                                   tt_report);
               break;
-            case TurntableMode::REACT:
+            case TurntableMode::React:
               react(tt_report, current_config.tt_react_hsv);
               break;
-            case TurntableMode::BREATHING:
+            case TurntableMode::Breathing:
               RgbHelper::breathing(breathing_pattern,
                                    tt_leds, RING_LIGHT_LEDS,
                                      current_config.tt_breathing_hsv);
@@ -187,7 +187,7 @@ namespace IIDX {
             case TurntableMode::HID:
               RgbHelper::hid(tt_leds, RING_LIGHT_LEDS, lights);
               break;
-            case TurntableMode::DISABLE:
+            case TurntableMode::Disable:
               set_leds_off();
               break;
             default:
@@ -232,16 +232,16 @@ namespace IIDX {
       void update(const rgb_light &lights,
                   const config &current_config) {
         switch(current_config.bar_effect) {
-          case BarMode::KEY_SPECTRUM_P1:
+          case BarMode::KeySpectrumP1:
             spectrum(SpectrumSide::P1);
             break;
-          case BarMode::KEY_SPECTRUM_P2:
+          case BarMode::KeySpectrumP2:
             spectrum(SpectrumSide::P2);
             break;
           case BarMode::HID:
             RgbHelper::hid(bar_leds, LIGHT_BAR_LEDS, lights);
             break;
-          case BarMode::DISABLE:
+          case BarMode::Disable:
             set_leds_off();
             break;
           default:
