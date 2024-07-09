@@ -7,42 +7,22 @@
 #include "Descriptors.h"
 
 #include "analog_button.h"
+#include "axis.h"
 #include "beef.h"
 #include "combo.h"
 #include "debounce.h"
 #include "rgb_helper.h"
 
 USB_ClassInfo_HID_Device_t* hid_interface;
-
-void (*update_callback) (const config &);
-bool (*create_hid_report_callback) (USB_ClassInfo_HID_Device_t* const,
-                                    uint8_t* const,
-                                    const uint8_t,
-                                    void*,
-                                    uint16_t* const);
+AbstractUsbHandler* usb_handler;
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
 
-// flag to represent whether the LEDs are controlled by host or not
-// when not controlled by host, LEDs light up while the corresponding
-// button is held
-bool reactive_led = true;
-bool rgb_standby = true;
-int8_t tt_transitions[4][4];
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
 
-timer hid_lights_expiry_timer;
 timer combo_lights_timer;
-
-tt_pins tt_x = { &PINF, PINF0, PINF1, -1, 0 };
-tt_pins tt_y = { &PINF, PINF2, PINF3, -1, 0 };
-
-encoder_pin encoder_x = { PINF4 };
-encoder_pin encoder_y = { PINF5 };
-
-config current_config;
 
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
@@ -78,8 +58,9 @@ int main() {
     HID_Device_USBTask(hid_interface);
     USB_USBTask();
 
-    if (USB_DeviceState != DEVICE_STATE_Configured)
+    if (USB_DeviceState != DEVICE_STATE_Configured) {
       continue;
+    }
 
     if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
       set_hid_standby_lighting();
@@ -87,7 +68,7 @@ int main() {
 
     process_buttons();
     process_combos(&current_config, &combo_lights_timer);
-    update_callback(current_config);
+    usb_handler->update(current_config);
   }
 }
 
@@ -187,18 +168,18 @@ void usb_init(config &config) {
       SDVX::usb_init(config);
       break;
   }
-  set_hid_interface(config);
+  set_hid_interface(config.usb_mode);
 
   USB_Init();
 }
 
-void set_hid_interface(config &config) {
-  switch (config.usb_mode) {
+void set_hid_interface(const UsbMode usb_mode) {
+  switch (usb_mode) {
     case UsbMode::IIDX:
-      IIDX::update_hid_interface(config);
+      IIDX::update_hid_interface();
       break;
     case UsbMode::SDVX:
-      SDVX::update_hid_interface(config);
+      SDVX::update_hid_interface();
       break;
   }
 }
@@ -206,11 +187,8 @@ void set_hid_interface(config &config) {
 // event handler for USB config change event
 void EVENT_USB_Device_ConfigurationChanged() {
   // setup HID report endpoints
-  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
-  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
-
-  // Setup keyboard report endpoint
-  Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(HID_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(HID_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
 }
 
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
@@ -218,7 +196,11 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          const uint8_t ReportType,
                                          void* ReportData,
                                          uint16_t* const ReportSize) {
-  return create_hid_report_callback(HIDInterfaceInfo, ReportID, ReportType, ReportData, ReportSize);
+  return usb_handler->create_hid_report(HIDInterfaceInfo,
+                                        ReportID,
+                                        ReportType,
+                                        ReportData,
+                                        ReportSize);
 }
 
 void set_led(volatile uint8_t* PORT,
@@ -262,34 +244,6 @@ void update_tt_transitions(uint8_t reverse_tt) {
       {0, -direction, direction, 0}
   };
   memcpy(tt_transitions, tt_transitions_values, sizeof(tt_transitions));
-}
-
-void process_tt(tt_pins &tt_pin, uint8_t tt_ratio) {
-  // tt logic
-  // example where tt_x wired to F0/F1:
-  // curr is binary number ab
-  // where a is the signal of F0
-  // and b is the signal of F1
-  // therefore when F0 == 1 and F1 == 0, then curr == 0b10
-  const uint8_t a = (*tt_pin.PIN >> tt_pin.a_pin) & 1;
-  const uint8_t b = (*tt_pin.PIN >> tt_pin.b_pin) & 1;
-  const uint8_t curr = (a << 1) | b;
-
-  const auto direction = tt_transitions[tt_pin.prev][curr];
-  tt_pin.tt_position += direction;
-  tt_pin.tt_position %= 256 * tt_ratio;
-  tt_pin.prev = curr;
-}
-
-void process_encoder(encoder_pin &encoder_pin) {
-  // Select ADC channel
-  ADMUX = (ADMUX & 0xF8) | (encoder_pin.pin & 0x07);
-  // Start conversion
-  ADCSRA |= (1 << ADSC);
-  // Wait for conversion to finish
-  while (ADCSRA & (1 << ADSC));
-  // Read 8-bits of ADC value
-  encoder_pin.position = ADCH;
 }
 
 void process_keyboard(uint8_t* const hid_key_codes,

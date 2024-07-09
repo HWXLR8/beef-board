@@ -1,15 +1,24 @@
 #pragma once
 
 #include "../config.h"
+#include "sdvx_rgb.h"
 
 namespace SDVX {
-  void usb_init(config &config);
-  void update_hid_interface(config &config);
+  class UsbHandler : public AbstractUsbHandler {
+  public:
+    UsbHandler() = default;
 
-  enum {
-    BUTTON_ANALOG_X_NEG = BUTTON_7,
-    BUTTON_ANALOG_X_POS = BUTTON_8,
-    BUTTON_ANALOG_Y_NEG = BUTTON_10,
-    BUTTON_ANALOG_Y_POS = BUTTON_11
+    bool create_hid_report(USB_ClassInfo_HID_Device_t* const hid_interface_info,
+                           uint8_t* const report_id,
+                           const uint8_t report_type,
+                           void* report_data,
+                           uint16_t* const report_size) override;
+    void update(config &config) override;
+
+  private:
+    hid_lights led_data{};
   };
+
+  void usb_init(config &config);
+  void update_hid_interface();
 }

@@ -1,6 +1,6 @@
 #include "../analog_button.h"
+#include "../axis.h"
 #include "../beef.h"
-#include "../hid.h"
 #include "iidx_combo.h"
 #include "iidx_usb.h"
 #include "iidx_usb_desc.h"
@@ -32,42 +32,9 @@ namespace IIDX {
     HID_KEYBOARD_SC_UP_ARROW // TT +
   };
 
-  HidReport<USB_JoystickReport_Data_t, INTERFACE_ID_Joystick, JOYSTICK_IN_EPADDR> joystick_report;
-  HidReport<USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_report;
-
-  hid_lights led_state_from_hid_report{};
-
-  bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                           uint8_t* const,
-                                           const uint8_t,
-                                           void* ReportData,
-                                           uint16_t* const ReportSize) {
-    switch (HIDInterfaceInfo->Config.InterfaceNumber) {
-      case INTERFACE_ID_Joystick: {
-        auto JoystickReport = (USB_JoystickReport_Data_t*)ReportData;
-
-        // Infinitas only reads buttons 1-7, 9-12,
-        // so shift bits 8 and up once
-        const uint8_t upper = button_state >> 7;
-        const uint8_t lower = button_state & 0x7F;
-        JoystickReport->X = tt_x.tt_position / current_config.tt_ratio;
-        JoystickReport->Button = (upper << 8) | lower;
-
-        *ReportSize = sizeof(*JoystickReport);
-        return true;
-      }
-      case INTERFACE_ID_Keyboard: {
-        auto KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
-
-        process_keyboard(KeyboardReport->KeyCode, key_codes, KEYBOARD_KEYS);
-
-        *ReportSize = sizeof(*KeyboardReport);
-        return false;
-      }
-      default:
-        return false;
-    }
-  }
+  static_assert(sizeof(USB_KeyboardReport_Data_t) >= sizeof(USB_JoystickReport_Data_t), "");
+  HidReport<USB_KeyboardReport_Data_t> hid_report;
+  UsbHandler usb_handler;
 
   void process_buttons(const int8_t tt1_report) {
     static DebounceState effectors_debounce(4);
@@ -86,37 +53,61 @@ namespace IIDX {
     debounce(&effectors_debounce, EFFECTORS_ALL);
   }
 
-  void update(const config &config) {
-    HID_Task(&led_state_from_hid_report);
+  bool UsbHandler::create_hid_report(USB_ClassInfo_HID_Device_t* const hid_interface_info,
+                                     uint8_t* const report_id,
+                                     const uint8_t report_type,
+                                     void* report_data,
+                                     uint16_t* const report_size) {
+    switch (current_config.iidx_input_mode) {
+      case InputMode::Joystick: {
+        auto joystick_report = (USB_JoystickReport_Data_t*)report_data;
+        *report_size = sizeof(*joystick_report);
+        *report_id = HID_REPORTID_JoystickReport;
 
-    process_tt(tt_x, config.tt_ratio);
-    const auto tt1_report = analog_button_poll(&button_x, tt_x.tt_position);
+        // Infinitas only reads buttons 1-7, 9-12,
+        // so shift bits 8 and up once
+        const uint8_t upper = button_state >> 7;
+        const uint8_t lower = button_state & 0x7F;
+        joystick_report->X = tt_x.get();
+        joystick_report->Button = (upper << 8) | lower;
+
+        return true;
+      }
+      case InputMode::Keyboard: {
+        auto keyboard_report = (USB_KeyboardReport_Data_t*)report_data;
+        *report_size = sizeof(*keyboard_report);
+        *report_id = HID_REPORTID_KeyboardReport;
+
+        process_keyboard(keyboard_report->KeyCode, key_codes, KEYBOARD_KEYS);
+
+        return false;
+      }
+    }
+  }
+
+  void UsbHandler::update(config &config) {
+    HID_Task(led_data);
+
+    tt_x.poll();
+    const auto tt1_report = analog_button_poll(&button_x, tt_x.get());
     process_buttons(tt1_report);
 
-    update_lighting(led_state_from_hid_report.buttons);
+    update_lighting(led_data.buttons);
     RgbManager::update(config,
                        tt1_report,
-                       led_state_from_hid_report);
+                       led_data);
   }
 
   void usb_init(config &config) {
     usb_desc_init();
 
-    update_callback = update;
-    create_hid_report_callback = CALLBACK_HID_Device_CreateHIDReport;
+    ::usb_handler = &usb_handler;
     get_button_combo_callback = get_button_combo;
 
     update_tt_transitions(config.reverse_tt);
   }
 
-  void update_hid_interface(config &config) {
-    switch (config.iidx_input_mode) {
-      case InputMode::Joystick:
-        hid_interface = &joystick_report.HID_Interface;
-        break;
-      case InputMode::Keyboard:
-        hid_interface = &keyboard_report.HID_Interface;
-        break;
-    }
+  void update_hid_interface() {
+    hid_interface = &hid_report.HID_Interface;
   }
 }

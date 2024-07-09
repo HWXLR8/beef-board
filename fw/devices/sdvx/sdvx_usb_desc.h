@@ -4,7 +4,7 @@ namespace SDVX {
   void usb_desc_init();
 
   enum {
-    // 7 physical + 2 -/+X + 2 -/+Y
-    KEYBOARD_KEYS = 11
+    // 7 physical
+    KEYBOARD_KEYS = 7
   };
 }

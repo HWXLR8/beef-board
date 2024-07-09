@@ -1,9 +1,7 @@
 #include "Descriptors.h"
 
-const USB_Descriptor_HIDReport_Datatype_t* JoystickReport;
-uint16_t SizeOfJoystickReport;
-const USB_Descriptor_HIDReport_Datatype_t* KeyboardReport;
-uint16_t SizeOfKeyboardReport;
+const USB_Descriptor_HIDReport_Datatype_t* HIDReport;
+uint16_t SizeOfHIDReport;
 const USB_Descriptor_Device_t* DeviceDescriptor;
 const USB_Descriptor_Configuration_t* ConfigurationDescriptor;
 uint8_t LedStringCount;
@@ -26,7 +24,7 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
   const uint8_t DescriptorType = (wValue >> 8);
   const uint8_t DescriptorNumber = (wValue & 0xFF);
 
-  const void* Address = NULL;
+  const void* Address = nullptr;
   uint16_t Size = NO_DESCRIPTOR;
 
   switch (DescriptorType) {
@@ -62,34 +60,12 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
       }
       break;
     case HID_DTYPE_HID:
-      switch (wIndex)
-      {
-        case (INTERFACE_ID_Joystick):
-          Address = &ConfigurationDescriptor->HID_JoystickHID;
-          Size    = sizeof(USB_HID_Descriptor_HID_t);
-          break;
-        case (INTERFACE_ID_Keyboard):
-          Address = &ConfigurationDescriptor->HID_KeyboardHID;
-          Size    = sizeof(USB_HID_Descriptor_HID_t);
-          break;
-        default:
-          break;
-      }
+      Address = &ConfigurationDescriptor->HID_HIDData;
+      Size    = sizeof(USB_HID_Descriptor_HID_t);
       break;
     case HID_DTYPE_Report:
-      switch (wIndex)
-      {
-        case (INTERFACE_ID_Joystick):
-          Address = JoystickReport;
-          Size    = SizeOfJoystickReport;
-          break;
-        case (INTERFACE_ID_Keyboard):
-          Address = KeyboardReport;
-          Size    = SizeOfKeyboardReport;
-          break;
-        default:
-          break;
-      }
+      Address = HIDReport;
+      Size    = SizeOfHIDReport;
       break;
     default:
       break;

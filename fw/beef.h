@@ -5,30 +5,16 @@
 #include "config.h"
 #include "debounce.h"
 #include "pin.h"
+#include "usb_handler.h"
 
 extern uint16_t button_state;
-extern bool reactive_led;
-extern bool rgb_standby;
-extern timer hid_lights_expiry_timer;
-extern config current_config;
-
-extern tt_pins tt_x;
-extern tt_pins tt_y;
-extern encoder_pin encoder_x;
-extern encoder_pin encoder_y;
 
 extern USB_ClassInfo_HID_Device_t* hid_interface;
-
-extern void (*update_callback) (const config &);
-extern bool (*create_hid_report_callback) (USB_ClassInfo_HID_Device_t* const,
-                                           uint8_t* const,
-                                           const uint8_t,
-                                           void*,
-                                           uint16_t* const);
+extern AbstractUsbHandler* usb_handler;
 
 void hwinit();
 void usb_init(config &config);
-void set_hid_interface(config &config);
+void set_hid_interface(UsbMode usb_mode);
 void hardware_timer1_init();
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
@@ -40,8 +26,6 @@ void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
 void update_tt_transitions(uint8_t reverse_tt);
-void process_tt(tt_pins &tt_pin, uint8_t tt_ratio);
-void process_encoder(encoder_pin &encoder_pin);
 void process_keyboard(uint8_t* hid_key_codes, const uint8_t* key_codes, uint8_t n);
 void update_lighting(uint16_t hid_buttons);
 void update_button_lighting(uint16_t led_state);

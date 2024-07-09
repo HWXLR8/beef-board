@@ -66,6 +66,8 @@ struct callback {
   uint8_t val;
 };
 
+extern config current_config;
+
 void config_init(config* self);
 void config_update(uint8_t* addr, uint8_t val);
 void set_mode(config &self, UsbMode mode);

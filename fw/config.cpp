@@ -36,6 +36,8 @@ enum {
 #include "config.h"
 #include "rgb_helper.h"
 
+config current_config;
+
 bool update_config(config* self) {
   switch (self->version) {
     case 0:
