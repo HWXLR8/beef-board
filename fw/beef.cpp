@@ -13,15 +13,11 @@
 #include "debounce.h"
 #include "rgb_helper.h"
 
-USB_ClassInfo_HID_Device_t* hid_interface;
-AbstractUsbHandler* usb_handler;
-
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
-
+AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
-
 timer combo_lights_timer;
 
 ISR(TIMER1_COMPA_vect) {
@@ -41,7 +37,7 @@ void check_for_dfu() {
 }
 
 int main() {
-  hwinit();
+  SetupHardware();
 
   config_init(&current_config);
   usb_init(current_config);
@@ -49,18 +45,10 @@ int main() {
   timer_init(&hid_lights_expiry_timer);
   timer_init(&combo_lights_timer);
 
-  analog_button_init(&button_x, current_config.tt_deadzone, 200, true);
-  analog_button_init(&button_y, current_config.tt_deadzone, 200, true);
-
   RgbHelper::init();
 
   while (true) {
-    HID_Device_USBTask(hid_interface);
-    USB_USBTask();
-
-    if (USB_DeviceState != DEVICE_STATE_Configured) {
-      continue;
-    }
+    usb_handler->usb_task(current_config);
 
     if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
       set_hid_standby_lighting();
@@ -86,9 +74,6 @@ void hardware_timer1_init() {
   // enable the compare match interrupt
   TIMSK1 |= (1 << OCIE1A);
 
-  // enable global interrupts
-  sei();
-
   // start the timer with a prescaler of 64
   TCCR1B |= (1 << CS10) | (1 << CS11);
 }
@@ -101,7 +86,7 @@ void adc_init() {
 }
 
 // configure board hardware and chip peripherals
-void hwinit() {
+void SetupHardware() {
   // disable watchdog if enabled by bootloader/fuses
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
@@ -168,27 +153,20 @@ void usb_init(config &config) {
       SDVX::usb_init(config);
       break;
   }
-  set_hid_interface(config.usb_mode);
 
   USB_Init();
-}
-
-void set_hid_interface(const UsbMode usb_mode) {
-  switch (usb_mode) {
-    case UsbMode::IIDX:
-      IIDX::update_hid_interface();
-      break;
-    case UsbMode::SDVX:
-      SDVX::update_hid_interface();
-      break;
-  }
 }
 
 // event handler for USB config change event
 void EVENT_USB_Device_ConfigurationChanged() {
   // setup HID report endpoints
-  Endpoint_ConfigureEndpoint(HID_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
-  Endpoint_ConfigureEndpoint(HID_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+
+  // We don't use StartOfFrame events to poll as it's too slow and results in lots of jitter from inputs
+  // USB_Device_EnableSOFEvents();
 }
 
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
@@ -246,29 +224,25 @@ void update_tt_transitions(uint8_t reverse_tt) {
   memcpy(tt_transitions, tt_transitions_values, sizeof(tt_transitions));
 }
 
-void process_keyboard(uint8_t* const hid_key_codes,
+void process_keyboard(Beef::USB_KeyboardReport_Data_t* const hid_key_codes,
                       const uint8_t* const key_codes,
                       const uint8_t n) {
   uint8_t used_key_codes = 0;
   for (uint8_t i = 0; i < n; i++) {
     if (is_pressed(1 << i)) {
-      hid_key_codes[used_key_codes++] = key_codes[i];
+      hid_key_codes->KeyCode[used_key_codes++] = key_codes[i];
     }
   }
 }
 
-void update_lighting(uint16_t hid_buttons) {
-  if (reactive_led) {
-    update_button_lighting(button_state);
-  } else {
-    update_button_lighting(hid_buttons);
-  }
-}
-
 void update_button_lighting(uint16_t led_state) {
+  if (reactive_led) {
+    led_state = button_state;
+  }
+
   if (current_config.disable_led ||
-    // Temporarily black out button LEDs to notify a setting change
-    timer_is_active(&combo_lights_timer)) {
+      // Temporarily black out button LEDs to notify a setting change
+      timer_is_active(&combo_lights_timer)) {
     led_state = 0;
   }
 
@@ -290,7 +264,7 @@ bool is_pressed(uint16_t button_bits, uint16_t ignore) {
 
 void jump_to_bootloader() {
   // disable interrupts
-  cli();
+  GlobalInterruptDisable();
   // clear registers
   UDCON = 1;
   USBCON = (1<<FRZCLK);

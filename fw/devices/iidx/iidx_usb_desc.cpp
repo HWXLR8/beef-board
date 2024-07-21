@@ -2,60 +2,53 @@
 #include "iidx_usb_desc.h"
 
 namespace IIDX {
-  const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] = {
+  const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
     HID_RI_USAGE_PAGE(8, 0x01),
     HID_RI_USAGE(8, 0x04),
     HID_RI_COLLECTION(8, 0x01),
+      // Analog
       HID_RI_USAGE(8, 0x01),
-      HID_RI_COLLECTION(8, 0x00),
-        HID_RI_REPORT_ID(8, HID_REPORTID_JoystickReport),
-        // Analog
-        HID_RI_USAGE(8, 0x01),
-        HID_RI_COLLECTION(8, 0x00),
-          HID_RI_USAGE(8, 0x30), // X
-          HID_RI_LOGICAL_MINIMUM(8, 0),
-          HID_RI_LOGICAL_MAXIMUM(8, 255),
-          HID_RI_PHYSICAL_MINIMUM(8, -1),
-          HID_RI_PHYSICAL_MAXIMUM(8, 1),
-          HID_RI_REPORT_COUNT(8, 1),
-          HID_RI_REPORT_SIZE(8, 8),
-          HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-        HID_RI_END_COLLECTION(0),
-
-        // Buttons
-        // 11 physical (7 + 1 padding (Infinitas) + 4 extra) + digital TT (-/+)
-        HID_BUTTONS(14),
-
-        HID_RI_REPORT_ID(8, HID_REPORTID_LEDReport),
-        // Button lighting
-        HID_BUTTON_LIGHT(1),
-        HID_BUTTON_LIGHT(2),
-        HID_BUTTON_LIGHT(3),
-        HID_BUTTON_LIGHT(4),
-        HID_BUTTON_LIGHT(5),
-        HID_BUTTON_LIGHT(6),
-        HID_BUTTON_LIGHT(7),
-        HID_BUTTON_LIGHT(8),
-        HID_BUTTON_LIGHT(9),
-        HID_BUTTON_LIGHT(10),
-        HID_BUTTON_LIGHT(11),
-        HID_PADDING_OUTPUT(5),
-
-        // TT WS2812
-        HID_RGB(12),
-
-        // Bar WS2812
-        HID_RGB(15),
+      HID_RI_COLLECTION(8, 0x02),
+        HID_RI_USAGE(8, 0x30), // X
+        HID_RI_LOGICAL_MINIMUM(16, 0),
+        HID_RI_LOGICAL_MAXIMUM(16, 255),
+        HID_RI_PHYSICAL_MINIMUM(8, -1),
+        HID_RI_PHYSICAL_MAXIMUM(8, 1),
+        HID_RI_REPORT_COUNT(8, 0x01),
+        HID_RI_REPORT_SIZE(8, 0x08),
+        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
       HID_RI_END_COLLECTION(0),
-    HID_RI_END_COLLECTION(0),
 
-    HID_KEYBOARD_DESCRIPTOR(KEYBOARD_KEYS)
+      // Buttons
+      // 11 physical (7 + 1 padding (Infinitas) + 4 extra) + digital TT (-/+)
+      HID_BUTTONS(14),
+
+      // Button lighting
+      HID_BUTTON_LIGHT(1),
+      HID_BUTTON_LIGHT(2),
+      HID_BUTTON_LIGHT(3),
+      HID_BUTTON_LIGHT(4),
+      HID_BUTTON_LIGHT(5),
+      HID_BUTTON_LIGHT(6),
+      HID_BUTTON_LIGHT(7),
+      HID_BUTTON_LIGHT(8),
+      HID_BUTTON_LIGHT(9),
+      HID_BUTTON_LIGHT(10),
+      HID_BUTTON_LIGHT(11),
+      HID_PADDING_OUTPUT(5),
+
+      // TT WS2812
+      HID_RGB(12),
+
+      // Bar WS2812
+      HID_RGB(15),
+    HID_RI_END_COLLECTION(0)
   };
 
   // official Konami infinitas controller VID/PID
   const auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x8048);
 
-  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(HIDReport));
+  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport));
 
   enum {
     LedStringCount = 17
@@ -98,8 +91,8 @@ namespace IIDX {
   };
 
   void usb_desc_init() {
-    ::HIDReport = HIDReport;
-    ::SizeOfHIDReport = sizeof(HIDReport);
+    ::JoystickHIDReport = JoystickHIDReport;
+    ::SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
     ::DeviceDescriptor = &DeviceDescriptor;
     ::ConfigurationDescriptor = &ConfigurationDescriptor;
     ::LedStringCount = LedStringCount;

@@ -2,6 +2,7 @@
 
 #include "beef.h"
 #include "combo.h"
+#include "hid.h"
 
 combo (*get_button_combo_callback) (uint16_t);
 

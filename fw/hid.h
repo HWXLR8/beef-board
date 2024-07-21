@@ -2,34 +2,57 @@
 
 #include "Descriptors.h"
 #include "timer.h"
+#include "usb_handler.h"
 
+// flag to represent whether the LEDs are controlled by host or not
+// when not controlled by host, LEDs light up while the corresponding
+// button is held
 extern bool reactive_led;
 extern bool rgb_standby;
 extern timer hid_lights_expiry_timer;
 
-template <typename T>
+namespace Beef {
+  struct USB_KeyboardReport_Data_t {
+    uint8_t KeyCode[KEYBOARD_KEYS];
+  };
+  struct USB_MouseReport_Data_t {
+    int8_t X;
+    int8_t Y;
+  };
+}
+
+template <typename T, uint8_t interface, uint8_t endpoint>
 struct HidReport {
   // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
   uint8_t PrevHIDReportBuffer[sizeof(T)]{};
 
   USB_ClassInfo_HID_Device_t HID_Interface = {
     .Config = {
-      .InterfaceNumber = INTERFACE_ID_Controller,
+      .InterfaceNumber = interface,
       .ReportINEndpoint = {
-        .Address = HID_IN_EPADDR,
+        .Address = endpoint,
         .Size = HID_EPSIZE,
+        .Type = EP_TYPE_INTERRUPT,
         .Banks = 1,
       },
       .PrevReportINBuffer = PrevHIDReportBuffer,
       .PrevReportINBufferSize = sizeof(PrevHIDReportBuffer),
     },
+    .State = {
+      .UsingReportProtocol = true,
+      .IdleCount = 500
+    }
   };
 };
 
 // HID functions
 template<typename T>
 void HID_Task(T &led_state) {
-  Endpoint_SelectEndpoint(HID_OUT_EPADDR);
+  if (USB_DeviceState != DEVICE_STATE_Configured) {
+    return;
+  }
+
+  Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
 
   // check if a packet has been sent from the host
   if (Endpoint_IsOUTReceived()) {

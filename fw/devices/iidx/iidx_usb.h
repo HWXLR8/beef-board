@@ -15,14 +15,14 @@ namespace IIDX {
                            const uint8_t report_type,
                            void* report_data,
                            uint16_t* const report_size) override;
-    void update(config &config) override;
+    void usb_task(const config &config) override;
+    void update(const config &config) override;
 
   private:
     hid_lights led_data{};
   };
 
-  void usb_init(config &config);
-  void update_hid_interface();
+  void usb_init(const config &config);
 
   enum {
     BUTTON_TT_NEG = 1 << 11,

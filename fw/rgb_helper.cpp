@@ -1,6 +1,5 @@
-#include "beef.h"
+#include "hid.h"
 #include "rgb_helper.h"
-#include "rgb_patterns.h"
 
 CRGB tt_leds[RING_LIGHT_LEDS] = {0};
 CRGB bar_leds[LIGHT_BAR_LEDS] = {0};

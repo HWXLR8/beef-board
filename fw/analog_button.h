@@ -21,7 +21,7 @@ typedef struct {
   timer sustain_timer;
 
   int8_t state; // -1, 0, 1
-  int8_t raw_state; // state without sustain period
+  int8_t direction; // currently observed direction
 } analog_button;
 extern analog_button button_x;
 extern analog_button button_y;

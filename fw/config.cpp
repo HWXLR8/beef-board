@@ -165,7 +165,7 @@ callback tt_hsv_set_hue(config* self) {
       return callback{};
   }
 
-  h->h += button_x.raw_state;
+  h->h += button_x.direction;
 
   return callback{addr, h->h};
 }
@@ -207,7 +207,7 @@ callback tt_hsv_set_sat(config* self) {
       return callback{};
   }
 
-  const auto tt1_report = button_x.raw_state;
+  const auto tt1_report = button_x.direction;
 
   if ((s->s == 0 && tt1_report < 0) ||
       (s->s == 255 && tt1_report > 0)) // prevent looping around
@@ -247,7 +247,7 @@ callback tt_hsv_set_val(config* self) {
       return callback{};
   }
 
-  const auto tt1_report = button_x.raw_state;
+  const auto tt1_report = button_x.direction;
 
   if ((v->v == 0 && tt1_report < 0) ||
       (v->v == 255 && tt1_report > 0)) // prevent looping around

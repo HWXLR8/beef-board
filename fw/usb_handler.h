@@ -4,7 +4,6 @@
 #include "Descriptors.h"
 
 #include "config.h"
-#include "hid.h"
 
 class AbstractUsbHandler {
 public:
@@ -13,5 +12,6 @@ public:
                                  const uint8_t report_type,
                                  void* report_data,
                                  uint16_t* const report_size) = 0;
-  virtual void update(config &config) = 0;
+  virtual void usb_task(const config &config) = 0;
+  virtual void update(const config &config) = 0;
 };

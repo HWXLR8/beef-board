@@ -30,10 +30,10 @@ int8_t analog_button_poll(analog_button* self, uint32_t current_value) {
     direction = -1;
   }
 
-  self->raw_state = direction;
+  self->direction = direction;
 
   if (direction != 0) {
-    // turntable is moving
+    // encoder is moving
     // keep updating the new center, and keep extending the sustain timer
     self->center = observed;
     timer_arm(&self->sustain_timer, self->sustain_ms);
@@ -46,8 +46,7 @@ int8_t analog_button_poll(analog_button* self, uint32_t current_value) {
   if (direction == -self->state && self->clear) {
     self->state = direction;
     return 0;
-  }
-  if (direction != 0) {
+  } else if (direction != 0) {
     self->state = direction;
   }
 

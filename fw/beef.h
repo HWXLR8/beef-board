@@ -4,17 +4,15 @@
 
 #include "config.h"
 #include "debounce.h"
+#include "hid.h"
 #include "pin.h"
 #include "usb_handler.h"
 
 extern uint16_t button_state;
-
-extern USB_ClassInfo_HID_Device_t* hid_interface;
 extern AbstractUsbHandler* usb_handler;
 
-void hwinit();
+void SetupHardware();
 void usb_init(config &config);
-void set_hid_interface(UsbMode usb_mode);
 void hardware_timer1_init();
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
@@ -26,8 +24,7 @@ void process_button(const volatile uint8_t* PIN,
                     uint8_t button_number,
                     uint8_t input_pin);
 void update_tt_transitions(uint8_t reverse_tt);
-void process_keyboard(uint8_t* hid_key_codes, const uint8_t* key_codes, uint8_t n);
-void update_lighting(uint16_t hid_buttons);
+void process_keyboard(Beef::USB_KeyboardReport_Data_t* hid_key_codes, const uint8_t* key_codes, uint8_t n);
 void update_button_lighting(uint16_t led_state);
 
 void debounce(DebounceState* debounce, uint16_t mask);

@@ -2,52 +2,45 @@
 #include "sdvx_usb_desc.h"
 
 namespace SDVX {
-  const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] = {
+  const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
     HID_RI_USAGE_PAGE(8, 0x01),
     HID_RI_USAGE(8, 0x04),
     HID_RI_COLLECTION(8, 0x01),
+      // Analog
       HID_RI_USAGE(8, 0x01),
-      HID_RI_COLLECTION(8, 0x00),
-        HID_RI_REPORT_ID(8, HID_REPORTID_JoystickReport),
-        // Analog
-        HID_RI_USAGE(8, 0x01),
-        HID_RI_COLLECTION(8, 0x00),
-          HID_RI_USAGE(8, 0x30), // X
-          HID_RI_USAGE(8, 0x31), // Y
-          HID_RI_LOGICAL_MINIMUM(8, 0),
-          HID_RI_LOGICAL_MAXIMUM(8, 255),
-          HID_RI_PHYSICAL_MINIMUM(8, -1),
-          HID_RI_PHYSICAL_MAXIMUM(8, 1),
-          HID_RI_REPORT_COUNT(8, 2),
-          HID_RI_REPORT_SIZE(8, 8),
-          HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-        HID_RI_END_COLLECTION(0),
-
-        // Buttons
-        // 7 physical (for some reason START is bound to B9 in EAC)
-        HID_BUTTONS(9),
-
-        HID_RI_REPORT_ID(8, HID_REPORTID_LEDReport),
-        // Button lighting
-        HID_BUTTON_LIGHT(1),
-        HID_BUTTON_LIGHT(2),
-        HID_BUTTON_LIGHT(3),
-        HID_BUTTON_LIGHT(4),
-        HID_BUTTON_LIGHT(5),
-        HID_BUTTON_LIGHT(6),
-        HID_PADDING_OUTPUT(2),
-        HID_BUTTON_LIGHT(7),
-        HID_PADDING_OUTPUT(7),
+      HID_RI_COLLECTION(8, 0x02),
+        HID_RI_USAGE(8, 0x31), // Y
+        HID_RI_USAGE(8, 0x30), // X
+        HID_RI_LOGICAL_MINIMUM(16, 0),
+        HID_RI_LOGICAL_MAXIMUM(16, 255),
+        HID_RI_PHYSICAL_MINIMUM(8, -1),
+        HID_RI_PHYSICAL_MAXIMUM(8, 1),
+        HID_RI_REPORT_COUNT(8, 0x02),
+        HID_RI_REPORT_SIZE(8, 0x08),
+        HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
       HID_RI_END_COLLECTION(0),
-    HID_RI_END_COLLECTION(0),
 
-    HID_KBM_DESCRIPTOR(KEYBOARD_KEYS)
+      // Buttons
+      // 7 physical (for some reason START is bound to B9 in EAC)
+      HID_BUTTONS(9),
+
+      // Button lighting
+      HID_BUTTON_LIGHT(1),
+      HID_BUTTON_LIGHT(2),
+      HID_BUTTON_LIGHT(3),
+      HID_BUTTON_LIGHT(4),
+      HID_BUTTON_LIGHT(5),
+      HID_BUTTON_LIGHT(6),
+      HID_PADDING_OUTPUT(2),
+      HID_BUTTON_LIGHT(7),
+      HID_PADDING_OUTPUT(7),
+    HID_RI_END_COLLECTION(0)
   };
 
   // official Konami SOUND VOLTEX NEMSYS controller VID/PID
   const auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x101C);
 
-  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(HIDReport));
+  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport));
 
   enum {
     LedStringCount = 7
@@ -70,8 +63,8 @@ namespace SDVX {
   };
 
   void usb_desc_init() {
-    ::HIDReport = HIDReport;
-    ::SizeOfHIDReport = sizeof(HIDReport);
+    ::JoystickHIDReport = JoystickHIDReport;
+    ::SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
     ::DeviceDescriptor = &DeviceDescriptor;
     ::ConfigurationDescriptor = &ConfigurationDescriptor;
     ::LedStringCount = LedStringCount;
