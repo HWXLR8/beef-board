@@ -4,14 +4,13 @@
 #include "iidx_combo.h"
 #include "iidx_usb.h"
 #include "iidx_usb_desc.h"
-#include "iidx_rgb.h"
 #include "iidx_rgb_manager.h"
 
 namespace IIDX {
   struct USB_JoystickReport_Data_t {
     uint8_t  X;
     uint16_t Button; // bit-field representing which buttons have been pressed
-  };
+  } ATTR_PACKED;
 
   enum {
     KEYBOARD_KEYS = 13

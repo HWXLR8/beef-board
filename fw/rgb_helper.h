@@ -19,6 +19,8 @@ extern CRGB tt_leds[RING_LIGHT_LEDS];
 extern CRGB bar_leds[LIGHT_BAR_LEDS];
 
 namespace RgbHelper {
+  extern timer combo_timer;
+
   void init();
 
   void set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights);

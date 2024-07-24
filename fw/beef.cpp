@@ -16,6 +16,8 @@
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
+// Ignore button inputs after startup so that we don't send keycodes after holding a boot combo
+bool ignore_buttons = false;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
 timer combo_lights_timer;
@@ -118,6 +120,7 @@ void SetupHardware() {
 
   // Check for boot up combos
   process_buttons();
+  ignore_buttons = button_state;
 
   // check if we need to jump to bootloader
   check_for_dfu();
@@ -166,7 +169,6 @@ void EVENT_USB_Device_ConfigurationChanged() {
   Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
 
   // We don't use StartOfFrame events to poll as it's too slow and results in lots of jitter from inputs
-  // USB_Device_EnableSOFEvents();
 }
 
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
@@ -203,6 +205,12 @@ void process_buttons() {
     process_button(buttons[i].INPUT_PORT.PIN,
                    i,
                    buttons[i].input_pin);
+  }
+
+  if (ignore_buttons && button_state) {
+    button_state = 0;
+  } else {
+    ignore_buttons = false;
   }
 }
 

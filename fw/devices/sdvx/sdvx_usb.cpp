@@ -2,7 +2,6 @@
 #include "../axis.h"
 #include "../beef.h"
 #include "sdvx_combo.h"
-#include "sdvx_rgb.h"
 #include "sdvx_usb.h"
 #include "sdvx_usb_desc.h"
 
@@ -11,7 +10,7 @@ namespace SDVX {
     uint8_t  X;
     uint8_t  Y;
     uint16_t Button; // bit-field representing which buttons have been pressed
-  };
+  } ATTR_PACKED;
 
   enum {
     KEYBOARD_KEYS = 9

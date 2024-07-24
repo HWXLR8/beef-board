@@ -14,7 +14,6 @@ namespace IIDX {
       // Add a second-long rest period
       BreathingPattern breathing_pattern(BREATHING_DURATION,
                                          BREATHING_TIMER);
-      timer combo_timer{};
 
       void set_hsv(HSV hsv) {
         RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
@@ -119,7 +118,7 @@ namespace IIDX {
           tt_leds[i] = CRGB::Red;
         }
 
-        timer_arm(&combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
+        timer_arm(&RgbHelper::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
       }
 
       void display_tt_change(const CRGB &colour,
@@ -134,7 +133,7 @@ namespace IIDX {
           tt_leds[i] = CRGB::Black;
         }
 
-        timer_arm(&combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
+        timer_arm(&RgbHelper::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
       }
 
       // Match tt_report with physical turntable movement
@@ -148,7 +147,7 @@ namespace IIDX {
                   const rgb_light &lights,
                   const config &current_config) {
         // Ignore turntable effect if notifying a setting change
-        if (!timer_is_active(&combo_timer)) {
+        if (!timer_is_active(&RgbHelper::combo_timer)) {
           switch(current_config.tt_effect) {
             case TurntableMode::Static:
               set_hsv(current_config.tt_static_hsv);

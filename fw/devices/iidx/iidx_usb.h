@@ -3,7 +3,7 @@
 #include "../beef.h"
 #include "../config.h"
 #include "../usb_handler.h"
-#include "iidx_rgb.h"
+#include "iidx_rgb_manager.h"
 
 namespace IIDX {
   class UsbHandler : public AbstractUsbHandler {

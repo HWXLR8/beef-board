@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../config.h"
-#include "sdvx_rgb.h"
+#include "sdvx_rgb_manager.h"
 
 namespace SDVX {
   class UsbHandler : public AbstractUsbHandler {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pin.h"
 #include "rgb.h"
 
 #define CONFIG_ALL_HW_PIN { \

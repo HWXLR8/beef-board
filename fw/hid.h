@@ -14,11 +14,12 @@ extern timer hid_lights_expiry_timer;
 namespace Beef {
   struct USB_KeyboardReport_Data_t {
     uint8_t KeyCode[KEYBOARD_KEYS];
-  };
+  } ATTR_PACKED;
+
   struct USB_MouseReport_Data_t {
     int8_t X;
     int8_t Y;
-  };
+  } ATTR_PACKED;
 }
 
 template <typename T, uint8_t interface, uint8_t endpoint>
