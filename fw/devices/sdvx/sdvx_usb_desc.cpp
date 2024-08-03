@@ -9,8 +9,8 @@ namespace SDVX {
       // Analog
       HID_RI_USAGE(8, 0x01),
       HID_RI_COLLECTION(8, 0x02),
-        HID_RI_USAGE(8, 0x31), // Y
         HID_RI_USAGE(8, 0x30), // X
+        HID_RI_USAGE(8, 0x31), // Y
         HID_RI_LOGICAL_MINIMUM(16, 0),
         HID_RI_LOGICAL_MAXIMUM(16, 255),
         HID_RI_PHYSICAL_MINIMUM(8, -1),

@@ -2,8 +2,8 @@
 #include "config.h"
 
 int8_t tt_transitions[4][4];
-AnalogAxis analog_x(PINF4);
-AnalogAxis analog_y(PINF5);
+AnalogAxis analog_x(PINF5);
+AnalogAxis analog_y(PINF4);
 QeAxis tt_x(&PINF, PINF0, PINF1);
 QeAxis tt_y(&PINF, PINF2, PINF3);
 
