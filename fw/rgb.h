@@ -2,10 +2,6 @@
 
 #include <stdint.h>
 
-struct rgb_light {
-  uint8_t r, g, b;
-};
-
 struct HSV {
   uint8_t h, s, v;
 };

@@ -4,6 +4,7 @@
 
 #include "../bpm.h"
 #include "../config.h"
+#include "../rgb_helper.h"
 
 namespace IIDX {
   struct hid_lights {

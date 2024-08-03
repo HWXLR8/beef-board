@@ -1,5 +1,4 @@
 #include "../beef.h"
-#include "../rgb_helper.h"
 #include "iidx_rgb_manager.h"
 
 #define SPIN_TIMER 50 * RING_ANIM_NORMALISE

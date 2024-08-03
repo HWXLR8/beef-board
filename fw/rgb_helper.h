@@ -18,6 +18,10 @@ constexpr auto DEFAULT_COLOUR = HSV{ 128, 255, 255 }; // Aqua
 extern CRGB tt_leds[RING_LIGHT_LEDS];
 extern CRGB bar_leds[LIGHT_BAR_LEDS];
 
+struct rgb_light {
+  uint8_t r, g, b;
+} ATTR_PACKED;
+
 namespace RgbHelper {
   extern timer combo_timer;
 
