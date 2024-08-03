@@ -9,6 +9,7 @@
 namespace IIDX {
   struct USB_JoystickReport_Data_t {
     uint8_t  X;
+    uint8_t  Y; // Needed for LR2 compatibility
     uint16_t Button; // bit-field representing which buttons have been pressed
   } ATTR_PACKED;
 
@@ -67,6 +68,7 @@ namespace IIDX {
         const uint8_t upper = button_state >> 7;
         const uint8_t lower = button_state & 0x7F;
         joystick_report->X = tt_x.get();
+        joystick_report->Y = 127;
         joystick_report->Button = (upper << 8) | lower;
 
         return true;
