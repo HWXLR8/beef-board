@@ -60,7 +60,7 @@ namespace IIDX {
     switch (hid_interface_info->Config.ReportINEndpoint.Address) {
       case JOYSTICK_IN_EPADDR: {
         auto joystick_report = (USB_JoystickReport_Data_t*)report_data;
-        *report_size = sizeof(USB_JoystickReport_Data_t);
+        *report_size = sizeof(*joystick_report);
 
         // Infinitas only reads buttons 1-7, 9-12,
         // so shift bits 8 and up once
@@ -73,7 +73,7 @@ namespace IIDX {
       }
       case KEYBOARD_IN_EPADDR: {
         auto keyboard_report = (Beef::USB_KeyboardReport_Data_t*)report_data;
-        *report_size = sizeof(USB_KeyboardReport_Data_t);
+        *report_size = sizeof(*keyboard_report);
 
         process_keyboard(keyboard_report, key_codes, KEYBOARD_KEYS);
 
@@ -115,7 +115,6 @@ namespace IIDX {
     get_button_combo_callback = get_button_combo;
 
     analog_button_init(&button_x, config.tt_deadzone, 200, true);
-    analog_button_init(&button_y, config.tt_deadzone, 200, true);
 
     update_tt_transitions(config.reverse_tt);
   }
