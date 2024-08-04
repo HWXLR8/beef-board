@@ -1,0 +1,29 @@
+on: [push, pull_request]
+name: Continuous Integration
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install avr-gcc
+        run: |
+          curl -L -o /tmp/modm-avr-gcc.tar.bz2 https://github.com/modm-io/avr-gcc/releases/download/v13.2.0/modm-avr-gcc.tar.bz2
+          echo Extracting avr-gcc archive
+          tar xf /tmp/modm-avr-gcc.tar.bz2 --directory /opt
+          echo "PATH=/opt/avr-gcc/bin:$(echo $PATH)" >> $GITHUB_ENV
+      - name: make
+        run: |
+          cd fw
+          make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beef-fw
+          path: fw/beef.hex
+          if-no-files-found: error
