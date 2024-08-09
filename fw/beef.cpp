@@ -207,11 +207,11 @@ void process_buttons() {
                    buttons[i].input_pin);
   }
 
-  if (ignore_buttons && button_state) {
-    button_state = 0;
-  } else {
-    ignore_buttons = false;
-  }
+  // Ignore button inputs after startup
+  ignore_buttons = ignore_buttons && button_state;
+  // If we are still ignoring button inputs, clear button_state
+  // Otherwise, retain
+  button_state *= !ignore_buttons;
 }
 
 void process_button(const volatile uint8_t* PIN,
