@@ -1,6 +1,5 @@
-#include "beef.h"
+#include "hid.h"
 #include "rgb_helper.h"
-#include "rgb_patterns.h"
 
 CRGB tt_leds[RING_LIGHT_LEDS] = {0};
 CRGB bar_leds[LIGHT_BAR_LEDS] = {0};
@@ -12,7 +11,11 @@ namespace RgbHelper {
     TT_DATA_PIN  = 15  // C5
   };
 
+  timer combo_timer{};
+
   void init() {
+    timer_init(&combo_timer);
+
     FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, RING_LIGHT_LEDS)
       .setDither(DISABLE_DITHER);
     FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, LIGHT_BAR_LEDS)

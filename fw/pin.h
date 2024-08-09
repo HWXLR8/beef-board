@@ -20,19 +20,6 @@ typedef struct {
   uint8_t led_pin;
 } button_pins;
 
-typedef struct {
-  volatile uint8_t* PIN;
-  uint8_t a_pin;
-  uint8_t b_pin;
-  int8_t prev;
-  uint16_t tt_position;
-} tt_pins;
-
-typedef struct {
-  uint8_t pin;
-  uint8_t position;
-} encoder_pin;
-
 extern hw_pin hw_pins[6];
 
 // to index into hw_pins[] array

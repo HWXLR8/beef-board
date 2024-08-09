@@ -1,8 +1,9 @@
-#include "analog_turntable.h"
+#include "analog_button.h"
 
-analog_turntable tt1;
+analog_button button_x;
+analog_button button_y;
 
-void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t sustain_ms, bool clear) {
+void analog_button_init(analog_button* self, uint8_t deadzone, uint32_t sustain_ms, bool clear) {
   self->deadzone = deadzone;
   self->sustain_ms = sustain_ms;
   self->clear = clear;
@@ -12,7 +13,7 @@ void analog_turntable_init(analog_turntable* self, uint8_t deadzone, uint32_t su
   timer_init(&self->sustain_timer);
 }
 
-int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
+int8_t analog_button_poll(analog_button* self, uint32_t current_value) {
   if (!self->center_valid) {
     self->center_valid = true;
     self->center = current_value;
@@ -29,10 +30,10 @@ int8_t analog_turntable_poll(analog_turntable* self, uint32_t current_value) {
     direction = -1;
   }
 
-  self->raw_state = direction;
+  self->direction = direction;
 
   if (direction != 0) {
-    // turntable is moving
+    // encoder is moving
     // keep updating the new center, and keep extending the sustain timer
     self->center = observed;
     timer_arm(&self->sustain_timer, self->sustain_ms);

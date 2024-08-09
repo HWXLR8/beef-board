@@ -1,4 +1,5 @@
 #include <FastLED/src/FastLED.h>
+#include <LUFA/Common/Common.h>
 
 #include "bpm.h"
 #include "rgb_helper.h"
@@ -20,9 +21,7 @@ uint8_t Bpm::update(const uint16_t button_state) {
       }
     }
 
-    if (current_level > max_level)
-      current_level = max_level;
-
+    current_level = MIN(current_level, max_level);
     if (current_level > 0 && timer_is_expired(&decay)) {
       current_level--;
       timer_arm(&decay, DECAY_TIME);
