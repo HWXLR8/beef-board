@@ -27,10 +27,14 @@ namespace RgbHelper {
 
   void init();
 
-  void set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights);
-  void set_hsv(CRGB* leds, const uint8_t n, const HSV &hsv);
-  void breathing(BreathingPattern &breathing_pattern,
+  bool set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights);
+  bool set_rgb(CRGB* leds, const uint8_t n, const CRGB &rgb);
+  bool set_hsv(CRGB* leds, const uint8_t n, const HSV &hsv);
+  bool breathing(BreathingPattern &breathing_pattern,
                  CRGB* leds, const uint8_t n, const HSV &hsv);
-  void hid(CRGB* leds, const uint8_t n, rgb_light lights);
-  bool ready_to_present();
+  bool hid(CRGB* leds, const uint8_t n, rgb_light lights);
+
+  bool ready_to_present(bool disable_leds);
+  void show_tt();
+  void show_bar();
 }

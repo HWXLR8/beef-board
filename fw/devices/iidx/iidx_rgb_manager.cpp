@@ -14,16 +14,16 @@ namespace IIDX {
       BreathingPattern breathing_pattern(BREATHING_DURATION,
                                          BREATHING_TIMER);
 
-      void set_hsv(HSV hsv) {
-        RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
+      bool set_hsv(HSV hsv) {
+        return RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
       }
 
-      void set_leds_off() {
-        fill_solid(tt_leds, RING_LIGHT_LEDS, CRGB::Black);
+      bool set_leds_off() {
+        return RgbHelper::set_rgb(tt_leds, RING_LIGHT_LEDS, CRGB::Black);
       }
 
       // Render two spinning LEDs
-      void spin(const HSV &hsv, int8_t tt_report) {
+      bool spin(const HSV &hsv, int8_t tt_report) {
         static bool first_call = true;
         static uint8_t last_spin_counter = 0;
         static SpinPattern spin_pattern(SPIN_TIMER,
@@ -39,29 +39,43 @@ namespace IIDX {
           tt_leds[spin_counter+(RING_LIGHT_LEDS/2)] = colour;
           first_call = false;
           last_spin_counter = spin_counter;
+          return true;
         }
+        return false;
       }
 
-      void colour_shift(const HSV &hsv) {
+      bool colour_shift(const HSV &hsv) {
         static uint8_t h;
         static Ticker ticker(100);
 
-        h += ticker.get_ticks();
-        set_hsv({ h, hsv.s, hsv.v });
+        auto ticks = ticker.get_ticks();
+        if (ticks > 0) {
+          h += ticks;
+          return set_hsv({ h, hsv.s, hsv.v });
+        }
+        return false;
       }
 
-      void render_rainbow(const HSV &hsv, const uint8_t pos = 0) {
+      bool render_rainbow(const HSV &hsv, const uint8_t pos = 0) {
         fill_rainbow_circular(tt_leds, RING_LIGHT_LEDS, pos);
 
         // Emulate HSV adjustments
+        bool update = false;
         for (auto &led : tt_leds) {
+          const auto prev_led = led;
           led += (CRGB::White - led).
               scale8(255 - hsv.s);
           led.nscale8(hsv.v);
+          update = update || prev_led != led;
         }
+
+        static uint8_t prev_pos = 255; // Make sure static mode gets updated properly
+        update = update || pos != prev_pos;
+        prev_pos = pos;
+        return update;
       }
 
-      void render_rainbow_react(const HSV &hsv, const int8_t tt_report) {
+      bool render_rainbow_react(const HSV &hsv, const int8_t tt_report) {
         static bool first_call = true;
         static uint8_t pos = 0;
         static Ticker t(3);
@@ -71,17 +85,19 @@ namespace IIDX {
           pos += ticks * -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
           render_rainbow(hsv, pos);
           first_call = false;
+          return true;
         }
+        return false;
       }
 
-      void render_rainbow_spin(const HSV &hsv, const int8_t tt_report) {
+      bool render_rainbow_spin(const HSV &hsv, const int8_t tt_report) {
         static SpinPattern spin_pattern(3, 2);
 
         auto pos = spin_pattern.update(tt_report) * BEEF_TT_RAINBOW_SPIN_SPEED;
-        render_rainbow(hsv, -pos);
+        return render_rainbow(hsv, -pos);
       }
 
-      void react(const int8_t tt_report, const HSV &hsv) {
+      bool react(const int8_t tt_report, const HSV &hsv) {
         static uint8_t h = hsv.h;
         static timer scr_timer;
 
@@ -100,7 +116,7 @@ namespace IIDX {
 
         const uint8_t v = timer_is_active(&scr_timer) ? 255 : 64;
 
-        set_hsv({ h, hsv.s, v });
+        return set_hsv({ h, hsv.s, v });
       }
 
       // Illuminate + as blue, - as red in two halves
@@ -118,6 +134,7 @@ namespace IIDX {
         }
 
         timer_arm(&RgbHelper::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
+        RgbHelper::show_tt();
       }
 
       void display_tt_change(const CRGB &colour,
@@ -133,6 +150,7 @@ namespace IIDX {
         }
 
         timer_arm(&RgbHelper::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
+        RgbHelper::show_tt();
       }
 
       // Match tt_report with physical turntable movement
@@ -142,56 +160,47 @@ namespace IIDX {
         return reverse_tt ? tt_report : -tt_report;
       }
 
-      void update(int8_t tt_report,
+      bool update(int8_t tt_report,
                   const rgb_light &lights,
                   const config &current_config) {
         // Ignore turntable effect if notifying a setting change
         if (!timer_is_active(&RgbHelper::combo_timer)) {
           switch(current_config.tt_effect) {
             case TurntableMode::Static:
-              set_hsv(current_config.tt_static_hsv);
-              break;
+              return set_hsv(current_config.tt_static_hsv);
             case TurntableMode::Spin:
               tt_report = normalise_tt_report(current_config.reverse_tt,
                                               tt_report);
-              spin(current_config.tt_spin_hsv, tt_report);
-              break;
+              return spin(current_config.tt_spin_hsv, tt_report);
             case TurntableMode::Shift:
-              colour_shift(current_config.tt_shift_hsv);
-              break;
+              return colour_shift(current_config.tt_shift_hsv);
             case TurntableMode::RainbowStatic:
-              render_rainbow(current_config.tt_rainbow_static_hsv);
-              break;
+              return render_rainbow(current_config.tt_rainbow_static_hsv);
             case TurntableMode::RainbowReact:
               tt_report = normalise_tt_report(current_config.reverse_tt,
                                               tt_report);
-              render_rainbow_react(current_config.tt_rainbow_react_hsv,
-                                   tt_report);
-              break;
+              return render_rainbow_react(current_config.tt_rainbow_react_hsv,
+                                          tt_report);
             case TurntableMode::RainbowSpin:
               tt_report = normalise_tt_report(current_config.reverse_tt,
                                               tt_report);
-              render_rainbow_spin(current_config.tt_rainbow_spin_hsv,
-                                  tt_report);
-              break;
+              return render_rainbow_spin(current_config.tt_rainbow_spin_hsv,
+                                         tt_report);
             case TurntableMode::React:
-              react(tt_report, current_config.tt_react_hsv);
-              break;
+              return react(tt_report, current_config.tt_react_hsv);
             case TurntableMode::Breathing:
-              RgbHelper::breathing(breathing_pattern,
-                                   tt_leds, RING_LIGHT_LEDS,
-                                     current_config.tt_breathing_hsv);
-              break;
+              return RgbHelper::breathing(breathing_pattern,
+                                          tt_leds, RING_LIGHT_LEDS,
+                                          current_config.tt_breathing_hsv);
             case TurntableMode::HID:
-              RgbHelper::hid(tt_leds, RING_LIGHT_LEDS, lights);
-              break;
+              return RgbHelper::hid(tt_leds, RING_LIGHT_LEDS, lights);
             case TurntableMode::Disable:
-              set_leds_off();
-              break;
+              return set_leds_off();
             default:
-              break;
+              return false;
           }
         }
+        return false;
       }
     }
 
@@ -202,20 +211,23 @@ namespace IIDX {
         P2
       };
 
-      void set_leds_off() {
-        fill_solid(bar_leds, LIGHT_BAR_LEDS, CRGB::Black);
+      bool set_leds_off() {
+        return RgbHelper::set_rgb(bar_leds, LIGHT_BAR_LEDS, CRGB::Black);
       }
 
-      void spectrum(const SpectrumSide side) {
+      bool spectrum(const SpectrumSide side) {
         static Bpm bpm(LIGHT_BAR_LEDS);
         static uint8_t last_level;
 
         const auto level = bpm.update(button_state);
 
+        bool update = false;
         if (last_level != level) {
+          update = true;
           set_leds_off();
           fill_rainbow(bar_leds, level, 0, -16);
           if (side == SpectrumSide::P1) {
+            // Flip for P1
             for (uint8_t i = 0; i < LIGHT_BAR_LEDS / 2; i++) {
               const auto tmp = bar_leds[i];
               bar_leds[i] = bar_leds[LIGHT_BAR_LEDS-1-i];
@@ -225,25 +237,22 @@ namespace IIDX {
         }
 
         last_level = level;
+        return update;
       }
 
-      void update(const rgb_light &lights,
+      bool update(const rgb_light &lights,
                   const config &current_config) {
         switch(current_config.bar_effect) {
           case BarMode::KeySpectrumP1:
-            spectrum(SpectrumSide::P1);
-            break;
+            return spectrum(SpectrumSide::P1);
           case BarMode::KeySpectrumP2:
-            spectrum(SpectrumSide::P2);
-            break;
+            return spectrum(SpectrumSide::P2);
           case BarMode::HID:
-            RgbHelper::hid(bar_leds, LIGHT_BAR_LEDS, lights);
-            break;
+            return RgbHelper::hid(bar_leds, LIGHT_BAR_LEDS, lights);
           case BarMode::Disable:
-            set_leds_off();
-            break;
+            return set_leds_off();
           default:
-            break;
+            return false;
         }
       }
     }
@@ -251,17 +260,19 @@ namespace IIDX {
     void update(const config &config,
                 const int8_t tt_report,
                 const hid_lights &led_state_from_hid_report) {
-      if (config.disable_led || !RgbHelper::ready_to_present()) {
+      if (!RgbHelper::ready_to_present(config.disable_led)) {
         return;
       }
 
-      Turntable::update(tt_report,
-                        led_state_from_hid_report.tt_lights,
-                        config);
-      Bar::update(led_state_from_hid_report.bar_lights,
-                  config);
-
-      FastLED.show();
+      if (Turntable::update(tt_report,
+                            led_state_from_hid_report.tt_lights,
+                            config)) {
+        RgbHelper::show_tt();
+      }
+      if (Bar::update(led_state_from_hid_report.bar_lights,
+                      config)) {
+        RgbHelper::show_bar();
+      }
     }
   }
 }
