@@ -33,10 +33,8 @@ namespace RgbHelper {
 
   bool set_rgb(CRGB* leds, const uint8_t n, const CRGB &rgb) {
     bool update = false;
-    for(int i = 0; i < n; ++i) {
-      if (leds[i] != rgb) {
-        update = true;
-      }
+    for (uint8_t i = 0; i < n; i++) {
+      update |= leds[i] != rgb;
       leds[i] = rgb;
     }
     return update;
@@ -55,11 +53,11 @@ namespace RgbHelper {
   }
 
   bool hid(CRGB* leds, const uint8_t n, rgb_light lights) {
-    // Share same lighting state between different lights for HID standby animation
-    static BreathingPattern hid_standby = BreathingPattern();
-
-    if (rgb_standby)
+    if (rgb_standby) {
+      // Share same lighting state between different lights for HID standby animation
+      static BreathingPattern hid_standby = BreathingPattern();
       return breathing(hid_standby, leds, n, {});
+    }
     return set_rgb(leds, n, lights);
   }
 
@@ -67,15 +65,17 @@ namespace RgbHelper {
   // computationally expensive calls to FastLED.show()
   // basically what FastLED does but without spin waiting
   bool ready_to_present(bool disable_leds) {
+    if (disable_leds)
+      return false;
+
     static uint32_t last_show = 0;
     const uint32_t min_micros = 1000000 / BEEF_LED_REFRESH;
     const uint32_t now = micros();
+    if (now-last_show < min_micros)
+      return false;
 
-    const uint32_t delta = now - last_show;
-    const bool ready_to_present = delta >= min_micros && !disable_leds;
-    last_show += (delta * ready_to_present);
-
-    return ready_to_present;
+    last_show = now;
+    return true;
   }
 
   void show_tt() {

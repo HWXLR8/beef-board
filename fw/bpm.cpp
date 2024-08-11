@@ -1,4 +1,3 @@
-#include <FastLED/src/FastLED.h>
 #include <LUFA/Common/Common.h>
 
 #include "bpm.h"

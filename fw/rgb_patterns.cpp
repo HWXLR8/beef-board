@@ -5,8 +5,8 @@
 // Cycle from zero to full-bright to zero in around 2 seconds
 BreathingPattern::BreathingPattern() : ticker(Ticker(8)){}
 
-BreathingPattern::BreathingPattern(const int duration,
-                                   const int cycle_time) :
+BreathingPattern::BreathingPattern(uint16_t duration,
+                                   uint16_t cycle_time) :
   cycle_time(cycle_time),
   ticker(Ticker(8, duration)) {
   timer_arm(&breathing_timer, cycle_time);
@@ -27,8 +27,8 @@ uint8_t BreathingPattern::update() {
   return v;
 }
 
-SpinPattern::SpinPattern(const uint32_t spin_duration,
-                         const uint32_t fast_spin_duration,
+SpinPattern::SpinPattern(const uint8_t spin_duration,
+                         const uint8_t fast_spin_duration,
                          const uint8_t limit) :
   spin_duration(spin_duration),
   fast_spin_duration(fast_spin_duration),

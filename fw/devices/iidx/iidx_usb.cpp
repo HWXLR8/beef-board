@@ -97,14 +97,16 @@ namespace IIDX {
     }
   }
 
-  void UsbHandler::update(const config &config) {
-    HID_Task(led_data);
+  void UsbHandler::update(const config &config,
+                          timer &hid_lights_expiry_timer,
+                          timer &combo_lights_timer) {
+    HID_Task(led_data, hid_lights_expiry_timer);
 
     tt_x.poll();
     const auto tt1_report = analog_button_poll(&button_x, tt_x.get());
     process_buttons(tt1_report);
 
-    update_button_lighting(led_data.buttons);
+    update_button_lighting(config, combo_lights_timer, led_data.buttons);
     RgbManager::update(config,
                        button_x.state,
                        led_data);

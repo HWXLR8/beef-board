@@ -3,7 +3,7 @@
 analog_button button_x;
 analog_button button_y;
 
-void analog_button_init(analog_button* self, uint8_t deadzone, uint32_t sustain_ms, bool clear) {
+void analog_button_init(analog_button* self, uint8_t deadzone, uint8_t sustain_ms, bool clear) {
   self->deadzone = deadzone;
   self->sustain_ms = sustain_ms;
   self->clear = clear;

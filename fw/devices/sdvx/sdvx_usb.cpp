@@ -85,15 +85,17 @@ namespace SDVX {
     }
   }
 
-  void UsbHandler::update(const config &config) {
-    HID_Task(led_data);
+  void UsbHandler::update(const config &config,
+                          timer &hid_lights_expiry_timer,
+                          timer &combo_lights_timer) {
+    HID_Task(led_data, hid_lights_expiry_timer);
 
     axis_x->poll();
     axis_y->poll();
     analog_button_poll(&button_x, axis_x->get());
     analog_button_poll(&button_y, axis_y->get());
 
-    update_button_lighting(led_data.buttons);
+    update_button_lighting(config, combo_lights_timer, led_data.buttons);
   }
 
   void usb_init(const config &config) {

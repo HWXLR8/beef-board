@@ -9,7 +9,6 @@
 // button is held
 extern bool reactive_led;
 extern bool rgb_standby;
-extern timer hid_lights_expiry_timer;
 
 namespace Beef {
   struct USB_KeyboardReport_Data_t {
@@ -48,11 +47,7 @@ struct HidReport {
 
 // HID functions
 template<typename T>
-void HID_Task(T &led_state) {
-  if (USB_DeviceState != DEVICE_STATE_Configured) {
-    return;
-  }
-
+void HID_Task(T &led_state, timer &hid_lights_expiry_timer) {
   Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
 
   // check if a packet has been sent from the host
@@ -61,8 +56,6 @@ void HID_Task(T &led_state) {
     if (Endpoint_IsReadWriteAllowed()) { // read generic report data
       Endpoint_Read_Stream_LE(&led_state, sizeof(T), nullptr);
 
-      reactive_led = false;
-      rgb_standby = false;
       timer_arm(&hid_lights_expiry_timer, 1000);
     }
 

@@ -13,5 +13,7 @@ public:
                                  void* report_data,
                                  uint16_t* const report_size) = 0;
   virtual void usb_task(const config &config) = 0;
-  virtual void update(const config &config) = 0;
+  virtual void update(const config &config,
+                      timer &hid_lights_expiry_timer,
+                      timer &combo_lights_timer) = 0;
 };

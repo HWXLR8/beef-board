@@ -135,8 +135,8 @@ callback cycle_tt_effects(config* self) {
   self->tt_effect = TurntableMode((uint8_t(self->tt_effect) + 1) % uint8_t(TurntableMode::Count));
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
-  if (self->tt_effect != TurntableMode::Disable)
-    IIDX::RgbManager::Turntable::set_leds_off();
+  IIDX::RgbManager::Turntable::set_leds_off();
+  IIDX::RgbManager::Turntable::force_update = true;
 
   return callback{};
 }
@@ -329,8 +329,8 @@ callback cycle_bar_effects(config* self) {
            self->bar_effect == BarMode::Placeholder3);
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
-  if (self->bar_effect != BarMode::Disable)
-    IIDX::RgbManager::Bar::set_leds_off();
+  IIDX::RgbManager::Bar::set_leds_off();
+  IIDX::RgbManager::Bar::force_update = true;
 
   return callback{};
 }

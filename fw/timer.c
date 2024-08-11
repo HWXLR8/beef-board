@@ -7,7 +7,7 @@ void timer_init(timer* self) {
   self->time_to_expire = 0;
 }
 
-void timer_arm(timer* self, uint32_t milliseconds_from_now) {
+void timer_arm(timer* self, uint16_t milliseconds_from_now) {
   uint32_t now = milliseconds;
   self->time_to_expire = now + milliseconds_from_now;
   self->armed = true;

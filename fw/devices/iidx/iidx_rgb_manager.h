@@ -18,6 +18,8 @@ namespace IIDX {
                 const int8_t tt_report,
                 const hid_lights &led_state_from_hid_report);
     namespace Turntable {
+      extern bool force_update;
+
       bool set_leds_off();
       void reverse_tt(uint8_t reverse_tt);
       void display_tt_change(const CRGB &colour,
@@ -26,6 +28,8 @@ namespace IIDX {
     }
 
     namespace Bar {
+      extern bool force_update;
+
       bool set_leds_off();
     }
   }
