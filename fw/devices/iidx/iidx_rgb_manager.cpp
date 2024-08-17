@@ -293,15 +293,20 @@ namespace IIDX {
         return;
       }
 
+#if RING_LIGHT_LEDS > 0
       if (Turntable::update(tt_report,
                             led_state_from_hid_report.tt_lights,
                             config)) {
         RgbHelper::show_tt();
       }
+#endif
+
+#if LIGHT_BAR_LEDS > 0
       if (Bar::update(led_state_from_hid_report.bar_lights,
                       config)) {
         RgbHelper::show_bar();
       }
+#endif
     }
   }
 }
