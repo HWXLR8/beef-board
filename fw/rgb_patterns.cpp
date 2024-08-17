@@ -35,7 +35,7 @@ SpinPattern::SpinPattern(const uint8_t spin_duration,
   limit(limit),
   ticker(Ticker(spin_duration)){}
 
-uint8_t SpinPattern::update(int8_t tt_report) {
+bool SpinPattern::update(const int8_t tt_report) {
   if (last_tt_report != tt_report) {
     auto duration = tt_report != 0 ?
                     fast_spin_duration :
@@ -44,18 +44,17 @@ uint8_t SpinPattern::update(int8_t tt_report) {
     last_tt_report = tt_report;
   }
 
-  auto ticks = ticker.get_ticks();
-  if (ticks > 0) {
-    if (tt_report == -1) {
-      if (spin_counter < ticks) {
-        spin_counter = limit - 1 - (ticks - spin_counter);
-      } else {
-        spin_counter -= ticks;
-      }
-    } else {
-      spin_counter = (spin_counter + ticks) % limit;
-    }
+  const auto ticks = ticker.get_ticks();
+  if (tt_report == -1) {
+    spin_counter += limit - ticks;
+  } else {
+    spin_counter += ticks;
   }
+  spin_counter %= limit;
 
+  return ticks > 0;
+}
+
+uint8_t SpinPattern::get() const {
   return spin_counter;
 }

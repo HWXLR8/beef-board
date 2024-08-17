@@ -3,9 +3,11 @@
 
 #define SPIN_TIMER 50 * RING_ANIM_NORMALISE
 #define FAST_SPIN_TIMER 25 * RING_ANIM_NORMALISE
-#define REACT_TIMER 500
-#define BREATHING_DURATION 2048
-#define BREATHING_TIMER 3000
+enum {
+  REACT_TIMER = 500,
+  BREATHING_DURATION = 2048,
+  BREATHING_TIMER = 3000
+};
 
 namespace IIDX {
   namespace RgbManager {
@@ -26,21 +28,18 @@ namespace IIDX {
 
       // Render two spinning LEDs
       bool spin(const HSV &hsv, int8_t tt_report) {
-        static bool first_call = true;
-        static uint8_t last_spin_counter = 0;
         static SpinPattern spin_pattern(SPIN_TIMER,
                                         FAST_SPIN_TIMER,
                                         RING_LIGHT_LEDS / 2);
 
-        auto spin_counter = spin_pattern.update(tt_report);
-        if (spin_counter != last_spin_counter || first_call) {
+        if (spin_pattern.update(tt_report)) {
           set_leds_off();
 
           const auto colour = CHSV(hsv.h, 255, 255);
+          const auto spin_counter = spin_pattern.get();
           tt_leds[spin_counter] = colour;
           tt_leds[spin_counter+(RING_LIGHT_LEDS/2)] = colour;
-          first_call = false;
-          last_spin_counter = spin_counter;
+
           return true;
         }
         return false;
@@ -58,43 +57,52 @@ namespace IIDX {
         return false;
       }
 
-      bool render_rainbow(const HSV &hsv, const uint8_t pos = 0) {
-        fill_rainbow_circular(tt_leds, RING_LIGHT_LEDS, pos);
+      bool render_rainbow(const HSV &hsv, const uint8_t pos) {
+        static uint8_t prev_pos;
+        bool update = false;
+        if (force_update || prev_pos != pos) {
+          fill_rainbow_circular(tt_leds,
+                                RING_LIGHT_LEDS,
+                                -pos);
+          update = true;
+        }
+        prev_pos = pos;
 
         // Emulate HSV adjustments
-        bool update = false;
         for (auto &led : tt_leds) {
           const auto prev_led = led;
           led += (CRGB::White - led).
-              scale8(255 - hsv.s);
+            scale8(255 - hsv.s);
           led.nscale8(hsv.v);
-          update = update || prev_led != led;
+          update |= prev_led != led;
         }
 
-        static uint8_t prev_pos = 255; // Make sure static mode gets updated properly
-        update = update || pos != prev_pos;
-        prev_pos = pos;
         return update;
       }
 
-      bool render_rainbow_react(const HSV &hsv, const int8_t tt_report) {
+      bool render_rainbow_react(const HSV &hsv,
+                                const int8_t tt_report) {
         static uint8_t pos = 0;
         static Ticker t(3);
 
         const auto ticks = t.get_ticks();
         if (ticks > 0) {
-          pos += ticks * -tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
+          pos += ticks * tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
           render_rainbow(hsv, pos);
           return true;
         }
         return false;
       }
 
-      bool render_rainbow_spin(const HSV &hsv, const int8_t tt_report) {
-        static SpinPattern spin_pattern(3, 2);
+      bool render_rainbow_spin(const HSV &hsv,
+                               const int8_t tt_report) {
+        static SpinPattern spin_pattern(3, 2, 0);
 
-        auto pos = spin_pattern.update(tt_report) * BEEF_TT_RAINBOW_SPIN_SPEED;
-        return render_rainbow(hsv, -pos);
+        if (spin_pattern.update(tt_report)) {
+          const auto pos = spin_pattern.get() * BEEF_TT_RAINBOW_SPIN_SPEED;
+          return render_rainbow(hsv, pos);
+        }
+        return false;
       }
 
       bool react(const int8_t tt_report, const HSV &hsv) {
@@ -120,20 +128,20 @@ namespace IIDX {
       }
 
       // Illuminate + as blue, - as red in two halves
-      void reverse_tt(uint8_t reverse_tt) {
-        const uint8_t offset = reverse_tt ? 0 : RING_LIGHT_LEDS / 2;
-
-        const uint8_t blue_start = offset;
-        const uint8_t blue_end = blue_start + (RING_LIGHT_LEDS / 2);
-
-        const uint8_t red_start = ((RING_LIGHT_LEDS / 2) + offset) % RING_LIGHT_LEDS;
-        const uint8_t red_end = red_start + (RING_LIGHT_LEDS / 2);
-
-        for (uint8_t i = blue_start; i < blue_end; i++) {
-          tt_leds[i] = CRGB::Blue;
+      void reverse_tt(bool reverse_tt) {
+        auto first_half = CRGB::Blue;
+        auto second_half = CRGB::Red;
+        if (reverse_tt) {
+          first_half = CRGB::Red;
+          second_half = CRGB::Blue;
         }
-        for (uint8_t i = red_start; i < red_end; i++) {
-          tt_leds[i] = CRGB::Red;
+
+        uint8_t i = 0;
+        for (; i < RING_LIGHT_LEDS / 2; i++) {
+          tt_leds[i] = first_half;
+        }
+        for (; i < RING_LIGHT_LEDS; i++) {
+          tt_leds[i] = second_half;
         }
 
         timer_arm(&RgbHelper::combo_timer, CONFIG_CHANGE_NOTIFY_TIME);
@@ -145,10 +153,10 @@ namespace IIDX {
                              const uint8_t range) {
         const uint8_t num_of_leds = value * (RING_LIGHT_LEDS / range);
         uint8_t i = 0;
-        for (; i < num_of_leds; ++i) {
+        for (; i < num_of_leds; i++) {
           tt_leds[i] = colour;
         }
-        for (; i < RING_LIGHT_LEDS; ++i) {
+        for (; i < RING_LIGHT_LEDS; i++) {
           tt_leds[i] = CRGB::Black;
         }
 
@@ -167,10 +175,10 @@ namespace IIDX {
                   const rgb_light &lights,
                   const config &current_config) {
         auto update = force_update;
-        force_update = false;
 
         // Ignore turntable effect if notifying a setting change
         if (timer_is_active(&RgbHelper::combo_timer)) {
+          force_update = false;
           return update;
         }
 
@@ -187,7 +195,7 @@ namespace IIDX {
             update |= colour_shift(current_config.tt_shift_hsv);
             break;
           case TurntableMode::RainbowStatic:
-            update |= render_rainbow(current_config.tt_rainbow_static_hsv);
+            update |= render_rainbow(current_config.tt_rainbow_static_hsv, 0);
             break;
           case TurntableMode::RainbowReact:
             tt_report = normalise_tt_report(current_config.reverse_tt,
@@ -219,6 +227,7 @@ namespace IIDX {
             break;
         }
 
+        force_update = false;
         return update;
       }
     }
@@ -263,7 +272,6 @@ namespace IIDX {
       bool update(const rgb_light &lights,
                   const config &current_config) {
         auto update = force_update;
-        force_update = false;
 
         switch(current_config.bar_effect) {
           case BarMode::KeySpectrumP1:
@@ -282,6 +290,7 @@ namespace IIDX {
             break;
         }
 
+        force_update = false;
         return update;
       }
     }

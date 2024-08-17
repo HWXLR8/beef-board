@@ -55,7 +55,7 @@ namespace RgbHelper {
   bool hid(CRGB* leds, const uint8_t n, rgb_light lights) {
     if (rgb_standby) {
       // Share same lighting state between different lights for HID standby animation
-      static BreathingPattern hid_standby = BreathingPattern();
+      static BreathingPattern hid_standby;
       return breathing(hid_standby, leds, n, {});
     }
     return set_rgb(leds, n, lights);

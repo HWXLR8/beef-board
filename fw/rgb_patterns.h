@@ -5,7 +5,8 @@
 class BreathingPattern {
 public:
   BreathingPattern();
-  explicit BreathingPattern(uint16_t duration, uint16_t cycle_time);
+  explicit BreathingPattern(uint16_t duration,
+                            uint16_t cycle_time);
 
   uint8_t update();
 
@@ -19,11 +20,12 @@ private:
 
 class SpinPattern {
 public:
-  SpinPattern(const uint8_t spin_duration,
-              const uint8_t fast_spin_duration,
-              const uint8_t limit = 0);
+  SpinPattern(uint8_t spin_duration,
+              uint8_t fast_spin_duration,
+              uint8_t limit);
 
-  uint8_t update(int8_t tt_report);
+  bool update(int8_t tt_report);
+  uint8_t get() const;
 
 private:
   uint8_t spin_duration;

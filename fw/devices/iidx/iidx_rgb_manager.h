@@ -21,7 +21,7 @@ namespace IIDX {
       extern bool force_update;
 
       bool set_leds_off();
-      void reverse_tt(uint8_t reverse_tt);
+      void reverse_tt(bool reverse_tt);
       void display_tt_change(const CRGB &colour,
                              uint8_t value,
                              uint8_t range);
