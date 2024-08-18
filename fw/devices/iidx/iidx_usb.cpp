@@ -36,9 +36,8 @@ namespace IIDX {
   HidReport<Beef::USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_hid_report;
   UsbHandler usb_handler;
 
+  DebounceState effectors_debounce(4);
   void process_buttons(const int8_t tt1_report) {
-    static DebounceState effectors_debounce(4);
-
     switch (tt1_report) {
       case -1:
         button_state |= BUTTON_TT_NEG;

@@ -22,7 +22,7 @@ class SpinPattern {
 public:
   SpinPattern(uint8_t spin_duration,
               uint8_t fast_spin_duration,
-              uint8_t limit);
+              uint8_t limit = 0);
 
   bool update(int8_t tt_report);
   uint8_t get() const;

@@ -52,10 +52,10 @@ namespace RgbHelper {
     return set_hsv(leds, n, { hsv.h, hsv.s, v });
   }
 
+  // Share same lighting state between different lights for HID standby animation
+  BreathingPattern hid_standby;
   bool hid(CRGB* leds, const uint8_t n, rgb_light lights) {
     if (rgb_standby) {
-      // Share same lighting state between different lights for HID standby animation
-      static BreathingPattern hid_standby;
       return breathing(hid_standby, leds, n, {});
     }
     return set_rgb(leds, n, lights);

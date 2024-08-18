@@ -26,12 +26,11 @@ namespace IIDX {
         return RgbHelper::set_rgb(tt_leds, RING_LIGHT_LEDS, CRGB::Black);
       }
 
+      SpinPattern spin_pattern(SPIN_TIMER,
+                                      FAST_SPIN_TIMER,
+                                      RING_LIGHT_LEDS / 2);
       // Render two spinning LEDs
       bool spin(const HSV &hsv, int8_t tt_report) {
-        static SpinPattern spin_pattern(SPIN_TIMER,
-                                        FAST_SPIN_TIMER,
-                                        RING_LIGHT_LEDS / 2);
-
         if (spin_pattern.update(tt_report)) {
           set_leds_off();
 
@@ -45,11 +44,11 @@ namespace IIDX {
         return false;
       }
 
+      Ticker colour_shift_ticker(100);
       bool colour_shift(const HSV &hsv) {
         static uint8_t h;
-        static Ticker ticker(100);
 
-        auto ticks = ticker.get_ticks();
+        const auto ticks = colour_shift_ticker.get_ticks();
         if (ticks > 0) {
           h += ticks;
           return set_hsv({ h, hsv.s, hsv.v });
@@ -80,12 +79,12 @@ namespace IIDX {
         return update;
       }
 
+      Ticker rainbow_react_ticker(3);
       bool render_rainbow_react(const HSV &hsv,
                                 const int8_t tt_report) {
         static uint8_t pos = 0;
-        static Ticker t(3);
 
-        const auto ticks = t.get_ticks();
+        const auto ticks = rainbow_react_ticker.get_ticks();
         if (ticks > 0) {
           pos += ticks * tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
           render_rainbow(hsv, pos);
@@ -94,12 +93,11 @@ namespace IIDX {
         return false;
       }
 
+      SpinPattern rainbow_spin_pattern(3, 2);
       bool render_rainbow_spin(const HSV &hsv,
                                const int8_t tt_report) {
-        static SpinPattern spin_pattern(3, 2, 0);
-
-        if (spin_pattern.update(tt_report)) {
-          const auto pos = spin_pattern.get() * BEEF_TT_RAINBOW_SPIN_SPEED;
+        if (rainbow_spin_pattern.update(tt_report)) {
+          const uint8_t pos = rainbow_spin_pattern.get() * BEEF_TT_RAINBOW_SPIN_SPEED;
           return render_rainbow(hsv, pos);
         }
         return false;
@@ -244,8 +242,8 @@ namespace IIDX {
         return RgbHelper::set_rgb(bar_leds, LIGHT_BAR_LEDS, CRGB::Black);
       }
 
+      Bpm bpm(LIGHT_BAR_LEDS);
       bool spectrum(const SpectrumSide side) {
-        static Bpm bpm(LIGHT_BAR_LEDS);
         static uint8_t last_level;
 
         const auto level = bpm.update(button_state);
