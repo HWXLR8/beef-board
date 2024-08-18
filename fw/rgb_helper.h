@@ -6,13 +6,23 @@
 #include "rgb_patterns.h"
 
 #if !defined(RING_LIGHT_LEDS)
-  #define RING_LIGHT_LEDS 24
+#define RING_LIGHT_LEDS 24
 #endif
 #if !defined(LIGHT_BAR_LEDS)
-  #define LIGHT_BAR_LEDS 16
+#define LIGHT_BAR_LEDS 16
 #endif
-#define RING_ANIM_NORMALISE RING_LIGHT_LEDS / 24
-#define BAR_ANIM_NORMALISE LIGHT_BAR_LEDS / 16
+
+// Keep these as #defines to make sure order of operations is correct
+#if RING_LIGHT_LEDS > 0
+#define RING_ANIM_NORMALISE 24 / RING_LIGHT_LEDS
+#else
+#define RING_ANIM_NORMALISE 1
+#endif
+#if LIGHT_BAR_LEDS > 0
+#define BAR_ANIM_NORMALISE 16 / LIGHT_BAR_LEDS
+#else
+#define BAR_ANIM_NORMALISE 1
+#endif
 
 constexpr auto DEFAULT_COLOUR = HSV{ 128, 255, 255 }; // Aqua
 extern CRGB tt_leds[RING_LIGHT_LEDS];

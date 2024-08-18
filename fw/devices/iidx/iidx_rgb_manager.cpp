@@ -1,11 +1,10 @@
 #include "../beef.h"
 #include "iidx_rgb_manager.h"
 
-#define SPIN_TIMER 50 * RING_ANIM_NORMALISE
-#define FAST_SPIN_TIMER 25 * RING_ANIM_NORMALISE
 enum {
+  SPIN_TIMER = 50 * RING_ANIM_NORMALISE,
+  FAST_SPIN_TIMER = 25 * RING_ANIM_NORMALISE,
   REACT_TIMER = 500,
-  BREATHING_DURATION = 2048,
   BREATHING_TIMER = 3000
 };
 
@@ -15,8 +14,7 @@ namespace IIDX {
       bool force_update;
 
       // Add a second-long rest period
-      BreathingPattern breathing_pattern(BREATHING_DURATION,
-                                         BREATHING_TIMER);
+      BreathingPattern breathing_pattern(BREATHING_TIMER);
 
       bool set_hsv(HSV hsv) {
         return RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
