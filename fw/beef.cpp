@@ -225,11 +225,12 @@ void process_button(const volatile uint8_t* PIN,
 
 void update_tt_transitions(uint8_t reverse_tt) {
   const int8_t direction = reverse_tt ? -1 : 1;
+  const int8_t opposite_direction = -direction;
   const int8_t tt_transitions_values[4][4] = {
-      {0, direction, -direction, 0},
-      {-direction, 0, 0, direction},
-      {direction, 0, 0, -direction},
-      {0, -direction, direction, 0}
+      {0, direction, opposite_direction, 0},
+      {opposite_direction, 0, 0, direction},
+      {direction, 0, 0, opposite_direction},
+      {0, opposite_direction, direction, 0}
   };
   memcpy(tt_transitions, tt_transitions_values, sizeof(tt_transitions));
 }
