@@ -4,16 +4,20 @@
 
 #include "../bpm.h"
 #include "../config.h"
-#include "iidx_rgb.h"
+#include "../rgb_helper.h"
 
 namespace IIDX {
+  struct hid_lights {
+    uint16_t buttons;
+    rgb_light tt_lights;
+    rgb_light bar_lights;
+  } ATTR_PACKED;
+
   namespace RgbManager {
     void update(const config &config,
                 const int8_t tt_report,
                 const hid_lights &led_state_from_hid_report);
     namespace Turntable {
-      extern timer combo_timer;
-
       void set_leds_off();
       void reverse_tt(uint8_t reverse_tt);
       void display_tt_change(const CRGB &colour,

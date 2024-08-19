@@ -1,6 +1,7 @@
 #pragma once
 
 namespace SDVX {
-  namespace RgbManager {
-  }
+  struct hid_lights {
+    uint16_t buttons;
+  } ATTR_PACKED;
 }

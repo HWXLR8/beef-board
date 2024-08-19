@@ -1,6 +1,8 @@
 #pragma once
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wstrict-prototypes"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>

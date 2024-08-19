@@ -6,43 +6,21 @@
 #include "devices/sdvx/sdvx_usb.h"
 #include "Descriptors.h"
 
-#include "analog_turntable.h"
+#include "analog_button.h"
+#include "axis.h"
 #include "beef.h"
 #include "combo.h"
 #include "debounce.h"
 #include "rgb_helper.h"
 
-USB_ClassInfo_HID_Device_t* hid_interface;
-
-void (*update_callback) (const config &);
-bool (*create_hid_report_callback) (USB_ClassInfo_HID_Device_t* const,
-                                    uint8_t* const,
-                                    const uint8_t,
-                                    void*,
-                                    uint16_t* const);
-
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
-
-// flag to represent whether the LEDs are controlled by host or not
-// when not controlled by host, LEDs light up while the corresponding
-// button is held
-bool reactive_led = true;
-bool rgb_standby = true;
-int8_t tt_transitions[4][4];
+// Ignore button inputs after startup so that we don't send keycodes after holding a boot combo
+bool ignore_buttons = false;
+AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
-
-timer hid_lights_expiry_timer;
 timer combo_lights_timer;
-
-tt_pins tt_x = { &PINF, PINF0, PINF1, -1, 0 };
-tt_pins tt_y = { &PINF, PINF2, PINF3, -1, 0 };
-
-encoder_pin encoder_x = { PINF4 };
-encoder_pin encoder_y = { PINF5 };
-
-config current_config;
 
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
@@ -55,13 +33,13 @@ void debounce(DebounceState* debounce, uint16_t mask) {
 }
 
 void check_for_dfu() {
-  if (is_pressed(BUTTON_1 | BUTTON_2)) {
+  if (is_only_pressed(BUTTON_1 | BUTTON_2)) {
     jump_to_bootloader();
   }
 }
 
 int main() {
-  hwinit();
+  SetupHardware();
 
   config_init(&current_config);
   usb_init(current_config);
@@ -69,13 +47,10 @@ int main() {
   timer_init(&hid_lights_expiry_timer);
   timer_init(&combo_lights_timer);
 
-  analog_turntable_init(&tt1, current_config.tt_deadzone, 200, true);
-
   RgbHelper::init();
 
   while (true) {
-    HID_Device_USBTask(hid_interface);
-    USB_USBTask();
+    usb_handler->usb_task(current_config);
 
     if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
       set_hid_standby_lighting();
@@ -83,7 +58,7 @@ int main() {
 
     process_buttons();
     process_combos(&current_config, &combo_lights_timer);
-    update_callback(current_config);
+    usb_handler->update(current_config);
   }
 }
 
@@ -101,9 +76,6 @@ void hardware_timer1_init() {
   // enable the compare match interrupt
   TIMSK1 |= (1 << OCIE1A);
 
-  // enable global interrupts
-  sei();
-
   // start the timer with a prescaler of 64
   TCCR1B |= (1 << CS10) | (1 << CS11);
 }
@@ -116,7 +88,7 @@ void adc_init() {
 }
 
 // configure board hardware and chip peripherals
-void hwinit() {
+void SetupHardware() {
   // disable watchdog if enabled by bootloader/fuses
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
@@ -148,6 +120,7 @@ void hwinit() {
 
   // Check for boot up combos
   process_buttons();
+  ignore_buttons = button_state;
 
   // check if we need to jump to bootloader
   check_for_dfu();
@@ -157,21 +130,31 @@ void usb_init(config &config) {
   switch (button_state) {
     case BUTTON_1 | BUTTON_8:
       set_mode(config, UsbMode::IIDX);
+      set_input_mode(config, InputMode::Joystick);
+      break;
+    case BUTTON_2 | BUTTON_8:
+      set_mode(config, UsbMode::IIDX);
+      set_input_mode(config, InputMode::Keyboard);
       break;
     case BUTTON_1 | BUTTON_9:
       set_mode(config, UsbMode::SDVX);
+      set_input_mode(config, InputMode::Joystick);
+      break;
+    case BUTTON_2 | BUTTON_9:
+      set_mode(config, UsbMode::SDVX);
+      set_input_mode(config, InputMode::Keyboard);
       break;
     default:
       break;
   }
 
   switch (config.usb_mode) {
+    case UsbMode::IIDX:
+      IIDX::usb_init(config);
+      break;
     case UsbMode::SDVX:
       SDVX::usb_init(config);
       break;
-    case UsbMode::IIDX:
-    default:
-      IIDX::usb_init(config);
   }
 
   USB_Init();
@@ -180,8 +163,12 @@ void usb_init(config &config) {
 // event handler for USB config change event
 void EVENT_USB_Device_ConfigurationChanged() {
   // setup HID report endpoints
-  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
-  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+
+  // We don't use StartOfFrame events to poll as it's too slow and results in lots of jitter from inputs
 }
 
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
@@ -189,7 +176,11 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          const uint8_t ReportType,
                                          void* ReportData,
                                          uint16_t* const ReportSize) {
-  return create_hid_report_callback(HIDInterfaceInfo, ReportID, ReportType, ReportData, ReportSize);
+  return usb_handler->create_hid_report(HIDInterfaceInfo,
+                                        ReportID,
+                                        ReportType,
+                                        ReportData,
+                                        ReportSize);
 }
 
 void set_led(volatile uint8_t* PORT,
@@ -215,11 +206,17 @@ void process_buttons() {
                    i,
                    buttons[i].input_pin);
   }
+
+  // Ignore button inputs after startup
+  ignore_buttons = ignore_buttons && button_state;
+  // If we are still ignoring button inputs, clear button_state
+  // Otherwise, retain
+  button_state *= !ignore_buttons;
 }
 
 void process_button(const volatile uint8_t* PIN,
-                    uint8_t button_number,
-                    uint8_t input_pin) {
+                    const uint8_t button_number,
+                    const uint8_t input_pin) {
   const bool pressed = ~*PIN & (1 << input_pin);
   button_state |= pressed << button_number;
 }
@@ -235,46 +232,25 @@ void update_tt_transitions(uint8_t reverse_tt) {
   memcpy(tt_transitions, tt_transitions_values, sizeof(tt_transitions));
 }
 
-void process_tt(tt_pins &tt_pin, uint8_t tt_ratio) {
-  // tt logic
-  // example where tt_x wired to F0/F1:
-  // curr is binary number ab
-  // where a is the signal of F0
-  // and b is the signal of F1
-  // therefore when F0 == 1 and F1 == 0, then curr == 0b10
-  const uint8_t a = (*tt_pin.PIN >> tt_pin.a_pin) & 1;
-  const uint8_t b = (*tt_pin.PIN >> tt_pin.b_pin) & 1;
-  const uint8_t curr = (a << 1) | b;
-
-  const auto direction = tt_transitions[tt_pin.prev][curr];
-  tt_pin.tt_position += direction;
-  tt_pin.tt_position %= 256 * tt_ratio;
-  tt_pin.prev = curr;
-}
-
-void process_encoder(encoder_pin &encoder_pin) {
-  // Select ADC channel
-  ADMUX = (ADMUX & 0xF8) | (encoder_pin.pin & 0x07);
-  // Start conversion
-  ADCSRA |= (1 << ADSC);
-  // Wait for conversion to finish
-  while (ADCSRA & (1 << ADSC));
-  // Read 8-bits of ADC value
-  encoder_pin.position = ADCH;
-}
-
-void update_lighting(uint16_t hid_buttons) {
-  if (reactive_led) {
-    update_button_lighting(button_state);
-  } else {
-    update_button_lighting(hid_buttons);
+void process_keyboard(Beef::USB_KeyboardReport_Data_t* const hid_key_codes,
+                      const uint8_t* const key_codes,
+                      const uint8_t n) {
+  uint8_t used_key_codes = 0;
+  for (uint8_t i = 0; i < n; i++) {
+    if (is_pressed(1 << i)) {
+      hid_key_codes->KeyCode[used_key_codes++] = key_codes[i];
+    }
   }
 }
 
 void update_button_lighting(uint16_t led_state) {
+  if (reactive_led) {
+    led_state = button_state;
+  }
+
   if (current_config.disable_led ||
-    // Temporarily black out button LEDs to notify a setting change
-    timer_is_active(&combo_lights_timer)) {
+      // Temporarily black out button LEDs to notify a setting change
+      timer_is_active(&combo_lights_timer)) {
     led_state = 0;
   }
 
@@ -286,13 +262,17 @@ void update_button_lighting(uint16_t led_state) {
   }
 }
 
-bool is_pressed(uint16_t button_bits, uint16_t ignore) {
+bool is_only_pressed(uint16_t button_bits, uint16_t ignore) {
   return (button_state & ~ignore) == button_bits;
+}
+
+bool is_pressed(uint16_t button_bits, uint16_t ignore) {
+  return (button_state & ~ignore) & button_bits;
 }
 
 void jump_to_bootloader() {
   // disable interrupts
-  cli();
+  GlobalInterruptDisable();
   // clear registers
   UDCON = 1;
   USBCON = (1<<FRZCLK);

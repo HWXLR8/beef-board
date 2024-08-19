@@ -1,38 +1,28 @@
 #include "../Descriptors.h"
 #include "iidx_usb_desc.h"
 
-// HID class report descriptor. This is a special descriptor
-// constructed with values from the USBIF HID class specification to
-// describe the reports and capabilities of the HID device. This
-// descriptor is parsed by the host and its contents used to determine
-// what data (and in what encoding) the device will send, and what it
-// may be sent back from the host. Refer to the HID specification for
-// more details on HID report descriptors.
-
 namespace IIDX {
-  const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] = {
-  HID_RI_USAGE_PAGE(8, 0x01),
-  HID_RI_USAGE(8, 0x04),
-  HID_RI_COLLECTION(8, 0x01),
-    HID_RI_USAGE(8, 0x01),
-    HID_RI_COLLECTION(8, 0x00),
+  const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
+    HID_RI_USAGE_PAGE(8, 0x01),
+    HID_RI_USAGE(8, 0x04),
+    HID_RI_COLLECTION(8, 0x01),
       // Analog
       HID_RI_USAGE(8, 0x01),
-      HID_RI_COLLECTION(8, 0x00),
+      HID_RI_COLLECTION(8, 0x02),
         HID_RI_USAGE(8, 0x30), // X
+        HID_RI_USAGE(8, 0x31), // Y
         HID_RI_LOGICAL_MINIMUM(16, 0),
         HID_RI_LOGICAL_MAXIMUM(16, 255),
-        HID_RI_PHYSICAL_MINIMUM(16, -1),
-        HID_RI_PHYSICAL_MAXIMUM(16, 1),
-        HID_RI_REPORT_COUNT(8, 1),
-        HID_RI_REPORT_SIZE(8, 8),
+        HID_RI_PHYSICAL_MINIMUM(8, -1),
+        HID_RI_PHYSICAL_MAXIMUM(8, 1),
+        HID_RI_REPORT_COUNT(8, 0x02),
+        HID_RI_REPORT_SIZE(8, 0x08),
         HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
       HID_RI_END_COLLECTION(0),
 
       // Buttons
-      // 11 physical (7 + 1 alignment (Infinitas) + 4 extra) + digital TT (-/+)
+      // 11 physical (7 + 1 padding (Infinitas) + 4 extra) + digital TT (-/+)
       HID_BUTTONS(14),
-      HID_PADDING_INPUT(2),
 
       // Button lighting
       HID_BUTTON_LIGHT(1),
@@ -53,14 +43,13 @@ namespace IIDX {
 
       // Bar WS2812
       HID_RGB(15),
-    HID_RI_END_COLLECTION(0),
-  HID_RI_END_COLLECTION(0),
+    HID_RI_END_COLLECTION(0)
   };
 
   // official Konami infinitas controller VID/PID
-  DEVICE_DESCRIPTOR(0x1CCF, 0x8048);
+  const auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x8048);
 
-  CONFIGURATION_DESCRIPTOR(JoystickReport);
+  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport));
 
   enum {
     LedStringCount = 17
@@ -102,5 +91,12 @@ namespace IIDX {
     &led_name17
   };
 
-  GET_DESCRIPTOR_CALLBACK(LedStringCount);
+  void usb_desc_init() {
+    ::JoystickHIDReport = JoystickHIDReport;
+    ::SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
+    ::DeviceDescriptor = &DeviceDescriptor;
+    ::ConfigurationDescriptor = &ConfigurationDescriptor;
+    ::LedStringCount = LedStringCount;
+    ::LedStrings = led_names;
+  }
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pin.h"
 #include "rgb.h"
 
 #define CONFIG_ALL_HW_PIN { \
@@ -34,6 +33,11 @@ enum class UsbMode {
   SDVX
 };
 
+enum class InputMode {
+  Joystick,
+  Keyboard
+};
+
 // Do not reorder these fields
 struct config {
   uint8_t version;
@@ -52,6 +56,8 @@ struct config {
   HSV tt_breathing_hsv;
   uint8_t tt_ratio;
   UsbMode usb_mode;
+  InputMode iidx_input_mode;
+  InputMode sdvx_input_mode;
 };
 
 struct callback {
@@ -59,9 +65,13 @@ struct callback {
   uint8_t val;
 };
 
+extern config current_config;
+
 void config_init(config* self);
 void config_update(uint8_t* addr, uint8_t val);
 void set_mode(config &self, UsbMode mode);
+void set_input_mode(config &self, InputMode mode);
+
 callback toggle_reverse_tt(config* self);
 callback cycle_tt_effects(config* self);
 callback tt_hsv_set_hue(config* self);

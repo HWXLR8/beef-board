@@ -1,36 +1,65 @@
 #pragma once
 
 #include "Descriptors.h"
+#include "timer.h"
+#include "usb_handler.h"
 
-template <typename T>
+// flag to represent whether the LEDs are controlled by host or not
+// when not controlled by host, LEDs light up while the corresponding
+// button is held
+extern bool reactive_led;
+extern bool rgb_standby;
+extern timer hid_lights_expiry_timer;
+
+namespace Beef {
+  struct USB_KeyboardReport_Data_t {
+    uint8_t KeyCode[KEYBOARD_KEYS];
+  } ATTR_PACKED;
+
+  struct USB_MouseReport_Data_t {
+    int8_t X;
+    int8_t Y;
+  } ATTR_PACKED;
+}
+
+template <typename T, uint8_t interface, uint8_t endpoint>
 struct HidReport {
   // buffer to hold the previously generated HID report, for comparison purposes inside the HID class driver.
-  uint8_t PrevJoystickHIDReportBuffer[sizeof(T)]{};
+  uint8_t PrevHIDReportBuffer[sizeof(T)]{};
 
-  USB_ClassInfo_HID_Device_t Joystick_HID_Interface = {
+  USB_ClassInfo_HID_Device_t HID_Interface = {
     .Config = {
-      .InterfaceNumber = INTERFACE_ID_Joystick,
+      .InterfaceNumber = interface,
       .ReportINEndpoint = {
-        .Address = JOYSTICK_IN_EPADDR,
-        .Size = JOYSTICK_EPSIZE,
+        .Address = endpoint,
+        .Size = HID_EPSIZE,
+        .Type = EP_TYPE_INTERRUPT,
         .Banks = 1,
       },
-      .PrevReportINBuffer = PrevJoystickHIDReportBuffer,
-      .PrevReportINBufferSize = sizeof(PrevJoystickHIDReportBuffer),
+      .PrevReportINBuffer = PrevHIDReportBuffer,
+      .PrevReportINBufferSize = sizeof(PrevHIDReportBuffer),
     },
+    .State = {
+      .UsingReportProtocol = true,
+      .IdleCount = 500
+    }
   };
 };
 
 // HID functions
 template<typename T>
-void HID_Task(T* led_state) {
+void HID_Task(T &led_state) {
+  if (USB_DeviceState != DEVICE_STATE_Configured) {
+    return;
+  }
+
   Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
 
   // check if a packet has been sent from the host
   if (Endpoint_IsOUTReceived()) {
     // check if packet contains data
-    if (Endpoint_IsReadWriteAllowed()) {// read generic report data
-      Endpoint_Read_Stream_LE(led_state, sizeof(*led_state), nullptr);
+    if (Endpoint_IsReadWriteAllowed()) { // read generic report data
+      Endpoint_Read_Stream_LE(&led_state, sizeof(T), nullptr);
 
       reactive_led = false;
       rgb_standby = false;
