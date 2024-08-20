@@ -189,7 +189,7 @@ void set_led(volatile uint8_t* PORT,
   const uint8_t state = (led_state >> button_number) & 1;
 
   *PORT = (*PORT & ~mask) | // Clear led_pin bit
-    (-state & mask);        // state will either be 0 or 255 (underflow)
+    (-state & mask);        // state will either be 0 or -1 (underflows to 255)
 }
 
 void set_hid_standby_lighting(timer &hid_lights_expiry_timer) {
