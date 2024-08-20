@@ -1,4 +1,5 @@
 #include "../beef.h"
+#include "../bpm.h"
 #include "iidx_rgb_manager.h"
 
 enum {

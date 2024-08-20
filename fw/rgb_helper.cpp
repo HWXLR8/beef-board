@@ -1,8 +1,8 @@
 #include "hid.h"
 #include "rgb_helper.h"
 
-CRGB tt_leds[RING_LIGHT_LEDS] = {0};
-CRGB bar_leds[LIGHT_BAR_LEDS] = {0};
+CRGB tt_leds[RING_LIGHT_LEDS];
+CRGB bar_leds[LIGHT_BAR_LEDS];
 
 namespace RgbHelper {
   // Pin mapping can be found in FastLED/src/platforms/avr/fastpin_avr.h

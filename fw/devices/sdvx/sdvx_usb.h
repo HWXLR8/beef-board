@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../config.h"
+#include "../usb_handler.h"
 #include "sdvx_rgb_manager.h"
 
 namespace SDVX {

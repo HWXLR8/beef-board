@@ -2,7 +2,6 @@
 
 #include <FastLED/src/FastLED.h>
 
-#include "../bpm.h"
 #include "../config.h"
 #include "../rgb_helper.h"
 

@@ -5,7 +5,6 @@
 #include "config.h"
 #include "debounce.h"
 #include "hid.h"
-#include "pin.h"
 #include "usb_handler.h"
 
 extern uint16_t button_state;

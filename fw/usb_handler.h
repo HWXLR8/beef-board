@@ -1,7 +1,6 @@
 #pragma once
 
 #include <LUFA/Drivers/USB/Class/Device/HIDClassDevice.h>
-#include "Descriptors.h"
 
 #include "config.h"
 

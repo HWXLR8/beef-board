@@ -6,11 +6,11 @@
 #include "devices/sdvx/sdvx_usb.h"
 #include "Descriptors.h"
 
-#include "analog_button.h"
 #include "axis.h"
 #include "beef.h"
 #include "combo.h"
 #include "debounce.h"
+#include "pin.h"
 #include "rgb_helper.h"
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11

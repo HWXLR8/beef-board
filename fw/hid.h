@@ -2,7 +2,6 @@
 
 #include "Descriptors.h"
 #include "timer.h"
-#include "usb_handler.h"
 
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
