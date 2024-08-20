@@ -5,8 +5,7 @@
 class BreathingPattern {
 public:
   BreathingPattern();
-  explicit BreathingPattern(uint16_t duration,
-                            uint16_t cycle_time);
+  explicit BreathingPattern(uint16_t cycle_time);
 
   uint8_t update();
 

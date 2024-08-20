@@ -5,24 +5,27 @@
 // Cycle from zero to full-bright to zero in around 2 seconds
 BreathingPattern::BreathingPattern() : ticker(Ticker(8)){}
 
-BreathingPattern::BreathingPattern(uint16_t duration,
-                                   uint16_t cycle_time) :
+BreathingPattern::BreathingPattern(uint16_t cycle_time) :
   cycle_time(cycle_time),
-  ticker(Ticker(8, duration)) {
-  if (cycle_time > 0) {
-    timer_arm(&breathing_timer, cycle_time);
-  }
+  ticker(Ticker(8)) {
+  timer_arm(&breathing_timer, cycle_time);
 }
 
 uint8_t BreathingPattern::update() {
   if (timer_is_expired(&breathing_timer)) {
     ticker.reset();
     timer_arm(&breathing_timer, cycle_time);
+    theta = 0;
   }
 
   const auto ticks = ticker.get_ticks();
   if (ticks > 0) {
     theta += ticks;
+    if (cycle_time != 0 && theta < ticks) {
+      // Overflow, cap at full cycle
+      theta = 255;
+      return v;
+    }
     v = quadwave8(theta);
   }
 

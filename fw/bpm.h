@@ -15,4 +15,5 @@ private:
   timer button_guard{};
   uint8_t current_level{};
   uint16_t last_button_state{};
+  uint32_t sample_time{};
 };

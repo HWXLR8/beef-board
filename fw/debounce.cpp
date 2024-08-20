@@ -22,11 +22,12 @@ DebounceState::DebounceState(uint8_t window) {
 
 uint16_t DebounceState::debounce(uint16_t buttons) {
 #ifdef BEEF_DEBOUNCE
-  if (milliseconds == sample_time) {
+  const auto now = milliseconds;
+  if (now == sample_time) {
     return last_state;
   }
 
-  sample_time = milliseconds;
+  sample_time = now;
   history[current_index] = buttons;
   current_index = (current_index + 1) % window;
 
@@ -36,7 +37,7 @@ uint16_t DebounceState::debounce(uint16_t buttons) {
     has_zeroes |= ~(history[i]);
   }
 
-  const uint16_t stable = has_ones ^ has_zeroes;
+  const auto stable = has_ones ^ has_zeroes;
   last_state = (last_state & ~stable) | (has_ones & stable);
   return last_state;
 #else
