@@ -1,3 +1,4 @@
+#include "config.h"
 #include "hid.h"
 #include "rgb_helper.h"
 
@@ -64,8 +65,8 @@ namespace RgbHelper {
   // update lighting on a timer to reduce the number of
   // computationally expensive calls to FastLED.show()
   // basically what FastLED does but without spin waiting
-  bool ready_to_present(bool disable_leds) {
-    if (disable_leds)
+  bool ready_to_present() {
+    if (current_config.disable_led)
       return false;
 
     static uint32_t last_show = 0;

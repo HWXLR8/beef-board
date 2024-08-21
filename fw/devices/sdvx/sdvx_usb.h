@@ -15,9 +15,7 @@ namespace SDVX {
                            void* report_data,
                            uint16_t* const report_size) override;
     void usb_task(const config &config) override;
-    void update(const config &config,
-                timer &hid_lights_expiry_timer,
-                timer &combo_lights_timer) override;
+    void update() override;
 
   private:
     hid_lights led_data{};

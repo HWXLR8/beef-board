@@ -16,6 +16,8 @@
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state;
+// Ignore button inputs after startup so that we don't send keycodes after holding a boot combo
+bool ignore_buttons;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
 
@@ -23,10 +25,10 @@ ISR(TIMER1_COMPA_vect) {
   milliseconds++;
 }
 
-void debounce(DebounceState* debounce, uint16_t mask) {
+void debounce(DebounceState &debounce, uint16_t mask) {
   button_state =
     (button_state & ~mask) |
-    (debounce->debounce(button_state & mask));
+    (debounce.debounce(button_state & mask));
 }
 
 void check_for_dfu() {
@@ -41,25 +43,17 @@ int main() {
   config_init(&current_config);
   usb_init(current_config);
 
-  timer hid_lights_expiry_timer;
   timer_arm(&hid_lights_expiry_timer, 0);
-  timer combo_lights_timer;
-  timer_init(&combo_lights_timer);
-
-  // Ignore button inputs after startup so that we don't send keycodes after holding a boot combo
-  bool ignore_buttons = button_state;
 
   RgbHelper::init();
 
   while (true) {
     usb_handler->usb_task(current_config);
 
-    set_hid_standby_lighting(hid_lights_expiry_timer);
-    ignore_buttons = process_buttons(ignore_buttons);
-    process_combos(&current_config, &combo_lights_timer);
-    usb_handler->update(current_config,
-                        hid_lights_expiry_timer,
-                        combo_lights_timer);
+    set_hid_standby_lighting();
+    process_buttons();
+    process_combos();
+    usb_handler->update();
   }
 }
 
@@ -118,7 +112,7 @@ void SetupHardware() {
   GlobalInterruptEnable();
 
   // Check for boot up combos
-  process_buttons(false);
+  process_buttons();
 
   // check if we need to jump to bootloader
   check_for_dfu();
@@ -192,14 +186,14 @@ void set_led(volatile uint8_t* PORT,
     (-state & mask);        // state will either be 0 or -1 (underflows to 255)
 }
 
-void set_hid_standby_lighting(timer &hid_lights_expiry_timer) {
+void set_hid_standby_lighting() {
   const auto hid_expiry = timer_is_expired(&hid_lights_expiry_timer);
 
   reactive_led = hid_expiry;
   rgb_standby = hid_expiry;
 }
 
-bool process_buttons(bool ignore_buttons) {
+void process_buttons() {
   button_state = 0;
   for (uint8_t i = 0; i < BUTTONS; i++) {
     process_button(buttons[i].INPUT_PORT.PIN,
@@ -212,8 +206,6 @@ bool process_buttons(bool ignore_buttons) {
   // If we are still ignoring button inputs, clear button_state
   // Otherwise, retain
   button_state *= !ignore_buttons;
-
-  return ignore_buttons;
 }
 
 void process_button(const volatile uint8_t* PIN,
@@ -246,14 +238,12 @@ void process_keyboard(Beef::USB_KeyboardReport_Data_t* const hid_key_codes,
   }
 }
 
-void update_button_lighting(const config &config,
-                            timer &combo_lights_timer,
-                            uint16_t led_state) {
+void update_button_lighting(uint16_t led_state) {
   if (reactive_led) {
     led_state = button_state;
   }
 
-  if (config.disable_led ||
+  if (current_config.disable_led ||
       // Temporarily black out button LEDs to notify a setting change
       timer_is_active(&combo_lights_timer)) {
     led_state = 0;

@@ -8,6 +8,6 @@ struct combo {
 };
 
 extern combo (*get_button_combo_callback) (uint16_t);
+extern timer combo_lights_timer;
 
-void process_combos(config * current_config,
-                    timer* combo_lights_timer);
+void process_combos();

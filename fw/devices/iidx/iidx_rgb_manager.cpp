@@ -169,8 +169,7 @@ namespace IIDX {
       }
 
       bool update(int8_t tt_report,
-                  const rgb_light &lights,
-                  const config &current_config) {
+                  const rgb_light &lights) {
         auto update = force_update;
 
         // Ignore turntable effect if notifying a setting change
@@ -266,8 +265,7 @@ namespace IIDX {
         return update;
       }
 
-      bool update(const rgb_light &lights,
-                  const config &current_config) {
+      bool update(const rgb_light &lights) {
         auto update = force_update;
 
         switch(current_config.bar_effect) {
@@ -292,24 +290,21 @@ namespace IIDX {
       }
     }
 
-    void update(const config &config,
-                const int8_t tt_report,
+    void update(const int8_t tt_report,
                 const hid_lights &led_state_from_hid_report) {
-      if (!RgbHelper::ready_to_present(config.disable_led)) {
+      if (!RgbHelper::ready_to_present()) {
         return;
       }
 
 #if RING_LIGHT_LEDS > 0
       if (Turntable::update(tt_report,
-                            led_state_from_hid_report.tt_lights,
-                            config)) {
+                            led_state_from_hid_report.tt_lights)) {
         RgbHelper::show_tt();
       }
 #endif
 
 #if LIGHT_BAR_LEDS > 0
-      if (Bar::update(led_state_from_hid_report.bar_lights,
-                      config)) {
+      if (Bar::update(led_state_from_hid_report.bar_lights)) {
         RgbHelper::show_bar();
       }
 #endif

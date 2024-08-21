@@ -44,7 +44,7 @@ namespace RgbHelper {
                  CRGB* leds, const uint8_t n, const HSV &hsv);
   bool hid(CRGB* leds, const uint8_t n, rgb_light lights);
 
-  bool ready_to_present(bool disable_leds);
+  bool ready_to_present();
   void show_tt();
   void show_bar();
 }

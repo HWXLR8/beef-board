@@ -2,7 +2,6 @@
 
 #include <FastLED/src/FastLED.h>
 
-#include "../config.h"
 #include "../rgb_helper.h"
 
 namespace IIDX {
@@ -13,9 +12,7 @@ namespace IIDX {
   } ATTR_PACKED;
 
   namespace RgbManager {
-    void update(const config &config,
-                const int8_t tt_report,
-                const hid_lights &led_state_from_hid_report);
+    void update(const int8_t tt_report, const hid_lights &led_state_from_hid_report);
     namespace Turntable {
       extern bool force_update;
 

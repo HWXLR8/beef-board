@@ -49,7 +49,7 @@ namespace IIDX {
         break;
     }
 
-    debounce(&effectors_debounce, EFFECTORS_ALL);
+    debounce(effectors_debounce, EFFECTORS_ALL);
   }
 
   bool UsbHandler::create_hid_report(USB_ClassInfo_HID_Device_t* const hid_interface_info,
@@ -66,6 +66,8 @@ namespace IIDX {
         // so shift bits 8 and up once
         const uint8_t upper = button_state >> 7;
         const uint8_t lower = button_state & 0x7F;
+        //static uint8_t x;
+        //joystick_report->X = x++;
         joystick_report->X = tt_x.get();
         joystick_report->Y = 127;
         joystick_report->Button = (upper << 8) | lower;
@@ -96,19 +98,15 @@ namespace IIDX {
     }
   }
 
-  void UsbHandler::update(const config &config,
-                          timer &hid_lights_expiry_timer,
-                          timer &combo_lights_timer) {
-    HID_Task(led_data, hid_lights_expiry_timer);
+  void UsbHandler::update() {
+    HID_Task(led_data);
 
     tt_x.poll();
     const auto tt1_report = analog_button_poll(&button_x, tt_x.get());
     process_buttons(tt1_report);
 
-    update_button_lighting(config, combo_lights_timer, led_data.buttons);
-    RgbManager::update(config,
-                       button_x.state,
-                       led_data);
+    update_button_lighting(led_data.buttons);
+    RgbManager::update(button_x.state,led_data);
   }
 
   void usb_init(const config &config) {
