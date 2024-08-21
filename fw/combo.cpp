@@ -1,6 +1,6 @@
 #include "beef.h"
-#include "config.h"
 #include "combo.h"
+#include "config.h"
 #include "hid.h"
 #include "rgb_helper.h"
 
