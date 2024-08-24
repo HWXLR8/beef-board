@@ -66,8 +66,6 @@ namespace IIDX {
         // so shift bits 8 and up once
         const uint8_t upper = button_state >> 7;
         const uint8_t lower = button_state & 0x7F;
-        //static uint8_t x;
-        //joystick_report->X = x++;
         joystick_report->X = tt_x.get();
         joystick_report->Y = 127;
         joystick_report->Button = (upper << 8) | lower;
