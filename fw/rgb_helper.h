@@ -5,13 +5,6 @@
 #include "rgb.h"
 #include "rgb_patterns.h"
 
-#if !defined(RING_LIGHT_LEDS)
-#define RING_LIGHT_LEDS 24
-#endif
-#if !defined(LIGHT_BAR_LEDS)
-#define LIGHT_BAR_LEDS 16
-#endif
-
 // Keep these as #defines to make sure order of operations is correct
 #if RING_LIGHT_LEDS > 0
 #define RING_ANIM_NORMALISE 24 / RING_LIGHT_LEDS

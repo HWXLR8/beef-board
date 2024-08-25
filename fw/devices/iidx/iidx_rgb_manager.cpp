@@ -292,6 +292,7 @@ namespace IIDX {
 
     void update(const int8_t tt_report,
                 const hid_lights &led_state_from_hid_report) {
+#if RING_LIGHT_LEDS != 0 || LIGHT_BAR_LEDS != 0
       if (!RgbHelper::ready_to_present()) {
         return;
       }
@@ -307,6 +308,8 @@ namespace IIDX {
       if (Bar::update(led_state_from_hid_report.bar_lights)) {
         RgbHelper::show_bar();
       }
+#endif
+
 #endif
     }
   }
