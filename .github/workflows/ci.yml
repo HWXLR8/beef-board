@@ -7,17 +7,17 @@ concurrency:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Install avr-gcc
         run: |
-          curl -L -o /tmp/modm-avr-gcc.tar.bz2 https://github.com/modm-io/avr-gcc/releases/download/v13.2.0/modm-avr-gcc.tar.bz2
+          curl -L -o /tmp/avr-gcc-14.1.0-x64-linux.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
           echo Extracting avr-gcc archive
-          tar xf /tmp/modm-avr-gcc.tar.bz2 --directory /opt
-          echo "PATH=/opt/avr-gcc/bin:$(echo $PATH)" >> $GITHUB_ENV
+          tar xf /tmp/avr-gcc-14.1.0-x64-linux.tar.bz2 --directory /opt
+          echo "PATH=/opt/avr-gcc-14.1.0-x64-linux/bin:$(echo $PATH)" >> $GITHUB_ENV
       - name: make
         run: |
           cd fw
