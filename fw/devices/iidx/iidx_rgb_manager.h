@@ -2,8 +2,6 @@
 
 #include <FastLED/src/FastLED.h>
 
-#include "../bpm.h"
-#include "../config.h"
 #include "../rgb_helper.h"
 
 namespace IIDX {
@@ -14,19 +12,21 @@ namespace IIDX {
   } ATTR_PACKED;
 
   namespace RgbManager {
-    void update(const config &config,
-                const int8_t tt_report,
-                const hid_lights &led_state_from_hid_report);
+    void update(const int8_t tt_report, const hid_lights &led_state_from_hid_report);
     namespace Turntable {
-      void set_leds_off();
-      void reverse_tt(uint8_t reverse_tt);
+      extern bool force_update;
+
+      bool set_leds_off();
+      void reverse_tt(bool reverse_tt);
       void display_tt_change(const CRGB &colour,
                              uint8_t value,
                              uint8_t range);
     }
 
     namespace Bar {
-      void set_leds_off();
+      extern bool force_update;
+
+      bool set_leds_off();
     }
   }
 }

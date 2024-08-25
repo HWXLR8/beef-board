@@ -2,7 +2,6 @@
 
 #include "Descriptors.h"
 #include "timer.h"
-#include "usb_handler.h"
 
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
@@ -49,10 +48,6 @@ struct HidReport {
 // HID functions
 template<typename T>
 void HID_Task(T &led_state) {
-  if (USB_DeviceState != DEVICE_STATE_Configured) {
-    return;
-  }
-
   Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
 
   // check if a packet has been sent from the host
@@ -61,8 +56,6 @@ void HID_Task(T &led_state) {
     if (Endpoint_IsReadWriteAllowed()) { // read generic report data
       Endpoint_Read_Stream_LE(&led_state, sizeof(T), nullptr);
 
-      reactive_led = false;
-      rgb_standby = false;
       timer_arm(&hid_lights_expiry_timer, 1000);
     }
 

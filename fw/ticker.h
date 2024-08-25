@@ -2,17 +2,14 @@
 
 class Ticker {
 public:
-  explicit Ticker(uint32_t tick_duration, uint32_t total_duration = 0);
+  explicit Ticker(uint8_t tick_duration);
 
-  uint32_t get_ticks();
+  uint8_t get_ticks();
   void reset();
-  void reset(uint32_t tick_duration, uint32_t total_duration = 0);
+  void reset(uint8_t tick_duration);
 
 private:
-  uint32_t tick_duration;
-  uint32_t last_tick_time;
-  uint32_t tick_limit;
-  uint32_t current_ticks{};
-
-  uint32_t get_nearest_tick(uint32_t now) const;
+  uint8_t tick_duration;
+  uint32_t last_tick_time{};
+  bool first_tick = true;
 };

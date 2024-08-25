@@ -6,30 +6,29 @@
 #include "devices/sdvx/sdvx_usb.h"
 #include "Descriptors.h"
 
-#include "analog_button.h"
 #include "axis.h"
 #include "beef.h"
 #include "combo.h"
 #include "debounce.h"
+#include "pin.h"
 #include "rgb_helper.h"
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
-uint16_t button_state = 0;
+uint16_t button_state;
 // Ignore button inputs after startup so that we don't send keycodes after holding a boot combo
-bool ignore_buttons = false;
+bool ignore_buttons;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
-timer combo_lights_timer;
 
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
 }
 
-void debounce(DebounceState* debounce, uint16_t mask) {
+void debounce(DebounceState &debounce, uint16_t mask) {
   button_state =
     (button_state & ~mask) |
-    (debounce->debounce(button_state & mask));
+    (debounce.debounce(button_state & mask));
 }
 
 void check_for_dfu() {
@@ -44,21 +43,17 @@ int main() {
   config_init(&current_config);
   usb_init(current_config);
 
-  timer_init(&hid_lights_expiry_timer);
-  timer_init(&combo_lights_timer);
+  timer_arm(&hid_lights_expiry_timer, 0);
 
   RgbHelper::init();
 
   while (true) {
     usb_handler->usb_task(current_config);
 
-    if (timer_check_if_expired_reset(&hid_lights_expiry_timer)) {
-      set_hid_standby_lighting();
-    }
-
+    set_hid_standby_lighting();
     process_buttons();
-    process_combos(&current_config, &combo_lights_timer);
-    usb_handler->update(current_config);
+    process_combos();
+    usb_handler->update();
   }
 }
 
@@ -100,8 +95,6 @@ void SetupHardware() {
   hardware_timer1_init();
   adc_init();
 
-  set_hid_standby_lighting();
-
   // tt_x DATA lines wired to F0/F1
   // tt_y DATA lines wired to F2/F3
   // encoder_x and encoder_y will be automatically set up by the ADC
@@ -120,7 +113,6 @@ void SetupHardware() {
 
   // Check for boot up combos
   process_buttons();
-  ignore_buttons = button_state;
 
   // check if we need to jump to bootloader
   check_for_dfu();
@@ -184,24 +176,26 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 }
 
 void set_led(volatile uint8_t* PORT,
-             uint8_t button_number,
-             uint8_t led_pin,
-             uint16_t led_state) {
-  if (led_state & (1 << button_number)) {
-    *PORT |= (1 << led_pin);
-  } else {
-    *PORT &= ~(1 << led_pin);
-  }
+             const uint8_t button_number,
+             const uint8_t led_pin,
+             const uint16_t led_state) {
+  const uint8_t mask = 1 << led_pin;
+  const uint8_t state = (led_state >> button_number) & 1;
+
+  *PORT = (*PORT & ~mask) | // Clear led_pin bit
+    (-state & mask);        // state will either be 0 or -1 (underflows to 255)
 }
 
 void set_hid_standby_lighting() {
-  reactive_led = true;
-  rgb_standby = true;
+  const auto hid_expiry = timer_is_expired(&hid_lights_expiry_timer);
+
+  reactive_led = hid_expiry;
+  rgb_standby = hid_expiry;
 }
 
 void process_buttons() {
   button_state = 0;
-  for (int i = 0; i < BUTTONS; ++i) {
+  for (uint8_t i = 0; i < BUTTONS; i++) {
     process_button(buttons[i].INPUT_PORT.PIN,
                    i,
                    buttons[i].input_pin);
@@ -223,11 +217,12 @@ void process_button(const volatile uint8_t* PIN,
 
 void update_tt_transitions(uint8_t reverse_tt) {
   const int8_t direction = reverse_tt ? -1 : 1;
+  const int8_t opposite_direction = -direction;
   const int8_t tt_transitions_values[4][4] = {
-      {0, direction, -direction, 0},
-      {-direction, 0, 0, direction},
-      {direction, 0, 0, -direction},
-      {0, -direction, direction, 0}
+      {0, direction, opposite_direction, 0},
+      {opposite_direction, 0, 0, direction},
+      {direction, 0, 0, opposite_direction},
+      {0, opposite_direction, direction, 0}
   };
   memcpy(tt_transitions, tt_transitions_values, sizeof(tt_transitions));
 }
@@ -254,7 +249,7 @@ void update_button_lighting(uint16_t led_state) {
     led_state = 0;
   }
 
-  for (int i = 0; i < BUTTONS; ++i) {
+  for (uint8_t i = 0; i < BUTTONS; i++) {
     set_led(buttons[i].LED_PORT.PORT,
             i,
             buttons[i].led_pin,

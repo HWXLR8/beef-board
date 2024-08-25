@@ -85,7 +85,7 @@ namespace SDVX {
     }
   }
 
-  void UsbHandler::update(const config &config) {
+  void UsbHandler::update() {
     HID_Task(led_data);
 
     axis_x->poll();

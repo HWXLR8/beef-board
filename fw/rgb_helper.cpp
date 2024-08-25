@@ -1,8 +1,9 @@
+#include "config.h"
 #include "hid.h"
 #include "rgb_helper.h"
 
-CRGB tt_leds[RING_LIGHT_LEDS] = {0};
-CRGB bar_leds[LIGHT_BAR_LEDS] = {0};
+CRGB tt_leds[RING_LIGHT_LEDS];
+CRGB bar_leds[LIGHT_BAR_LEDS];
 
 namespace RgbHelper {
   // Pin mapping can be found in FastLED/src/platforms/avr/fastpin_avr.h
@@ -13,47 +14,61 @@ namespace RgbHelper {
 
   timer combo_timer{};
 
+  CLEDController* tt_controller;
+  CLEDController* bar_controller;
+
   void init() {
     timer_init(&combo_timer);
 
-    FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, RING_LIGHT_LEDS)
+    tt_controller = &FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, RING_LIGHT_LEDS)
       .setDither(DISABLE_DITHER);
-    FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, LIGHT_BAR_LEDS)
+    bar_controller = &FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, LIGHT_BAR_LEDS)
       .setDither(DISABLE_DITHER);
     FastLED.setMaxRefreshRate(0); // We have our own frame rate limiter
   }
 
-  void set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights) {
-    fill_solid(leds, n,
-               CRGB(lights.r, lights.g, lights.b));
+  bool set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights) {
+    return set_rgb(leds, n,
+                   CRGB(lights.r, lights.g, lights.b));
   }
 
-  void set_hsv(CRGB* leds, const uint8_t n, const HSV &hsv) {
+  bool set_rgb(CRGB* leds, const uint8_t n, const CRGB &rgb) {
+    bool update = false;
+    for (uint8_t i = 0; i < n; i++) {
+      update |= leds[i] != rgb;
+      leds[i] = rgb;
+    }
+    return update;
+  }
+
+  bool set_hsv(CRGB* leds, const uint8_t n, const HSV &hsv) {
     CRGB rgb{};
     hsv2rgb_spectrum(CHSV(hsv.h, hsv.s, hsv.v), rgb);
-    fill_solid(leds, n, rgb);
+    return set_rgb(leds, n, rgb);
   }
 
-  void breathing(BreathingPattern &breathing_pattern,
+  bool breathing(BreathingPattern &breathing_pattern,
                  CRGB* leds, const uint8_t n, const HSV &hsv) {
     const auto v = breathing_pattern.update();
-    set_hsv(leds, n, { hsv.h, hsv.s, v });
+    return set_hsv(leds, n, { hsv.h, hsv.s, v });
   }
 
-  void hid(CRGB* leds, const uint8_t n, rgb_light lights) {
-    // Share same lighting state between different lights for HID standby animation
-    static BreathingPattern hid_standby = BreathingPattern();
-
-    if (rgb_standby)
-      breathing(hid_standby, leds, n, {});
-    else
-      set_rgb(leds, n, lights);
+  // Share same lighting state between different lights for HID standby animation
+  BreathingPattern hid_standby;
+  bool hid(CRGB* leds, const uint8_t n, rgb_light lights) {
+    if (rgb_standby) {
+      return breathing(hid_standby, leds, n, {});
+    }
+    return set_rgb(leds, n, lights);
   }
 
   // update lighting on a timer to reduce the number of
   // computationally expensive calls to FastLED.show()
   // basically what FastLED does but without spin waiting
   bool ready_to_present() {
+    if (current_config.disable_led)
+      return false;
+
     static uint32_t last_show = 0;
     const uint32_t min_micros = 1000000 / BEEF_LED_REFRESH;
     const uint32_t now = micros();
@@ -62,5 +77,13 @@ namespace RgbHelper {
 
     last_show = now;
     return true;
+  }
+
+  void show_tt() {
+    tt_controller->showLeds();
+  }
+
+  void show_bar() {
+    bar_controller->showLeds();
   }
 }

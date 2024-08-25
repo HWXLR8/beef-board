@@ -13,7 +13,7 @@ typedef struct {
 } timer;
 
 void timer_init(timer* self);
-void timer_arm(timer* self, uint32_t milliseconds_from_now);
+void timer_arm(timer* self, uint16_t milliseconds_from_now);
 void timer_reset(timer* self);
 bool timer_is_armed(timer* self);
 bool timer_is_expired(timer* self);

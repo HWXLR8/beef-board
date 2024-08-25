@@ -136,6 +136,7 @@ callback cycle_tt_effects(config* self) {
   eeprom_write_byte(CONFIG_TT_EFFECT_ADDR, uint8_t(self->tt_effect));
 
   IIDX::RgbManager::Turntable::set_leds_off();
+  IIDX::RgbManager::Turntable::force_update = true;
 
   return callback{};
 }
@@ -329,6 +330,7 @@ callback cycle_bar_effects(config* self) {
   eeprom_write_byte(CONFIG_BAR_EFFECT_ADDR, uint8_t(self->bar_effect));
 
   IIDX::RgbManager::Bar::set_leds_off();
+  IIDX::RgbManager::Bar::force_update = true;
 
   return callback{};
 }

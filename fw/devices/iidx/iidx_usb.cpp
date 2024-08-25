@@ -36,9 +36,8 @@ namespace IIDX {
   HidReport<Beef::USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_hid_report;
   UsbHandler usb_handler;
 
+  DebounceState effectors_debounce(4);
   void process_buttons(const int8_t tt1_report) {
-    static DebounceState effectors_debounce(4);
-
     switch (tt1_report) {
       case -1:
         button_state |= BUTTON_TT_NEG;
@@ -50,7 +49,7 @@ namespace IIDX {
         break;
     }
 
-    debounce(&effectors_debounce, EFFECTORS_ALL);
+    debounce(effectors_debounce, EFFECTORS_ALL);
   }
 
   bool UsbHandler::create_hid_report(USB_ClassInfo_HID_Device_t* const hid_interface_info,
@@ -97,7 +96,7 @@ namespace IIDX {
     }
   }
 
-  void UsbHandler::update(const config &config) {
+  void UsbHandler::update() {
     HID_Task(led_data);
 
     tt_x.poll();
@@ -105,9 +104,7 @@ namespace IIDX {
     process_buttons(tt1_report);
 
     update_button_lighting(led_data.buttons);
-    RgbManager::update(config,
-                       button_x.state,
-                       led_data);
+    RgbManager::update(button_x.state,led_data);
   }
 
   void usb_init(const config &config) {
