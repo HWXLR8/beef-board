@@ -51,6 +51,6 @@ void process_combos() {
     timer_reset(&RgbHelper::combo_timer);
 
     if (config_update_callback.addr != nullptr)
-      config_update(config_update_callback.addr, config_update_callback.val);
+      config_update_setting(config_update_callback.addr, config_update_callback.val);
   }
 }

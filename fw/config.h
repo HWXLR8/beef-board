@@ -31,7 +31,7 @@ enum {
 #warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable inputs may not register correctly."
 #endif
 
-enum class UsbMode {
+enum class ControllerType {
   IIDX,
   SDVX
 };
@@ -39,6 +39,11 @@ enum class UsbMode {
 enum class InputMode {
   Joystick,
   Keyboard
+};
+
+enum class Command : uint8_t {
+  Bootloader,
+  ResetConfig
 };
 
 // Do not reorder these fields
@@ -58,10 +63,11 @@ struct config {
   HSV tt_react_hsv;
   HSV tt_breathing_hsv;
   uint8_t tt_ratio;
-  UsbMode usb_mode;
+  ControllerType controller_type;
   InputMode iidx_input_mode;
   InputMode sdvx_input_mode;
 };
+static_assert(sizeof(uint8_t) == sizeof(bool), "");
 
 struct callback {
   uint8_t* addr;
@@ -71,8 +77,10 @@ struct callback {
 extern config current_config;
 
 void config_init(config* self);
-void config_update(uint8_t* addr, uint8_t val);
-void set_mode(config &self, UsbMode mode);
+void config_update(config* self);
+void config_update_setting(uint8_t* addr, uint8_t val);
+bool config_save(const config &new_config);
+void set_controller_type(config &self, ControllerType mode);
 void set_input_mode(config &self, InputMode mode);
 
 callback toggle_reverse_tt(config* self);

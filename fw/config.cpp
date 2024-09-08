@@ -19,13 +19,9 @@
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
 #define CONFIG_TT_BREATHING_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.s))
 #define CONFIG_TT_RATIO_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_ratio))
-#define CONFIG_USB_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, usb_mode))
+#define CONFIG_CONTROLLER_TYPE_ADDR (CONFIG_BASE_ADDR + offsetof(config, controller_type))
 #define CONFIG_IIDX_INPUT_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, iidx_input_mode))
 #define CONFIG_SDVX_INPUT_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, sdvx_input_mode))
-
-enum {
-  MAGIC = 0xBEEF
-};
 
 #include <avr/eeprom.h>
 
@@ -36,11 +32,22 @@ enum {
 #include "config.h"
 #include "rgb_helper.h"
 
+enum {
+  MAGIC = 0xBEEF,
+
+  DEADZONE_MAX = 6,
+  DEADZONE_MIN = 1,
+
+  RATIO_MAX = 6,
+  RATIO_MIN = 1
+};
+
 config current_config;
 
 bool update_config(config* self) {
   switch (self->version) {
     case 0:
+      self->reverse_tt = 0;
       self->tt_effect = TurntableMode::Spin;
       self->version++;
     case 1:
@@ -72,7 +79,7 @@ bool update_config(config* self) {
       self->tt_ratio = 2;
       self->version++;
     case 8:
-      self->usb_mode = UsbMode::IIDX;
+      self->controller_type = ControllerType::IIDX;
       self->version++;
     case 9:
       self->iidx_input_mode = InputMode::Joystick;
@@ -84,8 +91,45 @@ bool update_config(config* self) {
   }
 }
 
+bool validate_config(const config &self) {
+  if (self.tt_effect >= TurntableMode::Count) {
+    return false;
+  }
+  if (self.bar_effect >= BarMode::Count) {
+    return false;
+  }
+  if (self.tt_deadzone < DEADZONE_MIN || self.tt_deadzone > DEADZONE_MAX) {
+    return false;
+  }
+  if (self.tt_ratio < RATIO_MIN || self.tt_ratio > RATIO_MAX) {
+    return false;
+  }
+  switch (self.controller_type) {
+    case ControllerType::IIDX:
+    case ControllerType::SDVX:
+      break;
+    default:
+      return false;
+  }
+  switch (self.iidx_input_mode) {
+    case InputMode::Joystick:
+    case InputMode::Keyboard:
+      break;
+    default:
+      return false;
+  }
+  switch (self.sdvx_input_mode) {
+    case InputMode::Joystick:
+    case InputMode::Keyboard:
+      break;
+    default:
+      return false;
+  }
+
+  return true;
+}
+
 void config_init(config* self) {
-  bool update;
   const auto magic = eeprom_read_word(nullptr);
   if (magic != MAGIC) {
     eeprom_write_word(nullptr, MAGIC);
@@ -93,28 +137,71 @@ void config_init(config* self) {
   } else {
     eeprom_read_block(self, CONFIG_BASE_ADDR, sizeof(*self));
   }
-  update = update_config(self);
 
-  if (update)
-    eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(*self));
+  config_update(self);
 }
 
-void config_update(uint8_t* addr, const uint8_t val) {
+void config_update(config* self) {
+  if (update_config(self)) {
+    eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(config));
+  }
+}
+
+void config_update_setting(uint8_t* addr, const uint8_t val) {
   eeprom_update_byte(addr, val);
 }
 
-void set_mode(config &self, UsbMode mode) {
-  self.usb_mode = mode;
-  eeprom_update_byte(CONFIG_USB_MODE_ADDR, static_cast<uint8_t>(self.usb_mode));
+bool config_save(const config &new_config) {
+  if (!validate_config(new_config)) {
+    return false;
+  }
+
+  current_config.reverse_tt = new_config.reverse_tt & 1;
+  update_tt_transitions(current_config.reverse_tt);
+
+  if (new_config.tt_effect != current_config.tt_effect) {
+    current_config.tt_effect = new_config.tt_effect;
+    IIDX::RgbManager::Turntable::set_leds_off();
+    IIDX::RgbManager::Turntable::force_update = true;
+  }
+  if (new_config.bar_effect != current_config.bar_effect) {
+    current_config.bar_effect = new_config.bar_effect;
+    IIDX::RgbManager::Bar::set_leds_off();
+    IIDX::RgbManager::Bar::force_update = true;
+  }
+  current_config.disable_led = new_config.disable_led & 1;
+  if (current_config.disable_led) {
+    FastLED.clear(true);
+  }
+
+  current_config.tt_deadzone = new_config.tt_deadzone;
+  current_config.tt_ratio = new_config.tt_ratio;
+
+  auto reset = new_config.controller_type != current_config.controller_type;
+  current_config.controller_type = new_config.controller_type;
+  current_config.iidx_input_mode = new_config.iidx_input_mode;
+  current_config.sdvx_input_mode = new_config.sdvx_input_mode;
+  if (reset) {
+    init_controller_io(current_config);
+  }
+
+  eeprom_update_block(&current_config, CONFIG_BASE_ADDR, sizeof(config));
+
+  return reset;
+}
+
+void set_controller_type(config &self, ControllerType mode) {
+  self.controller_type = mode;
+  eeprom_update_byte(CONFIG_CONTROLLER_TYPE_ADDR, static_cast<uint8_t>(self.controller_type));
 }
 
 void set_input_mode(config &self, InputMode mode) {
-  switch (self.usb_mode) {
-    case UsbMode::IIDX:
+  switch (self.controller_type) {
+    case ControllerType::IIDX:
       self.iidx_input_mode = mode;
       eeprom_update_byte(CONFIG_IIDX_INPUT_MODE_ADDR, static_cast<uint8_t>(self.iidx_input_mode));
       break;
-    case UsbMode::SDVX:
+    case ControllerType::SDVX:
       self.sdvx_input_mode = mode;
       eeprom_update_byte(CONFIG_SDVX_INPUT_MODE_ADDR, static_cast<uint8_t>(self.sdvx_input_mode));
       break;
@@ -259,10 +346,6 @@ callback tt_hsv_set_val(config* self) {
   return callback{addr, v->v};
 }
 
-enum {
-  DEADZONE_MAX = 6,
-  DEADZONE_MIN = 1
-};
 void update_deadzone(const uint8_t deadzone) {
   eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, deadzone);
 
@@ -274,27 +357,19 @@ void update_deadzone(const uint8_t deadzone) {
 }
 
 callback increase_deadzone(config* self) {
-  if (++self->tt_deadzone > DEADZONE_MAX)
-    self->tt_deadzone = DEADZONE_MAX;
-
+  self->tt_deadzone = MIN(self->tt_deadzone + 1, static_cast<uint8_t>(DEADZONE_MAX));
   update_deadzone(self->tt_deadzone);
 
   return callback{};
 }
 
 callback decrease_deadzone(config* self) {
-  if (--self->tt_deadzone < DEADZONE_MIN)
-    self->tt_deadzone = DEADZONE_MIN;
-
+  self->tt_deadzone = MAX(self->tt_deadzone - 1, static_cast<uint8_t>(DEADZONE_MIN));
   update_deadzone(self->tt_deadzone);
 
   return callback{};
 }
 
-enum {
-  RATIO_MAX = 6,
-  RATIO_MIN = 1
-};
 void update_ratio(const uint8_t ratio) {
   eeprom_update_byte(CONFIG_TT_RATIO_ADDR, ratio);
 
@@ -305,18 +380,14 @@ void update_ratio(const uint8_t ratio) {
 }
 
 callback increase_ratio(config* self) {
-  if (++self->tt_ratio > RATIO_MAX)
-    self->tt_ratio = RATIO_MAX;
-
+  self->tt_ratio = MIN(self->tt_ratio + 1, static_cast<uint8_t>(RATIO_MAX));
   update_ratio(self->tt_ratio);
 
   return callback{};
 }
 
 callback decrease_ratio(config* self) {
-  if (--self->tt_ratio < RATIO_MIN)
-    self->tt_ratio = RATIO_MIN;
-
+  self->tt_ratio = MAX(self->tt_ratio - 1, static_cast<uint8_t>(RATIO_MIN));
   update_ratio(self->tt_ratio);
 
   return callback{};

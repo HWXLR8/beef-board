@@ -54,7 +54,6 @@ namespace IIDX {
 
   bool UsbHandler::create_hid_report(USB_ClassInfo_HID_Device_t* const hid_interface_info,
                                      uint8_t* const report_id,
-                                     const uint8_t report_type,
                                      void* report_data,
                                      uint16_t* const report_size) {
     switch (hid_interface_info->Config.ReportINEndpoint.Address) {
@@ -81,6 +80,7 @@ namespace IIDX {
         return false;
       }
       default:
+        Endpoint_StallTransaction();
         return false;
     }
   }
