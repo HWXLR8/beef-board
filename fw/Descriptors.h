@@ -181,7 +181,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseHIDReport[] {
 };
 
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM ConfigHIDReport[] {
-  HID_RI_USAGE_PAGE(16, 0xFF00),
+  HID_RI_USAGE_PAGE(16, 0xFFEB),
   HID_RI_USAGE(8, 0x01),
   HID_RI_LOGICAL_MINIMUM(8, 0x00),
   HID_RI_LOGICAL_MAXIMUM(16, 0xFF),

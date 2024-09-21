@@ -85,6 +85,9 @@ bool update_config(config* self) {
       self->iidx_input_mode = InputMode::Joystick;
       self->sdvx_input_mode = InputMode::Joystick;
       self->version++;
+    case 10:
+      // Web config support
+      self->version++;
       return true;
     default:
       return false;
@@ -104,26 +107,14 @@ bool validate_config(const config &self) {
   if (self.tt_ratio < RATIO_MIN || self.tt_ratio > RATIO_MAX) {
     return false;
   }
-  switch (self.controller_type) {
-    case ControllerType::IIDX:
-    case ControllerType::SDVX:
-      break;
-    default:
-      return false;
+  if (self.controller_type > ControllerType::SDVX) {
+    return false;
   }
-  switch (self.iidx_input_mode) {
-    case InputMode::Joystick:
-    case InputMode::Keyboard:
-      break;
-    default:
-      return false;
+  if (self.iidx_input_mode > InputMode::Keyboard) {
+    return false;
   }
-  switch (self.sdvx_input_mode) {
-    case InputMode::Joystick:
-    case InputMode::Keyboard:
-      break;
-    default:
-      return false;
+  if (self.sdvx_input_mode > InputMode::Keyboard) {
+    return false;
   }
 
   return true;
@@ -143,7 +134,7 @@ void config_init(config* self) {
 
 void config_update(config* self) {
   if (update_config(self)) {
-    eeprom_write_block(self, CONFIG_BASE_ADDR, sizeof(config));
+    eeprom_update_block(self, CONFIG_BASE_ADDR, sizeof(config));
   }
 }
 
@@ -151,43 +142,28 @@ void config_update_setting(uint8_t* addr, const uint8_t val) {
   eeprom_update_byte(addr, val);
 }
 
-bool config_save(const config &new_config) {
+void config_save(const config &new_config) {
   if (!validate_config(new_config)) {
-    return false;
+    return;
   }
 
-  current_config.reverse_tt = new_config.reverse_tt & 1;
-  update_tt_transitions(current_config.reverse_tt);
-
   if (new_config.tt_effect != current_config.tt_effect) {
-    current_config.tt_effect = new_config.tt_effect;
     IIDX::RgbManager::Turntable::set_leds_off();
     IIDX::RgbManager::Turntable::force_update = true;
   }
   if (new_config.bar_effect != current_config.bar_effect) {
-    current_config.bar_effect = new_config.bar_effect;
     IIDX::RgbManager::Bar::set_leds_off();
     IIDX::RgbManager::Bar::force_update = true;
   }
-  current_config.disable_led = new_config.disable_led & 1;
-  if (current_config.disable_led) {
+  if (new_config.disable_led) {
     FastLED.clear(true);
   }
+  update_tt_transitions(new_config.reverse_tt);
 
-  current_config.tt_deadzone = new_config.tt_deadzone;
-  current_config.tt_ratio = new_config.tt_ratio;
-
-  auto reset = new_config.controller_type != current_config.controller_type;
-  current_config.controller_type = new_config.controller_type;
-  current_config.iidx_input_mode = new_config.iidx_input_mode;
-  current_config.sdvx_input_mode = new_config.sdvx_input_mode;
-  if (reset) {
-    init_controller_io(current_config);
-  }
-
+  current_config = new_config;
+  current_config.reverse_tt &= 1;
+  current_config.disable_led &= 1;
   eeprom_update_block(&current_config, CONFIG_BASE_ADDR, sizeof(config));
-
-  return reset;
 }
 
 void set_controller_type(config &self, ControllerType mode) {

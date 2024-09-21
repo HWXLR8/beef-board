@@ -31,17 +31,18 @@ enum {
 #warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable inputs may not register correctly."
 #endif
 
-enum class ControllerType {
+enum class ControllerType : uint8_t {
   IIDX,
   SDVX
 };
 
-enum class InputMode {
+enum class InputMode : uint8_t {
   Joystick,
   Keyboard
 };
 
 enum class Command : uint8_t {
+  None,
   Bootloader,
   ResetConfig
 };
@@ -67,7 +68,6 @@ struct config {
   InputMode iidx_input_mode;
   InputMode sdvx_input_mode;
 };
-static_assert(sizeof(uint8_t) == sizeof(bool), "");
 
 struct callback {
   uint8_t* addr;
@@ -79,7 +79,7 @@ extern config current_config;
 void config_init(config* self);
 void config_update(config* self);
 void config_update_setting(uint8_t* addr, uint8_t val);
-bool config_save(const config &new_config);
+void config_save(const config &new_config);
 void set_controller_type(config &self, ControllerType mode);
 void set_input_mode(config &self, InputMode mode);
 

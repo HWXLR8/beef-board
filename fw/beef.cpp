@@ -2,6 +2,9 @@
 #include <avr/power.h>
 #include <avr/interrupt.h>
 
+#include <LUFA/Common/Common.h>
+#include <LUFA/Drivers/USB/USB.h>
+
 #include "devices/iidx/iidx_usb.h"
 #include "devices/sdvx/sdvx_usb.h"
 #include "Descriptors.h"
@@ -9,6 +12,7 @@
 #include "axis.h"
 #include "beef.h"
 #include "combo.h"
+#include "config.h"
 #include "debounce.h"
 #include "pin.h"
 #include "rgb_helper.h"
@@ -20,6 +24,9 @@ uint16_t button_state;
 bool ignore_buttons;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
+Command current_command;
+
+bool run_bootloader ATTR_NO_INIT;
 
 HidReport<config, INTERFACE_ID_Config, ENDPOINT_CONTROLEP> config_hid_report;
 
@@ -27,15 +34,53 @@ ISR(TIMER1_COMPA_vect) {
   milliseconds++;
 }
 
-void debounce(DebounceState &debounce, uint16_t mask) {
-  button_state =
-    (button_state & ~mask) |
-    (debounce.debounce(button_state & mask));
+void reboot() {
+  wdt_enable(WDTO_250MS);
+  while (true);
+}
+
+void Application_Jump_Check() {
+  // Check if the reset source was from the watchdog
+  // and if we received a command/button combo to reset to bootloader
+  if ((MCUSR & (1 << WDRF)) && run_bootloader) {
+    MCUSR &= ~(1 << WDRF);
+    wdt_disable();
+
+    run_bootloader = false;
+    jump_to_bootloader();
+  }
+}
+
+void RebootToBootloader() {
+  run_bootloader = true;
+  USB_Detach();
+
+  reactive_led = false;
+  update_button_lighting(0);
+  FastLED.clear(true);
+
+  reboot();
 }
 
 void check_for_dfu() {
   if (is_only_pressed(BUTTON_1 | BUTTON_2)) {
-    jump_to_bootloader();
+    RebootToBootloader();
+  }
+}
+
+void handle_command() {
+  switch (current_command) {
+    case Command::None:
+      return;
+    case Command::Bootloader:
+      RebootToBootloader();
+      break;
+    case Command::ResetConfig:
+      current_config.version = 0;
+      config_update(&current_config);
+
+      reboot();
+      break;
   }
 }
 
@@ -50,6 +95,7 @@ int main() {
   RgbHelper::init();
 
   while (true) {
+    handle_command();
     usb_handler->usb_task(current_config);
 
     set_hid_standby_lighting();
@@ -117,6 +163,7 @@ void SetupHardware() {
 
   // check if we need to jump to bootloader
   check_for_dfu();
+  run_bootloader = false;
 }
 
 void usb_init(config &config) {
@@ -225,10 +272,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 
       config new_config{};
       memcpy(&new_config, ReportData, sizeof(new_config));
-      const auto reset = config_save(new_config);
-      if (reset) {
-        USB_ResetInterface();
-      }
+      config_save(new_config);
       break;
     }
     case HID_REPORTID_Command: {
@@ -236,19 +280,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
         Endpoint_StallTransaction();
         return;
       }
-
-      const auto cmd = static_cast<const Command*>(ReportData);
-      switch (*cmd) {
-        case Command::Bootloader:
-          break;
-        case Command::ResetConfig:
-          current_config.version = 0;
-          config_update(&current_config);
-          IIDX::RgbManager::Turntable::force_update = true;
-          IIDX::RgbManager::Bar::force_update = true;
-          USB_ResetInterface();
-          break;
-      }
+      current_command = *static_cast<const Command*>(ReportData);
       break;
     }
     case HID_REPORTID_FirmwareVersion:
@@ -257,6 +289,12 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
       Endpoint_StallTransaction();
       break;
   }
+}
+
+void debounce(DebounceState &debounce, uint16_t mask) {
+  button_state =
+    (button_state & ~mask) |
+    (debounce.debounce(button_state & mask));
 }
 
 void set_led(volatile uint8_t* PORT,

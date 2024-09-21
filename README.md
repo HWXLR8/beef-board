@@ -1,4 +1,5 @@
 # beef board
+
 <p float="left">
   <img src="pcb/pics/front.png" height="250">
   <img src="pcb/pics/back.png" height="250">
@@ -10,7 +11,6 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 * Beatmania IIDX
 * Sound Voltex
 * Pop'n Music
-
 
 ## Wiring configuration
 
@@ -50,9 +50,13 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 </details>
 
 ## Configuration
-Various configuration options can be changed on-the-fly by holding a button combination. Holding the buttons simultaneously for 1 second will cause the change to take affect. Button lights will momentarily shut off to indicate that the change has occurred. Refer to this table for a list of configuration options currently supported:
+
+Various configuration options can be changed on-the-fly by holding a button combination. Holding the buttons simultaneously for 1 second will cause the change to take affect. Button lights will momentarily shut off to indicate that the change has occurred.
+
+Refer to these tables for a list of configuration options currently supported:
 
 ### IIDX
+
 | Configuration option | Button combination |
 |:---|:---|
 | Reverse TT direction | B1 + B7 + B8 |
@@ -70,12 +74,15 @@ Various configuration options can be changed on-the-fly by holding a button comb
 Note: TT deadzone only affects digital TT output.
 
 ### SDVX
+
 | Configuration option | Button combination |
 |:---|:---|
 | Disable LEDs | B1 + B2 + B3 + B4 + B9 |
 
 ### Start up
+
 There also exist button combinations which perform special actions if held while connecting the device:
+
 | Special action | Button combination |
 |:---|:---|
 | Enter programming mode | B1 + B2 |
@@ -84,8 +91,13 @@ There also exist button combinations which perform special actions if held while
 | SDVX mode - HID | B1 + B9 |
 | SDVX mode - Keyboard | B2 + B9 |
 
+## Web configuration tool
+
+You can also use the web config tool to quickly configure multiple settings, reset settings to default values or to launch the bootloader to flash a new firmware.
+
 ## BOM
-```
+
+```plaintext
 ### PIN HEADERS ###
 1    JST XH 5pin
 15   JST XH 4pin
@@ -116,7 +128,8 @@ There also exist button combinations which perform special actions if held while
 2   USB-B (ED2983-ND)
 ```
 
-## Credits:
+## Credits
+
 * HW design by [HWXLR8](https://github.com/HWXLR8)
 * FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
@@ -128,5 +141,6 @@ There also exist button combinations which perform special actions if held while
 * Special thanks to Mechada and Cryto for beta testing
 
 # PCB APPROVED BY KORS K
+
 ![image](pcb/pics/korsk.jpg)
 ![image](pcb/pics/sig.jpg)
