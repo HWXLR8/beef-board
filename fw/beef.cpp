@@ -35,6 +35,7 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void reboot() {
+  USB_Detach();
   wdt_enable(WDTO_250MS);
   while (true);
 }
@@ -52,13 +53,11 @@ void Application_Jump_Check() {
 }
 
 void RebootToBootloader() {
-  run_bootloader = true;
-  USB_Detach();
-
   reactive_led = false;
   update_button_lighting(0);
   FastLED.clear(true);
 
+  run_bootloader = true;
   reboot();
 }
 
@@ -78,7 +77,6 @@ void handle_command() {
     case Command::ResetConfig:
       current_config.version = 0;
       config_update(&current_config);
-
       reboot();
       break;
   }
@@ -280,6 +278,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
         Endpoint_StallTransaction();
         return;
       }
+      // Handle command outside of interrupt
       current_command = *static_cast<const Command*>(ReportData);
       break;
     }

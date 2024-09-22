@@ -10,7 +10,7 @@
 extern uint16_t button_state;
 extern AbstractUsbHandler* usb_handler;
 
-void Application_Jump_Check(void) ATTR_INIT_SECTION(3);
+void Application_Jump_Check() ATTR_INIT_SECTION(3);
 void SetupHardware();
 void hardware_timer1_init();
 void usb_init(config &config);

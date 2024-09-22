@@ -74,7 +74,7 @@
 		}
 
 		static fromHsv(color: HsvaColor): Hsv {
-			let hsv = new this(0, 0, 0);
+			const hsv = new this(0, 0, 0);
 			hsv.h = color.h;
 			hsv.s = color.s;
 			hsv.v = color.v;
@@ -177,7 +177,7 @@
 		displayName: string;
 		hsvField?: keyof Config;
 
-		constructor(displayName: string, hsvField: keyof Config | undefined) {
+		constructor(displayName: string, hsvField?: keyof Config) {
 			this.displayName = displayName;
 			this.hsvField = hsvField;
 		}
@@ -191,15 +191,15 @@
 		[TurntableMode.RainbowSpin, new EnumMapping('Rainbow Spin', 'tt_rainbow_spin_hsv')],
 		[TurntableMode.Reactive, new EnumMapping('Reactive', 'tt_react_hsv')],
 		[TurntableMode.Breathing, new EnumMapping('Breathing', 'tt_breathing_hsv')],
-		[TurntableMode.HID, new EnumMapping('HID', undefined)],
-		[TurntableMode.Off, new EnumMapping('Off', undefined)]
+		[TurntableMode.HID, new EnumMapping('HID')],
+		[TurntableMode.Off, new EnumMapping('Off')]
 	]);
 
-	const barLightModes = new Map<BarMode, string>([
-		[BarMode.KeySpectrumP1, 'Key Spectrum (P1)'],
-		[BarMode.KeySpectrumP2, 'Key Spectrum (P2)'],
-		[BarMode.HID, 'HID'],
-		[BarMode.Off, 'Off']
+	const barLightModes = new Map<BarMode, EnumMapping>([
+		[BarMode.KeySpectrumP1, new EnumMapping('Key Spectrum (P1)')],
+		[BarMode.KeySpectrumP2, new EnumMapping('Key Spectrum (P2)')],
+		[BarMode.HID, new EnumMapping('HID')],
+		[BarMode.Off, new EnumMapping('Off')]
 	]);
 
 	const controllerTypes = Object.values(ControllerType)
@@ -257,8 +257,7 @@
 				// Shouldn't be necessary, but let's play it safe
 				const selectedDevice = devices.find((d) => d.productName === 'BEEF BOARD');
 				if (!selectedDevice) {
-					error = 'Invalid device found, is this an official Konami controller?';
-					return;
+					throw new Error('Invalid device found, is this an official Konami controller?');
 				}
 
 				if (!selectedDevice.opened) {
@@ -288,11 +287,10 @@
 	async function readCommitHash(dev: HIDDevice): Promise<void> {
 		try {
 			const result = await dev.receiveFeatureReport(ReportId.FirmwareVersion);
-			const hashData = new DataView(result.buffer);
+			const hashData = new DataView(result.buffer.slice(1)); // Skip report id
 			commitHash = hashData.getUint32(0, true).toString(16).padStart(8, '0');
 		} catch (err) {
-			error = `Failed to read commit hash: ${err}`;
-			onDisconnect();
+			err = new Error('Failed to read commit hash', { cause: err });
 			return Promise.reject(err);
 		}
 	}
@@ -304,15 +302,13 @@
 
 			const version = configData.getUint8(0);
 			if (version <= 10) {
-				error = 'Firmware version is too old. Please flash the latest firmware build.';
-				return;
+				throw new Error('Firmware version is too old. Please flash the latest firmware build');
 			}
 
 			config = configFromDataView(configData);
 			updateTurntableHsvBinding(config.tt_effect);
 		} catch (err) {
-			error = `Failed to read config: ${err}`;
-			onDisconnect();
+			err = new Error('Failed to read config', { cause: err });
 			return Promise.reject(err);
 		}
 	}
@@ -328,7 +324,7 @@
 			const configView = new DataView(configBuffer);
 
 			let i = 0;
-			for (const [key, value] of Object.entries(newConfig)) {
+			for (const [_, value] of Object.entries(newConfig)) {
 				if (value instanceof Hsv) {
 					const hsv: Hsv = value;
 					const [h, s, v] = hsv.toHid();
@@ -346,6 +342,7 @@
 			config = newConfig;
 		} catch (err) {
 			error = `Failed to update config: ${err}`;
+			return Promise.reject(err);
 		}
 	}
 
@@ -363,6 +360,7 @@
 			}
 		} catch (err) {
 			error = `Failed to send command: ${err}`;
+			return Promise.reject(err);
 		}
 	}
 
@@ -601,7 +599,7 @@
 							<Select.Root
 								selected={{
 									value: config.bar_effect,
-									label: barLightModes.get(config.bar_effect)
+									label: barLightModes.get(config.bar_effect)?.displayName
 								}}
 								onSelectedChange={(value) => {
 									handleEnumChange(BarMode, 'bar_effect', value);
@@ -613,7 +611,9 @@
 								<Select.Content>
 									<Select.Group>
 										{#each barLightModes as [value, label]}
-											<Select.Item {value} {label}>{label}</Select.Item>
+											<Select.Item {value} label={label.displayName}
+												>{label.displayName}</Select.Item
+											>
 										{/each}
 									</Select.Group>
 								</Select.Content>

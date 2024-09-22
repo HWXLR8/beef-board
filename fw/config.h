@@ -28,7 +28,11 @@ enum {
 #define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
 #endif
 #if BEEF_LED_REFRESH > 60
-#warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable inputs may not register correctly."
+#warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable/QE inputs may not register correctly."
+#endif
+
+#ifndef FW_VER
+#define FW_VER 0xDEADBEEF
 #endif
 
 enum class ControllerType : uint8_t {

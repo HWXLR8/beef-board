@@ -93,7 +93,7 @@ There also exist button combinations which perform special actions if held while
 
 ## Web configuration tool
 
-You can also use the web config tool to quickly configure multiple settings, reset settings to default values or to launch the bootloader to flash a new firmware.
+You can also use the [web config tool](https://hwxlr8.github.io/beef-board/) to quickly configure multiple settings, reset settings to default values or to launch the bootloader to flash a new firmware.
 
 ## BOM
 
