@@ -90,6 +90,10 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
           Address = &ConfigurationDescriptor->HID_MouseHID;
           Size    = sizeof(USB_HID_Descriptor_HID_t);
           break;
+        case INTERFACE_ID_Config:
+          Address = &ConfigurationDescriptor->HID_ConfigHID;
+          Size    = sizeof(USB_HID_Descriptor_HID_t);
+          break;
         default:
           break;
       }
@@ -108,6 +112,10 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
         case INTERFACE_ID_Mouse:
           Address = &MouseHIDReport;
           Size    = sizeof(MouseHIDReport);
+          break;
+        case INTERFACE_ID_Config:
+          Address = &ConfigHIDReport;
+          Size    = sizeof(ConfigHIDReport);
           break;
         default:
           break;

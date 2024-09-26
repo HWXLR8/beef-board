@@ -3,6 +3,8 @@
 #include <avr/pgmspace.h>
 #include <LUFA/Drivers/USB/USB.h>
 
+#include "config.h"
+
 #define LedStringBase 0x10
 
 #define HID_RI_STRING_INDEX(DataBits, ...) _HID_RI_ENTRY(HID_RI_TYPE_LOCAL, 0x70, DataBits, __VA_ARGS__)
@@ -95,6 +97,9 @@ typedef struct {
   USB_Descriptor_Interface_t HID_MouseInterface;
   USB_HID_Descriptor_HID_t HID_MouseHID;
   USB_Descriptor_Endpoint_t HID_MouseReportINEndpoint;
+
+  USB_Descriptor_Interface_t HID_ConfigInterface;
+  USB_HID_Descriptor_HID_t HID_ConfigHID;
 } USB_Descriptor_Configuration_t;
 
 // HID class report descriptor. This is a special descriptor
@@ -118,7 +123,8 @@ extern const USB_Descriptor_String_t** LedStrings;
 enum InterfaceDescriptors_t {
   INTERFACE_ID_Joystick = 0, /**< Joystick interface descriptor ID */
   INTERFACE_ID_Keyboard = 1, /**< Keyboard interface descriptor ID */
-  INTERFACE_ID_Mouse = 2, /**< Mouse interface descriptor ID */
+  INTERFACE_ID_Mouse    = 2, /**< Mouse interface descriptor ID */
+  INTERFACE_ID_Config   = 3, /**< Config interface descriptor ID */
 };
 
 // Enum for the device string descriptor IDs within the device. Each
@@ -134,37 +140,69 @@ enum {
   KEYBOARD_KEYS = 13 // Max used keycodes
 };
 
+enum {
+  HID_REPORTID_Config = 0x01,
+  HID_REPORTID_Command = 0x02,
+  HID_REPORTID_FirmwareVersion = 0x03
+};
+
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardHIDReport[] = {
-  HID_RI_USAGE_PAGE(8, 0x01), \
-  HID_RI_USAGE(8, 0x06), \
-  HID_RI_COLLECTION(8, 0x01), \
-    HID_RI_USAGE_PAGE(8, 0x07), \
-    HID_RI_USAGE_MINIMUM(8, 0x00), \
-    HID_RI_USAGE_MAXIMUM(8, 0xFF), \
-    HID_RI_LOGICAL_MINIMUM(8, 0x00), \
-    HID_RI_LOGICAL_MAXIMUM(16, 0xFF), \
-    HID_RI_REPORT_COUNT(8, KEYBOARD_KEYS), \
-    HID_RI_REPORT_SIZE(8, 0x08), \
-    HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE), \
+  HID_RI_USAGE_PAGE(8, 0x01),
+  HID_RI_USAGE(8, 0x06),
+  HID_RI_COLLECTION(8, 0x01),
+    HID_RI_USAGE_PAGE(8, 0x07),
+    HID_RI_USAGE_MINIMUM(8, 0x00),
+    HID_RI_USAGE_MAXIMUM(16, 0xFF),
+    HID_RI_LOGICAL_MINIMUM(8, 0x00),
+    HID_RI_LOGICAL_MAXIMUM(16, 0xFF),
+    HID_RI_REPORT_COUNT(8, KEYBOARD_KEYS),
+    HID_RI_REPORT_SIZE(8, 0x08),
+    HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
   HID_RI_END_COLLECTION(0)
 };
 
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseHIDReport[] {
-  HID_RI_USAGE_PAGE(8, 0x01), \
-  HID_RI_USAGE(8, 0x02), \
-  HID_RI_COLLECTION(8, 0x01), \
-    HID_RI_USAGE(8, 0x01), \
-    HID_RI_COLLECTION(8, 0x02),\
-      HID_RI_USAGE(8, 0x31), \
-      HID_RI_USAGE(8, 0x30), \
-      HID_RI_LOGICAL_MINIMUM(8, -1), \
-      HID_RI_LOGICAL_MAXIMUM(8, 1), \
-      HID_RI_PHYSICAL_MINIMUM(8, -1), \
-      HID_RI_PHYSICAL_MAXIMUM(8, 1), \
-      HID_RI_REPORT_COUNT(8, 0x02), \
-      HID_RI_REPORT_SIZE(8, 0x08), \
-      HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE), \
-    HID_RI_END_COLLECTION(0), \
+  HID_RI_USAGE_PAGE(8, 0x01),
+  HID_RI_USAGE(8, 0x02),
+  HID_RI_COLLECTION(8, 0x01),
+    HID_RI_USAGE(8, 0x01),
+    HID_RI_COLLECTION(8, 0x02),
+      HID_RI_USAGE(8, 0x31),
+      HID_RI_USAGE(8, 0x30),
+      HID_RI_LOGICAL_MINIMUM(8, -1),
+      HID_RI_LOGICAL_MAXIMUM(8, 1),
+      HID_RI_PHYSICAL_MINIMUM(8, -1),
+      HID_RI_PHYSICAL_MAXIMUM(8, 1),
+      HID_RI_REPORT_COUNT(8, 0x02),
+      HID_RI_REPORT_SIZE(8, 0x08),
+      HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
+    HID_RI_END_COLLECTION(0),
+  HID_RI_END_COLLECTION(0)
+};
+
+const USB_Descriptor_HIDReport_Datatype_t PROGMEM ConfigHIDReport[] {
+  HID_RI_USAGE_PAGE(16, 0xFFEB),
+  HID_RI_USAGE(8, 0x01),
+  HID_RI_LOGICAL_MINIMUM(8, 0x00),
+  HID_RI_LOGICAL_MAXIMUM(16, 0xFF),
+  HID_RI_COLLECTION(8, 0x01),
+    HID_RI_REPORT_ID(8, HID_REPORTID_Config),
+    HID_RI_USAGE(8, 0x01),
+    HID_RI_REPORT_COUNT(8, sizeof(config)),
+    HID_RI_REPORT_SIZE(8, 0x08),
+    HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+
+    HID_RI_REPORT_ID(8, HID_REPORTID_Command),
+    HID_RI_USAGE(8, 0x02),
+    HID_RI_REPORT_COUNT(8, 0x01),
+    HID_RI_REPORT_SIZE(8, 0x08),
+    HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+
+    HID_RI_REPORT_ID(8, HID_REPORTID_FirmwareVersion),
+    HID_RI_USAGE(8, 0x03),
+    HID_RI_REPORT_COUNT(8, sizeof(uint32_t)),
+    HID_RI_REPORT_SIZE(8, 0x08),
+    HID_RI_FEATURE(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
   HID_RI_END_COLLECTION(0)
 };
 
@@ -217,7 +255,7 @@ constexpr USB_Descriptor_Configuration_t generate_configuration_descriptor(uint1
     .Config = {
       .Header = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
       .TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-      .TotalInterfaces = 3,
+      .TotalInterfaces = 4,
       .ConfigurationNumber = 1,
       .ConfigurationStrIndex = NO_DESCRIPTOR,
       .ConfigAttributes = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
@@ -304,6 +342,24 @@ constexpr USB_Descriptor_Configuration_t generate_configuration_descriptor(uint1
       .Attributes = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
       .EndpointSize = HID_EPSIZE,
       .PollingIntervalMS = 0x01
+    },
+    .HID_ConfigInterface = {
+      .Header = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+      .InterfaceNumber = INTERFACE_ID_Config,
+      .AlternateSetting = 0x00,
+      .TotalEndpoints = 0,
+      .Class = HID_CSCP_HIDClass,
+      .SubClass = HID_CSCP_NonBootSubclass,
+      .Protocol = HID_CSCP_NonBootProtocol,
+      .InterfaceStrIndex = NO_DESCRIPTOR
+    },
+    .HID_ConfigHID = {
+      .Header = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+      .HIDSpec = VERSION_BCD(1,1,1),
+      .CountryCode = 0x00,
+      .TotalReportDescriptors = 1,
+      .HIDReportType = HID_DTYPE_Report,
+      .HIDReportLength = sizeof(ConfigHIDReport)
     }
   };
 }

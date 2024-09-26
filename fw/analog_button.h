@@ -14,7 +14,7 @@ typedef struct {
   bool clear;
 
   // State: Center of deadzone
-  uint32_t center;
+  uint8_t center;
   bool center_valid;
 
   // time to: reset center to counter
@@ -27,7 +27,7 @@ extern analog_button button_x;
 extern analog_button button_y;
 
 void analog_button_init(analog_button* self, uint8_t deadzone, uint8_t sustain_ms, bool clear);
-int8_t analog_button_poll(analog_button* self, uint32_t current_value);
+int8_t analog_button_poll(analog_button* self, uint8_t current_value);
 #ifdef __cplusplus
 }
 #endif

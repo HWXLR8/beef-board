@@ -2,6 +2,9 @@
 #include <avr/power.h>
 #include <avr/interrupt.h>
 
+#include <LUFA/Common/Common.h>
+#include <LUFA/Drivers/USB/USB.h>
+
 #include "devices/iidx/iidx_usb.h"
 #include "devices/sdvx/sdvx_usb.h"
 #include "Descriptors.h"
@@ -9,6 +12,7 @@
 #include "axis.h"
 #include "beef.h"
 #include "combo.h"
+#include "config.h"
 #include "debounce.h"
 #include "pin.h"
 #include "rgb_helper.h"
@@ -20,25 +24,66 @@ uint16_t button_state;
 bool ignore_buttons;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
+Command current_command;
+
+bool run_bootloader ATTR_NO_INIT;
+
+HidReport<config, INTERFACE_ID_Config, ENDPOINT_CONTROLEP> config_hid_report;
 
 ISR(TIMER1_COMPA_vect) {
   milliseconds++;
 }
 
-void debounce(DebounceState &debounce, uint16_t mask) {
-  button_state =
-    (button_state & ~mask) |
-    (debounce.debounce(button_state & mask));
-}
+void application_jump_check() {
+  // Check if the reset source was from the watchdog
+  // and if we received a command/button combo to reset to bootloader
+  if ((MCUSR & (1 << WDRF)) && run_bootloader) {
+    MCUSR &= ~(1 << WDRF);
+    wdt_disable();
 
-void check_for_dfu() {
-  if (is_only_pressed(BUTTON_1 | BUTTON_2)) {
+    run_bootloader = false;
     jump_to_bootloader();
   }
 }
 
+void reboot() {
+  USB_Detach();
+  wdt_enable(WDTO_250MS);
+  while (true);
+}
+
+void reboot_to_bootloader() {
+  reactive_led = false;
+  update_button_lighting(0);
+  FastLED.clear(true);
+
+  run_bootloader = true;
+  reboot();
+}
+
+void check_for_dfu() {
+  if (is_only_pressed(BUTTON_1 | BUTTON_2)) {
+    reboot_to_bootloader();
+  }
+}
+
+void handle_command() {
+  switch (current_command) {
+    case Command::None:
+      return;
+    case Command::Bootloader:
+      reboot_to_bootloader();
+      break;
+    case Command::ResetConfig:
+      current_config.version = 0;
+      config_update(&current_config);
+      reboot();
+      break;
+  }
+}
+
 int main() {
-  SetupHardware();
+  setup_hardware();
 
   config_init(&current_config);
   usb_init(current_config);
@@ -48,6 +93,7 @@ int main() {
   RgbHelper::init();
 
   while (true) {
+    handle_command();
     usb_handler->usb_task(current_config);
 
     set_hid_standby_lighting();
@@ -83,7 +129,7 @@ void adc_init() {
 }
 
 // configure board hardware and chip peripherals
-void SetupHardware() {
+void setup_hardware() {
   // disable watchdog if enabled by bootloader/fuses
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
@@ -111,45 +157,48 @@ void SetupHardware() {
 
   GlobalInterruptEnable();
 
-  // Check for boot up combos
-  process_buttons();
+  process_buttons(); // To check for boot combos
 
   // check if we need to jump to bootloader
   check_for_dfu();
+  run_bootloader = false;
 }
 
 void usb_init(config &config) {
   switch (button_state) {
     case BUTTON_1 | BUTTON_8:
-      set_mode(config, UsbMode::IIDX);
+      set_controller_type(config, ControllerType::IIDX);
       set_input_mode(config, InputMode::Joystick);
       break;
     case BUTTON_2 | BUTTON_8:
-      set_mode(config, UsbMode::IIDX);
+      set_controller_type(config, ControllerType::IIDX);
       set_input_mode(config, InputMode::Keyboard);
       break;
     case BUTTON_1 | BUTTON_9:
-      set_mode(config, UsbMode::SDVX);
+      set_controller_type(config, ControllerType::SDVX);
       set_input_mode(config, InputMode::Joystick);
       break;
     case BUTTON_2 | BUTTON_9:
-      set_mode(config, UsbMode::SDVX);
+      set_controller_type(config, ControllerType::SDVX);
       set_input_mode(config, InputMode::Keyboard);
       break;
     default:
       break;
   }
 
-  switch (config.usb_mode) {
-    case UsbMode::IIDX:
+  init_controller_io(config);
+  USB_Init();
+}
+
+void init_controller_io(const config &config) {
+  switch (config.controller_type) {
+    case ControllerType::IIDX:
       IIDX::usb_init(config);
       break;
-    case UsbMode::SDVX:
+    case ControllerType::SDVX:
       SDVX::usb_init(config);
       break;
   }
-
-  USB_Init();
 }
 
 // event handler for USB config change event
@@ -163,16 +212,88 @@ void EVENT_USB_Device_ConfigurationChanged() {
   // We don't use StartOfFrame events to poll as it's too slow and results in lots of jitter from inputs
 }
 
+void EVENT_USB_Device_ControlRequest() {
+  HID_Device_ProcessControlRequest(&config_hid_report.HID_Interface);
+}
+
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
                                          uint8_t* const ReportID,
                                          const uint8_t ReportType,
                                          void* ReportData,
                                          uint16_t* const ReportSize) {
-  return usb_handler->create_hid_report(HIDInterfaceInfo,
-                                        ReportID,
-                                        ReportType,
-                                        ReportData,
-                                        ReportSize);
+  switch (ReportType) {
+    case HID_REPORT_ITEM_In:
+      return usb_handler->create_hid_report(HIDInterfaceInfo,
+                                            ReportID,
+                                            ReportData,
+                                            ReportSize);
+    case HID_REPORT_ITEM_Feature:
+      switch (*ReportID) {
+        case HID_REPORTID_Config:
+          memcpy(ReportData, &current_config, sizeof(current_config));
+          *ReportSize = sizeof(current_config);
+          return false;
+        case HID_REPORTID_Command:
+          return false;
+        case HID_REPORTID_FirmwareVersion: {
+          const uint32_t firmware_version = FW_VER;
+          memcpy(ReportData, &firmware_version, sizeof(firmware_version));
+          *ReportSize = sizeof(firmware_version);
+          return false;
+        }
+        default:
+          // We're handling a feature report, should only be coming from HID_Device_ProcessControlRequest()
+          Endpoint_StallTransaction();
+          return false;
+      }
+    default:
+      Endpoint_StallTransaction();
+      return false;
+  }
+}
+
+void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+                                          const uint8_t ReportID,
+                                          const uint8_t ReportType,
+                                          const void* ReportData,
+                                          const uint16_t ReportSize) {
+  if (ReportType != HID_REPORT_ITEM_Feature) {
+    return;
+  }
+
+  switch (ReportID) {
+    case HID_REPORTID_Config: {
+      if (ReportSize != sizeof(current_config)) {
+        Endpoint_StallTransaction();
+        return;
+      }
+
+      config new_config{};
+      memcpy(&new_config, ReportData, sizeof(new_config));
+      config_save(new_config);
+      break;
+    }
+    case HID_REPORTID_Command: {
+      if (ReportSize != 1) {
+        Endpoint_StallTransaction();
+        return;
+      }
+      // Handle command outside of interrupt
+      current_command = *static_cast<const Command*>(ReportData);
+      break;
+    }
+    case HID_REPORTID_FirmwareVersion:
+      break;
+    default:
+      Endpoint_StallTransaction();
+      break;
+  }
+}
+
+void debounce(DebounceState &debounce, uint16_t mask) {
+  button_state =
+    (button_state & ~mask) |
+    (debounce.debounce(button_state & mask));
 }
 
 void set_led(volatile uint8_t* PORT,
@@ -215,7 +336,7 @@ void process_button(const volatile uint8_t* PIN,
   button_state |= pressed << button_number;
 }
 
-void update_tt_transitions(uint8_t reverse_tt) {
+void update_tt_transitions(bool reverse_tt) {
   const int8_t direction = reverse_tt ? -1 : 1;
   const int8_t opposite_direction = -direction;
   const int8_t tt_transitions_values[4][4] = {
@@ -266,11 +387,10 @@ bool is_pressed(uint16_t button_bits, uint16_t ignore) {
 }
 
 void jump_to_bootloader() {
-  // disable interrupts
   GlobalInterruptDisable();
+  USB_Detach();
+  USB_CLK_Freeze();
   // clear registers
-  UDCON = 1;
-  USBCON = (1<<FRZCLK);
   UCSR1B = 0;
   _delay_ms(5);
   EIMSK = 0;
@@ -283,7 +403,6 @@ void jump_to_bootloader() {
   TIMSK1 = 0;
   TIMSK2 = 0;
   TIMSK3 = 0;
-  UCSR1B = 0;
   TWCR = 0;
   DDRA = 0;
   DDRB = 0;

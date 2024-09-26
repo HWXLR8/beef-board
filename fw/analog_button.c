@@ -13,14 +13,13 @@ void analog_button_init(analog_button* self, uint8_t deadzone, uint8_t sustain_m
   timer_init(&self->sustain_timer);
 }
 
-int8_t analog_button_poll(analog_button* self, uint32_t current_value) {
+int8_t analog_button_poll(analog_button* self, uint8_t current_value) {
   if (!self->center_valid) {
     self->center_valid = true;
     self->center = current_value;
   }
 
-  uint8_t observed = current_value;
-  int8_t delta = observed - self->center;
+  int8_t delta = current_value - self->center;
 
   // is the current value sufficiently far away from the center?
   int8_t direction = 0;
@@ -35,12 +34,12 @@ int8_t analog_button_poll(analog_button* self, uint32_t current_value) {
   if (direction != 0) {
     // encoder is moving
     // keep updating the new center, and keep extending the sustain timer
-    self->center = observed;
+    self->center = current_value;
     timer_arm(&self->sustain_timer, self->sustain_ms);
   } else if (timer_check_if_expired_reset(&self->sustain_timer)) {
     // sustain timer expired, time to reset to neutral
     self->state = 0;
-    self->center = observed;
+    self->center = current_value;
   }
 
   if (direction == -self->state && self->clear) {

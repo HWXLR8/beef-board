@@ -8,7 +8,7 @@ public:
 
 class AnalogAxis : public Axis {
 public:
-  AnalogAxis(uint8_t pin);
+  explicit AnalogAxis(uint8_t pin);
 
   void poll() override;
   uint8_t get() const override;

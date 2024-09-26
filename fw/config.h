@@ -28,17 +28,27 @@ enum {
 #define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
 #endif
 #if BEEF_LED_REFRESH > 60
-#warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable inputs may not register correctly."
+#warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable/QE inputs may not register correctly."
 #endif
 
-enum class UsbMode {
+#ifndef FW_VER
+#define FW_VER 0xDEADBEEF
+#endif
+
+enum class ControllerType : uint8_t {
   IIDX,
   SDVX
 };
 
-enum class InputMode {
+enum class InputMode : uint8_t {
   Joystick,
   Keyboard
+};
+
+enum class Command : uint8_t {
+  None,
+  Bootloader,
+  ResetConfig
 };
 
 // Do not reorder these fields
@@ -58,7 +68,7 @@ struct config {
   HSV tt_react_hsv;
   HSV tt_breathing_hsv;
   uint8_t tt_ratio;
-  UsbMode usb_mode;
+  ControllerType controller_type;
   InputMode iidx_input_mode;
   InputMode sdvx_input_mode;
 };
@@ -71,8 +81,10 @@ struct callback {
 extern config current_config;
 
 void config_init(config* self);
-void config_update(uint8_t* addr, uint8_t val);
-void set_mode(config &self, UsbMode mode);
+void config_update(config* self);
+void config_update_setting(uint8_t* addr, uint8_t val);
+void config_save(const config &new_config);
+void set_controller_type(config &self, ControllerType mode);
 void set_input_mode(config &self, InputMode mode);
 
 callback toggle_reverse_tt(config* self);

@@ -8,6 +8,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./fw
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,7 +23,6 @@ jobs:
           echo "PATH=/opt/avr-gcc-14.1.0-x64-linux/bin:$(echo $PATH)" >> $GITHUB_ENV
       - name: make
         run: |
-          cd fw
           make
       - uses: actions/upload-artifact@v4
         with:
