@@ -10,11 +10,11 @@
 extern uint16_t button_state;
 extern AbstractUsbHandler* usb_handler;
 
-void Application_Jump_Check() ATTR_INIT_SECTION(3);
-void SetupHardware();
-void hardware_timer1_init();
+void application_jump_check() ATTR_INIT_SECTION(3);
+void setup_hardware();
 void usb_init(config &config);
 void init_controller_io(const config &config);
+
 void set_led(volatile uint8_t* PORT,
              uint8_t button_number,
              uint8_t led_pin,

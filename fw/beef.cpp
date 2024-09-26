@@ -34,13 +34,7 @@ ISR(TIMER1_COMPA_vect) {
   milliseconds++;
 }
 
-void reboot() {
-  USB_Detach();
-  wdt_enable(WDTO_250MS);
-  while (true);
-}
-
-void Application_Jump_Check() {
+void application_jump_check() {
   // Check if the reset source was from the watchdog
   // and if we received a command/button combo to reset to bootloader
   if ((MCUSR & (1 << WDRF)) && run_bootloader) {
@@ -52,7 +46,13 @@ void Application_Jump_Check() {
   }
 }
 
-void RebootToBootloader() {
+void reboot() {
+  USB_Detach();
+  wdt_enable(WDTO_250MS);
+  while (true);
+}
+
+void reboot_to_bootloader() {
   reactive_led = false;
   update_button_lighting(0);
   FastLED.clear(true);
@@ -63,7 +63,7 @@ void RebootToBootloader() {
 
 void check_for_dfu() {
   if (is_only_pressed(BUTTON_1 | BUTTON_2)) {
-    RebootToBootloader();
+    reboot_to_bootloader();
   }
 }
 
@@ -72,7 +72,7 @@ void handle_command() {
     case Command::None:
       return;
     case Command::Bootloader:
-      RebootToBootloader();
+      reboot_to_bootloader();
       break;
     case Command::ResetConfig:
       current_config.version = 0;
@@ -83,7 +83,7 @@ void handle_command() {
 }
 
 int main() {
-  SetupHardware();
+  setup_hardware();
 
   config_init(&current_config);
   usb_init(current_config);
@@ -129,7 +129,7 @@ void adc_init() {
 }
 
 // configure board hardware and chip peripherals
-void SetupHardware() {
+void setup_hardware() {
   // disable watchdog if enabled by bootloader/fuses
   MCUSR &= ~(1 << WDRF);
   wdt_disable();
