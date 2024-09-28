@@ -25,7 +25,7 @@ bool ignore_buttons;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
 Command current_command;
-bool sleep;
+volatile bool sleep;
 
 bool run_bootloader ATTR_NO_INIT;
 
