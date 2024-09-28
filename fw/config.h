@@ -58,7 +58,7 @@ struct config {
   TurntableMode tt_effect;
   uint8_t tt_deadzone;
   BarMode bar_effect;
-  uint8_t disable_led;
+  uint8_t disable_leds;
   HSV tt_static_hsv;
   HSV tt_spin_hsv;
   HSV tt_shift_hsv;
@@ -97,4 +97,4 @@ callback decrease_deadzone(config* self);
 callback increase_ratio(config* self);
 callback decrease_ratio(config* self);
 callback cycle_bar_effects(config* self);
-callback toggle_disable_led(config* self);
+callback toggle_disable_leds(config* self);

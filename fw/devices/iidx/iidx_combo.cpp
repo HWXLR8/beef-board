@@ -51,7 +51,7 @@ namespace IIDX {
         };
       case DISABLE_LED:
         return {
-            .config_set = toggle_disable_led
+            .config_set = toggle_disable_leds
         };
       case TT_HSV_HUE:
         return {

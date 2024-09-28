@@ -66,7 +66,7 @@ namespace RgbHelper {
   // computationally expensive calls to FastLED.show()
   // basically what FastLED does but without spin waiting
   bool ready_to_present() {
-    if (current_config.disable_led)
+    if (current_config.disable_leds)
       return false;
 
     static uint32_t last_show = 0;

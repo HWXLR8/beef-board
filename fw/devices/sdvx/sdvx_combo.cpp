@@ -10,7 +10,7 @@ namespace SDVX {
     switch (button_state) {
       case DISABLE_LED:
         return {
-            .config_set = toggle_disable_led
+            .config_set = toggle_disable_leds
         };
       default:
         return {};
