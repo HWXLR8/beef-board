@@ -4,7 +4,7 @@
 #define CONFIG_TT_EFFECT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_effect))
 #define CONFIG_TT_DEADZONE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_deadzone))
 #define CONFIG_BAR_EFFECT_ADDR (CONFIG_BASE_ADDR + offsetof(config, bar_effect))
-#define CONFIG_DISABLE_LED_ADDR (CONFIG_BASE_ADDR + offsetof(config, disable_led))
+#define CONFIG_DISABLE_LEDS_ADDR (CONFIG_BASE_ADDR + offsetof(config, disable_leds))
 #define CONFIG_TT_STATIC_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_static_hsv.h))
 #define CONFIG_TT_STATIC_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_static_hsv.s))
 #define CONFIG_TT_STATIC_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_static_hsv.v))
@@ -57,7 +57,7 @@ bool update_config(config* self) {
       self->bar_effect = BarMode::HID;
       self->version++;
     case 3:
-      self->disable_led = 0;
+      self->disable_leds = 0;
       self->version++;
     case 4:
       self->tt_static_hsv = DEFAULT_COLOUR;
@@ -155,14 +155,14 @@ void config_save(const config &new_config) {
     IIDX::RgbManager::Bar::set_leds_off();
     IIDX::RgbManager::Bar::force_update = true;
   }
-  if (new_config.disable_led) {
+  if (new_config.disable_leds) {
     FastLED.clear(true);
   }
   update_tt_transitions(new_config.reverse_tt);
 
   current_config = new_config;
   current_config.reverse_tt &= 1;
-  current_config.disable_led &= 1;
+  current_config.disable_leds &= 1;
   eeprom_update_block(&current_config, CONFIG_BASE_ADDR, sizeof(config));
 }
 
@@ -382,13 +382,14 @@ callback cycle_bar_effects(config* self) {
   return callback{};
 }
 
-callback toggle_disable_led(config* self) {
-  self->disable_led ^= 1;
+callback toggle_disable_leds(config* self) {
+  self->disable_leds ^= 1;
 
-  eeprom_write_byte(CONFIG_DISABLE_LED_ADDR, self->disable_led);
+  eeprom_write_byte(CONFIG_DISABLE_LEDS_ADDR, self->disable_leds);
 
-  if (self->disable_led)
+  if (self->disable_leds) {
     FastLED.clear(true);
+  }
 
   return callback{};
 }

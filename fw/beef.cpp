@@ -25,6 +25,7 @@ bool ignore_buttons;
 AbstractUsbHandler* usb_handler;
 button_pins buttons[] = CONFIG_ALL_HW_PIN;
 Command current_command;
+bool sleep;
 
 bool run_bootloader ATTR_NO_INIT;
 
@@ -53,10 +54,7 @@ void reboot() {
 }
 
 void reboot_to_bootloader() {
-  reactive_led = false;
-  update_button_lighting(0);
-  FastLED.clear(true);
-
+  clear_all_lights();
   run_bootloader = true;
   reboot();
 }
@@ -77,6 +75,7 @@ void handle_command() {
     case Command::ResetConfig:
       current_config.version = 0;
       config_update(&current_config);
+      // TODO: find out why device re-enumeration doesn't work
       reboot();
       break;
   }
@@ -93,6 +92,10 @@ int main() {
   RgbHelper::init();
 
   while (true) {
+    if (sleep) {
+      continue;
+    }
+
     handle_command();
     usb_handler->usb_task(current_config);
 
@@ -161,6 +164,7 @@ void setup_hardware() {
 
   // check if we need to jump to bootloader
   check_for_dfu();
+  ignore_buttons = true;
   run_bootloader = false;
 }
 
@@ -199,6 +203,15 @@ void init_controller_io(const config &config) {
       SDVX::usb_init(config);
       break;
   }
+}
+
+void EVENT_USB_Device_Suspend() {
+  sleep = true;
+  clear_all_lights();
+}
+
+void EVENT_USB_Device_WakeUp() {
+  sleep = false;
 }
 
 // event handler for USB config change event
@@ -364,7 +377,7 @@ void update_button_lighting(uint16_t led_state) {
     led_state = button_state;
   }
 
-  if (current_config.disable_led ||
+  if (current_config.disable_leds ||
       // Temporarily black out button LEDs to notify a setting change
       timer_is_active(&combo_lights_timer)) {
     led_state = 0;
@@ -376,6 +389,12 @@ void update_button_lighting(uint16_t led_state) {
             buttons[i].led_pin,
             led_state);
   }
+}
+
+void clear_all_lights() {
+  reactive_led = false;
+  update_button_lighting(0);
+  FastLED.clear(true);
 }
 
 bool is_only_pressed(uint16_t button_bits, uint16_t ignore) {
