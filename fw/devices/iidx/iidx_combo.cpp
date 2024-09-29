@@ -10,7 +10,7 @@ namespace IIDX {
     TT_RATIO_INCR    = BUTTON_1 | BUTTON_8 | BUTTON_11,
     TT_RATIO_DECR    = BUTTON_3 | BUTTON_8 | BUTTON_11,
     BAR_EFFECTS      = BUTTON_6 | BUTTON_8 | BUTTON_10,
-    DISABLE_LED      = BUTTON_4 | BUTTON_8 | BUTTON_11,
+    DISABLE_LEDS     = BUTTON_4 | BUTTON_8 | BUTTON_11,
     TT_HSV_HUE       = BUTTON_2 | BUTTON_11,
     TT_HSV_SAT       = BUTTON_4 | BUTTON_11,
     TT_HSV_VAL       = BUTTON_6 | BUTTON_11,
@@ -23,50 +23,50 @@ namespace IIDX {
     switch (button_state) {
       case REVERSE_TT:
         return {
-            .config_set = toggle_reverse_tt
+          .config_set = toggle_reverse_tt
         };
       case TT_EFFECTS:
         return {
-            .config_set = cycle_tt_effects
+          .config_set = cycle_tt_effects
         };
       case TT_DEADZONE_INCR:
         return {
-            .config_set = increase_deadzone
+          .config_set = increase_deadzone
         };
       case TT_DEADZONE_DECR:
         return {
-            .config_set = decrease_deadzone
+          .config_set = decrease_deadzone
         };
       case TT_RATIO_INCR:
         return {
-            .config_set = increase_ratio
+          .config_set = increase_ratio
         };
       case TT_RATIO_DECR:
         return {
-            .config_set = decrease_ratio
+          .config_set = decrease_ratio
         };
       case BAR_EFFECTS:
         return {
-            .config_set = cycle_bar_effects
+          .config_set = cycle_bar_effects
         };
-      case DISABLE_LED:
+      case DISABLE_LEDS:
         return {
-            .config_set = toggle_disable_leds
+          .config_set = toggle_disable_leds
         };
       case TT_HSV_HUE:
         return {
-            .continuous = true,
-            .config_set = tt_hsv_set_hue,
+          .continuous = true,
+          .config_set = tt_hsv_set_hue,
         };
       case TT_HSV_SAT:
         return {
-            .continuous = true,
-            .config_set = tt_hsv_set_sat,
+          .continuous = true,
+          .config_set = tt_hsv_set_sat,
         };
       case TT_HSV_VAL:
         return {
-            .continuous = true,
-            .config_set = tt_hsv_set_val,
+          .continuous = true,
+          .config_set = tt_hsv_set_val,
         };
       default:
         return {};
