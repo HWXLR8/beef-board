@@ -1,9 +1,9 @@
 # beef board
 
 <p float="left">
-  <img src="pcb/pics/front.png" height="250">
-  <img src="pcb/pics/back.png" height="250">
-  <img src="pcb/pics/legend.png" width="700"/>
+  <img src="assets/front.png" height="250">
+  <img src="assets/back.png" height="250">
+  <img src="assets/legend.png" width="700"/>
 </p>
 
 This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOENIXWAN+ and FAUCETWO controllers. Games currently supported:
@@ -51,7 +51,15 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 
 ## Configuration
 
-Various configuration options can be changed on-the-fly by holding a button combination. Holding the buttons simultaneously for 1 second will cause the change to take affect. Button lights will momentarily shut off to indicate that the change has occurred.
+## Web configuration tool
+
+The [web config tool](https://hwxlr8.github.io/beef-board/) allows you to quickly configure multiple settings, reset settings to default values or to launch the bootloader to flash a new firmware.
+
+![image](assets/web-config.png)
+
+## Button combos
+
+Alternatively, various configuration options can be changed on-the-fly by holding a button combination. Holding the buttons simultaneously for 1 second will cause the change to take affect. Button lights will momentarily shut off to indicate that the change has occurred.
 
 Refer to these tables for a list of configuration options currently supported:
 
@@ -90,10 +98,6 @@ There also exist button combinations which perform special actions if held while
 | IIDX mode - Keyboard | B2 + B8 |
 | SDVX mode - HID | B1 + B9 |
 | SDVX mode - Keyboard | B2 + B9 |
-
-## Web configuration tool
-
-You can also use the [web config tool](https://hwxlr8.github.io/beef-board/) to quickly configure multiple settings, reset settings to default values or to launch the bootloader to flash a new firmware.
 
 ## BOM
 
@@ -142,5 +146,5 @@ You can also use the [web config tool](https://hwxlr8.github.io/beef-board/) to 
 
 # PCB APPROVED BY KORS K
 
-![image](pcb/pics/korsk.jpg)
-![image](pcb/pics/sig.jpg)
+![image](assets/korsk.jpg)
+![image](assets/sig.jpg)
