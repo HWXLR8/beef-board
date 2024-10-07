@@ -5,8 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build
+  fw-ci:
+    name: Build Firmware
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -29,3 +29,37 @@ jobs:
           name: beef-fw
           path: fw/beef.hex
           if-no-files-found: error
+
+  beef-tool:
+    name: Build beef-tool
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller
+
+      - name: Package beef-tool
+        run: |
+          pyinstaller --onefile --noconsole --add-data "beef-tool/avrdude;avrdude" beef-tool/beef-tool.py
+
+      - name: Prepare files for upload
+        run: |
+          mkdir tmp
+          cp dist/beef-tool.exe tmp
+          cp beef-tool/README.md tmp
+          cp -r beef-tool/drivers tmp
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: beef-tool
+          path: |
+            tmp/*
