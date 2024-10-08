@@ -1,16 +1,17 @@
 # beef board
-
-<p float="left">
-  <img src="assets/front.png" height="250">
-  <img src="assets/back.png" height="250">
-  <img src="assets/legend.png" width="700"/>
-</p>
+[![Continuous Integration](https://github.com/HWXLR8/beef-board/actions/workflows/ci.yml/badge.svg)](https://github.com/HWXLR8/beef-board/actions/workflows/ci.yml)
 
 This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOENIXWAN+ and FAUCETWO controllers. Games currently supported:
 
 * Beatmania IIDX
 * Sound Voltex
 * Pop'n Music
+
+<p float="left">
+  <img src="assets/front.png" height="250">
+  <img src="assets/back.png" height="250">
+  <img src="assets/legend.png" width="700"/>
+</p>
 
 ## Wiring configuration
 
