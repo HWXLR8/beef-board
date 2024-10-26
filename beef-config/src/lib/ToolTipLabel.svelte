@@ -7,7 +7,7 @@
 	export let label: string;
 </script>
 
-<div class="mb-1 flex items-center space-x-1">
+<div class="flex items-center space-x-1">
 	<Label>{label}</Label>
 	<Tooltip.Root>
 		<Tooltip.Trigger>
