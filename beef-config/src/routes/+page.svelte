@@ -7,7 +7,6 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
 	import { Separator } from '$lib/components/ui/separator/index.js';
@@ -16,6 +15,7 @@
 
 	import InputModes from '$lib/InputModes.svelte';
 	import LightEffectSelect from '$lib/LightEffectSelect.svelte';
+	import SliderInput from '$lib/SliderInput.svelte';
 	import Switch from '$lib/Switch.svelte';
 	import ToolTipLabel from '$lib/ToolTipLabel.svelte';
 	import { Config, readConfig, updateConfig } from '$lib/types/config';
@@ -200,18 +200,7 @@
 						<ToolTipLabel label="Turntable Deadzone">
 							<p>Only affects digital turntable input</p>
 						</ToolTipLabel>
-						<Slider
-							id="tt-deadzone"
-							min={1}
-							max={6}
-							step={1}
-							value={[config.tt_deadzone]}
-							onValueChange={(value) => {
-								if (config) {
-									config.tt_deadzone = value[0];
-								}
-							}}
-						/>
+						<SliderInput bind:value={config.tt_deadzone} min={1} max={6} id="tt-deadzone" />
 					</div>
 
 					{#if config.version >= 12}
@@ -223,30 +212,19 @@
 									starts and stops spinning.
 								</p>
 							</ToolTipLabel>
-							<Input
-								id="tt-sustain-ms"
-								type="number"
-								bind:value={config.tt_sustain_ms}
-								max={250}
-								min={0}
-							/>
+							<SliderInput bind:value={config.tt_sustain_ms} min={0} max={250} id="tt-sustain-ms" />
 						</div>
 					{/if}
 
 					<div class="mb-4">
 						<Label for="tt-ratio">Turntable Sensitivity</Label>
 						<!-- We store TT ratio but present it as TT sensitivity, so invert the range -->
-						<Slider
-							id="tt-ratio"
+						<SliderInput
+							bind:value={config.tt_ratio}
 							min={1}
 							max={6}
-							step={1}
-							value={[7 - config.tt_ratio]}
-							onValueChange={(value) => {
-								if (config) {
-									config.tt_ratio = 7 - value[0];
-								}
-							}}
+							id="tt-ratio"
+							reversed={true}
 						/>
 					</div>
 					<Switch label="Disable LEDs" bind:checked={config.disable_leds} />
