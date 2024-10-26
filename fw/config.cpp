@@ -88,6 +88,9 @@ bool update_config(config* self) {
     case 10:
       // Web config support
       self->version++;
+    case 11:
+      self->tt_sustain_ms = 200;
+      self->version++;
       return true;
     default:
       return false;
@@ -324,8 +327,6 @@ callback tt_hsv_set_val(config* self) {
 
 void update_deadzone(const uint8_t deadzone) {
   eeprom_update_byte(CONFIG_TT_DEADZONE_ADDR, deadzone);
-
-  button_x.deadzone = deadzone;
 
   IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
                                                  deadzone,
