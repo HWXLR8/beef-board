@@ -96,15 +96,17 @@ namespace IIDX {
     }
   }
 
-  void UsbHandler::update() {
+  void UsbHandler::update(const config &config) {
     HID_Task(led_data);
 
     tt_x.poll();
-    const auto tt1_report = analog_button_poll(&button_x, tt_x.get());
+    const auto tt1_report = button_x.poll(config.tt_deadzone,
+                                          config.tt_sustain_ms,
+                                          tt_x.get());
     process_buttons(tt1_report);
 
     update_button_lighting(led_data.buttons);
-    RgbManager::update(button_x.state,led_data);
+    RgbManager::update(tt1_report,led_data);
   }
 
   void usb_init(const config &config) {
@@ -113,7 +115,7 @@ namespace IIDX {
     ::usb_handler = &usb_handler;
     get_button_combo_callback = get_button_combo;
 
-    analog_button_init(&button_x, config.tt_deadzone, 200, true);
+    button_x.init(config.tt_deadzone, true, tt_x.get());
 
     update_tt_transitions(config.reverse_tt);
   }

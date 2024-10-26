@@ -102,7 +102,7 @@ int main() {
     set_hid_standby_lighting();
     process_buttons();
     process_combos();
-    usb_handler->update();
+    usb_handler->update(current_config);
   }
 }
 

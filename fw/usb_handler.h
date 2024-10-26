@@ -11,5 +11,5 @@ public:
                                  void* report_data,
                                  uint16_t* report_size) = 0;
   virtual void usb_task(const config &config) = 0;
-  virtual void update() = 0;
+  virtual void update(const config &config) = 0;
 };

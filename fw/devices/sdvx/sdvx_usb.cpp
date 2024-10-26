@@ -85,13 +85,13 @@ namespace SDVX {
     }
   }
 
-  void UsbHandler::update() {
+  void UsbHandler::update(const config &config) {
     HID_Task(led_data);
 
     axis_x->poll();
     axis_y->poll();
-    analog_button_poll(&button_x, axis_x->get());
-    analog_button_poll(&button_y, axis_y->get());
+    button_x.poll(1, 0, axis_x->get());
+    button_y.poll(1, 0, axis_y->get());
 
     update_button_lighting(led_data.buttons);
   }
@@ -104,8 +104,8 @@ namespace SDVX {
 
     axis_x = &analog_x;
     axis_y = &analog_y;
-    analog_button_init(&button_x, 1, 0, false);
-    analog_button_init(&button_y, 1, 0, false);
+    button_x.init(1, false, axis_x->get());
+    button_y.init(1, false, axis_y->get());
 
     update_tt_transitions(false);
   }

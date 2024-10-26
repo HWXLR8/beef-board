@@ -71,6 +71,7 @@ struct config {
   ControllerType controller_type;
   InputMode iidx_input_mode;
   InputMode sdvx_input_mode;
+  uint8_t tt_sustain_ms;
 };
 
 struct callback {

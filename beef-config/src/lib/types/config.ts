@@ -20,6 +20,7 @@ export class Config {
   controller_type: ControllerType;
   iidx_input_mode: InputMode;
   sdvx_input_mode: InputMode;
+  tt_sustain_ms: number = 0;
 
   constructor(configData: DataView) {
     this.version = configData.getUint8(0);
@@ -72,6 +73,10 @@ export class Config {
     this.controller_type = configData.getUint8(31) as ControllerType;
     this.iidx_input_mode = configData.getUint8(32) as InputMode;
     this.sdvx_input_mode = configData.getUint8(33) as InputMode;
+
+    if (this.version >= 12) {
+      this.tt_sustain_ms = configData.getUint8(34);
+    }
   }
 }
 
