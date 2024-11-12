@@ -8472,7 +8472,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Crystal:Crystal_HC49-4H_Vertical"
+		(property "Footprint" "BEEF-BOARD:Crystal_HC49-4H_Vertical"
 			(at 313.69 170.18 0)
 			(effects
 				(font
@@ -11028,7 +11028,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Connector_IDC:IDC-Header_2x03_P2.54mm_Vertical"
+		(property "Footprint" "BEEF-BOARD:IDC-Header_2x03_P2.54mm_Vertical_0.9mm_hole"
 			(at 207.01 245.11 0)
 			(effects
 				(font
