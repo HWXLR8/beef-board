@@ -7361,7 +7361,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 214.63 44.45 0)
 			(effects
 				(font
@@ -7501,7 +7501,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 283.21 113.03 0)
 			(effects
 				(font
@@ -7568,7 +7568,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical"
+		(property "Footprint" "BEEF-BOARD:JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical_0.7mm_hole"
 			(at 129.54 170.18 0)
 			(effects
 				(font
@@ -7638,7 +7638,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:R_0805_2012Metric"
 			(at 360.68 109.728 90)
 			(effects
 				(font
@@ -8266,7 +8266,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 143.51 0)
 			(effects
 				(font
@@ -8742,7 +8742,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 124.46 0)
 			(effects
 				(font
@@ -8959,7 +8959,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 180.34 0)
 			(effects
 				(font
@@ -9176,7 +9176,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 217.17 0)
 			(effects
 				(font
@@ -9593,7 +9593,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical"
+		(property "Footprint" "BEEF-BOARD:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical_0.7mm_hole"
 			(at 205.74 105.41 0)
 			(effects
 				(font
@@ -9736,7 +9736,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 199.39 0)
 			(effects
 				(font
@@ -10062,7 +10062,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:R_0805_2012Metric"
 			(at 209.55 118.872 90)
 			(effects
 				(font
@@ -10138,7 +10138,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 307.34 176.53 0)
 			(effects
 				(font
@@ -10615,7 +10615,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 318.77 176.53 0)
 			(effects
 				(font
@@ -10751,7 +10751,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 339.09 76.2 0)
 			(effects
 				(font
@@ -10819,7 +10819,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "BEEF-BOARD:PinHeader_1x02_P2.54mm_Vertical_0.9mm_hole"
 			(at 204.47 179.07 0)
 			(effects
 				(font
@@ -10953,7 +10953,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:R_0805_2012Metric"
 			(at 209.55 121.412 90)
 			(effects
 				(font
@@ -11109,7 +11109,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 290.83 97.79 0)
 			(effects
 				(font
@@ -11374,7 +11374,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 314.96 157.48 0)
 			(effects
 				(font
@@ -11638,7 +11638,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 86.36 0)
 			(effects
 				(font
@@ -11712,7 +11712,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 162.56 0)
 			(effects
 				(font
@@ -12124,7 +12124,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 306.07 76.2 0)
 			(effects
 				(font
@@ -12192,7 +12192,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 105.41 0)
 			(effects
 				(font
@@ -12403,7 +12403,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 67.31 0)
 			(effects
 				(font
@@ -12542,7 +12542,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 48.26 0)
 			(effects
 				(font
@@ -13103,7 +13103,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "BEEF-BOARD:C_0805_2012Metric"
 			(at 312.42 64.77 0)
 			(effects
 				(font
@@ -13170,7 +13170,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BEEF-BOARD:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical_0.95mm_hole"
+		(property "Footprint" "BEEF-BOARD:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical_0.9mm_hole"
 			(at 134.62 264.16 0)
 			(effects
 				(font
@@ -13237,7 +13237,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BEEF-BOARD:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical_0.95mm_hole"
+		(property "Footprint" "BEEF-BOARD:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical_0.9mm_hole"
 			(at 134.62 252.73 0)
 			(effects
 				(font
@@ -13304,7 +13304,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+		(property "Footprint" "BEEF-BOARD:SOT-23"
 			(at 60.325 234.95 0)
 			(effects
 				(font
@@ -14109,7 +14109,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" "BEEF-BOARD:PinHeader_1x02_P2.54mm_Vertical_0.9mm_hole"
 			(at 204.47 168.91 0)
 			(effects
 				(font
@@ -14514,7 +14514,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical"
+		(property "Footprint" "BEEF-BOARD:JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical_0.7mm_hole"
 			(at 129.54 152.4 0)
 			(effects
 				(font
