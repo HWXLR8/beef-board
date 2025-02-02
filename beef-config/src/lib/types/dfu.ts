@@ -12,7 +12,7 @@ const DFU_INTERFACE = 0;
 const ATMEL_CONTROL_BLOCK_SIZE = 32;
 export const ATMEL_MAX_TRANSFER_SIZE = 0x400;
 
-// DFU Class-Specific Requests (Table 4-1)
+// DFU Class-Specific Requests
 enum DfuRequest {
   DETACH = 0,
   DNLOAD = 1,
@@ -20,36 +20,34 @@ enum DfuRequest {
   GETSTATUS = 3,
   CLRSTATUS = 4,
   GETSTATE = 5,
-  ABORT = 6,
+  ABORT = 6
 }
 
 enum DfuCommand {
   PROG_START = 0x01,
   ERASE = 0x04,
   READ_CONFIG = 0x05,
-  START_APP = 0x03,
+  START_APP = 0x03
 }
 
 enum DfuMemoryUnit {
   FLASH = 0,
-  EEPROM = 1,
+  EEPROM = 1
 }
 
-// DFU Status Codes (Table 4-5)
+// DFU Status Codes
 enum DfuStatus {
   OK = 0x00,
-  errWRITE = 0x03,
-  // ... Add other status codes as needed
+  errWRITE = 0x03
 }
 
-// DFU State Codes (Table 4-6)
+// DFU State Codes
 enum DfuState {
   appIDLE = 0,
   appDETACH = 1,
   dfuIDLE = 2,
   dfuDNLOAD_SYNC = 3,
-  dfuDNBUSY = 4,
-  // ... Add other states as needed
+  dfuDNBUSY = 4
 }
 
 interface DfuStatusResponse {
