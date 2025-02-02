@@ -177,7 +177,7 @@ export class DfuDevice extends EventEmitter {
     await this.eraseFullChip();
     await this.selectMemoryUnit(DfuMemoryUnit.FLASH);
 
-    this.emit('message', 'Flashing');
+    this.emit('message', 'Flashing...');
     const fixedFirmware = convertMapToFixedLength(firmware, ATMEL_MAX_TRANSFER_SIZE);
     let i = 0;
     for await (const [address, segment] of fixedFirmware) {

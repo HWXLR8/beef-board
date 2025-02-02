@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import MemoryMap from 'nrf-intel-hex';
-
+	
+	import { TriangleAlert } from 'lucide-svelte';
+	import { Alert } from '$lib/components/ui/alert';
+	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
+	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
@@ -120,6 +124,12 @@
 	{#if !dfuDevice}
 		<Button on:click={connectToDfuDevice} class="mb-4">Connect to Bootloader</Button>
 		<Button on:click={onDisconnect} class="mb-4" variant="destructive">Cancel</Button>
+
+		<Alert class="mb-4">
+			<TriangleAlert class="h-4 w-4" />
+			<AlertTitle>Can't find the bootloader device?</AlertTitle>
+			<AlertDescription>{@html `You probably don't have the required drivers installed. <a href="https://github.com/qmk/qmk_driver_installer/releases/latest" style="text-decoration: underline">Download and run qmk_driver_installer.exe</a>, and retry the flashing process.`}</AlertDescription>
+		</Alert>
 	{:else}
 		<h3 class="mb-2 text-lg font-semibold">Connected to Bootloader</h3>
 
