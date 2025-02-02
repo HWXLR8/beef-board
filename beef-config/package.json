@@ -21,6 +21,7 @@
 		"@types/estree": "^1.0.6",
 		"@types/json-schema": "^7.0.15",
 		"@types/w3c-web-hid": "^1.0.6",
+		"@types/w3c-web-usb": "^1.0.10",
 		"autoprefixer": "^10.4.20",
 		"bits-ui": "^0.21.16",
 		"eslint": "^9.0.0",
@@ -40,8 +41,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"buffer": "^6.0.3",
 		"clsx": "^2.1.1",
+		"eventemitter3": "^5.0.1",
 		"lucide-svelte": "^0.441.0",
+		"nrf-intel-hex": "^1.4.0",
 		"tailwind-merge": "^2.5.2",
 		"tailwind-variants": "^0.2.1"
 	}

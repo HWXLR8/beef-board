@@ -1,4 +1,6 @@
+import { get } from 'svelte/store';
 import { ReportId } from '$lib/types/hid';
+import { device } from '$lib/types/state';
 import { TurntableMode, BarMode, ControllerType, InputMode, Hsv } from '$lib/types/types';
 
 export class Config {
@@ -82,7 +84,12 @@ export class Config {
 
 const packetSize = 64;
 
-export async function readConfig(dev: HIDDevice): Promise<Config> {
+export async function readConfig(): Promise<Config> {
+  const dev = get(device);
+  if (!dev) {
+    throw new Error('Device not connected');
+  }
+
   try {
     const result = await dev.receiveFeatureReport(ReportId.Config);
     const configData = new DataView(result.buffer.slice(1)); // Skip report id
@@ -98,7 +105,12 @@ export async function readConfig(dev: HIDDevice): Promise<Config> {
   }
 }
 
-export async function updateConfig(dev: HIDDevice, config: Config): Promise<void> {
+export async function updateConfig(config: Config): Promise<void> {
+  const dev = get(device);
+  if (!dev) {
+    throw new Error('Device not connected');
+  }
+
   try {
     const configBuffer = new ArrayBuffer(packetSize);
     const configView = new DataView(configBuffer);

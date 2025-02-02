@@ -53,7 +53,7 @@ export class Hsv {
   }
 }
 
-export class EnumMapping {
+export class HsvEnumMapping {
   displayName: string;
   hsvField?: keyof Config;
 
