@@ -143,6 +143,7 @@ There also exist button combinations which perform special actions if held while
   * RGB HID functionality
   * FastLED shims
   * Debounce code
+* [dfu-programmer](https://github.com/dfu-programmer/dfu-programmer) for serving as the reference implementation for the Atmel DFU protocol
 * Special thanks to Mechada and Cryto for beta testing
 
 # PCB APPROVED BY KORS K
