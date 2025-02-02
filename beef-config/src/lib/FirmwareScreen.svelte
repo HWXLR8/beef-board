@@ -7,6 +7,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import Progress from '$lib/components/ui/progress/progress.svelte';
 
+	import WarningAlert from '$lib/WarningAlert.svelte';
+
 	import { ATMEL_MAX_TRANSFER_SIZE, DfuDevice } from '$lib/types/dfu';
 	import { Command, readCommitHash, sendCommand, waitForReconnection } from '$lib/types/hid';
 	import { onDisconnect, error, disableConfigTab } from '$lib/types/state';
@@ -20,7 +22,8 @@
 	let commitHash: string;
 	let dfuDevice: DfuDevice | undefined;
 	let firmwareData: MemoryMap;
-	let message = "Ready";
+	let flashing = false;
+	let message = 'Ready';
 	let progress = 0;
 	let stage = Stage.Standby;
 
@@ -71,7 +74,6 @@
 			// Read the file as text
 			reader.readAsText(file);
 
-			// When the file is read, update the fileContent variable
 			reader.onload = () => {
 				const data = reader.result as string;
 				firmwareData = MemoryMap.fromHex(data, ATMEL_MAX_TRANSFER_SIZE);
@@ -85,11 +87,18 @@
 	}
 
 	async function flashFirmware(): Promise<void> {
+		flashing = true;
+		onbeforeunload = () => {
+			return 'Flashing is in progress. Are you sure you want to leave?';
+		};
+
 		try {
 			await dfuDevice!.downloadFirmware(firmwareData);
 		} catch (err) {
 			error.set(`Error flashing firmware: ${err}`);
 			throw err;
+		} finally {
+			onbeforeunload = null;
 		}
 
 		stage = Stage.Finished;
@@ -112,24 +121,33 @@
 		<Button on:click={connectToDfuDevice} class="mb-4">Connect to Bootloader</Button>
 		<Button on:click={onDisconnect} class="mb-4" variant="destructive">Cancel</Button>
 	{:else}
-		<h3 class="mb-2 text-lg font-semibold">Connected to bootloader</h3>
+		<h3 class="mb-2 text-lg font-semibold">Connected to Bootloader</h3>
 
-		<div class="mb-4 grid w-full max-w-sm items-center gap-1.5">
+		<div class="mb-2 grid w-full max-w-sm items-center gap-1.5">
 			<Label for="fw">Select Firmware to Flash</Label>
 			<Input name="fw" type="file" accept=".hex" on:change={parseFirmwareFile} />
 		</div>
 
 		{#if firmwareData}
-			<Button on:click={flashFirmware} class="mb-4">Flash Firmware</Button>
-			<Button on:click={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
-
 			<h3 class="mb-2 text-lg font-semibold">{message}</h3>
-			<Progress value={progress} max={1} class="w-full" />
+			<Progress value={progress} max={1} class="mb-4 w-full" />
+
+			{#if flashing}
+				<WarningAlert
+					title="Now flashing"
+					description="Do not disconnect the device or close the browser tab until flashing is complete."
+					variant="destructive"
+				></WarningAlert>
+			{:else}
+				<Button on:click={flashFirmware} class="mb-4">Flash Firmware</Button>
+				<Button on:click={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
+			{/if}
 		{:else}
 			<Button on:click={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
 		{/if}
 	{/if}
 {:else if stage == Stage.Finished}
-	<h3 class="mb-2 text-lg font-semibold">Firmware flashed successfully</h3>
+	<h3 class="mb-2 text-lg font-semibold">Firmware Flashed Successfully</h3>
+	<Progress value={1} max={1} class="mb-4 w-full" />
 	<Button on:click={finishFlashing} class="mb-4">Exit</Button>
 {/if}
