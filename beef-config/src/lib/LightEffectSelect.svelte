@@ -1,17 +1,17 @@
-<script lang="ts" extends generics="T extends TurntableMode | BarMode">
+<script lang="ts" generics="T extends TurntableMode | BarMode">
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
 
 	import ColorPicker from '$lib/ColorPicker.svelte';
 	import type { Config } from '$lib/types/config';
-	import type { BarMode, EnumMapping, TurntableMode } from '$lib/types/types';
+	import type { BarMode, HsvEnumMapping, TurntableMode } from '$lib/types/types';
 
 	export let label: string;
 	export let config: Config;
 	export let effect: T;
-	export let modeMapping: Record<T, EnumMapping>;
+	export let modeMapping: Record<T, HsvEnumMapping>;
 
-	const modeMappingIter = Object.entries<EnumMapping>(modeMapping);
+	const modeMappingIter = Object.entries<HsvEnumMapping>(modeMapping);
 </script>
 
 <div class="mb-4">
