@@ -19,8 +19,8 @@ export async function waitForReconnection(): Promise<void> {
 export async function detectDevice(): Promise<HIDDevice | null> {
   const devices = await navigator.hid.requestDevice({
     filters: [
-      { vendorId: 0x1ccf, productId: 0x8048, usagePage: 0xffeb, usage: 0x01 },
-      { vendorId: 0x1ccf, productId: 0x1014, usagePage: 0xffeb, usage: 0x01 }
+      { vendorId: 0x1ccf, productId: 0x8048, usagePage: 0xffeb, usage: 0x01 }, // IIDX
+      { vendorId: 0x1ccf, productId: 0x101c, usagePage: 0xffeb, usage: 0x01 }  // SDVX
     ]
   });
 

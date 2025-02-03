@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { TriangleAlert } from 'lucide-svelte';
 
-	import { Alert } from '$lib/components/ui/alert';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
-	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
-	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
@@ -21,14 +17,12 @@
 	import { Command, sendCommand, waitForReconnection } from '$lib/types/hid';
 	import { error } from '$lib/types/state';
 	import { TurntableMode, HsvEnumMapping, BarMode, ControllerType } from '$lib/types/types';
+	import WarningAlert from './WarningAlert.svelte';
 
 	let config: Config | undefined;
 	let controllerTypeChanged = false;
 
 	onMount(async () => {
-		navigator.hid.addEventListener('disconnect', () => {
-			controllerTypeChanged = false;
-		});
 		try {
 			config = await readConfig();
 		} catch (err) {
@@ -105,13 +99,10 @@
 	</div>
 
 	{#if controllerTypeChanged}
-		<Alert class="mb-4">
-			<TriangleAlert class="h-4 w-4" />
-			<AlertTitle>Heads up!</AlertTitle>
-			<AlertDescription
-				>Controller mode changed. Please replug the controller to apply the new mode.</AlertDescription
-			>
-		</Alert>
+		<WarningAlert
+			title="Heads up!"
+			description="Controller mode changed. Please replug the controller to apply the new mode."
+		/>
 	{/if}
 
 	<Separator class="mb-4" />
@@ -188,13 +179,13 @@
 					</AlertDialog.Description>
 				</AlertDialog.Header>
 				<AlertDialog.Footer>
-					<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 					<AlertDialog.Action
 						on:click={async () => {
 							await sendCommand(Command.ResetConfig);
 							await waitForReconnection();
 						}}>Continue</AlertDialog.Action
 					>
+					<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 				</AlertDialog.Footer>
 			</AlertDialog.Content>
 		</AlertDialog.Root>

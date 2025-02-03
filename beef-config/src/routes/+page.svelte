@@ -49,7 +49,7 @@
 			<Button on:click={connectDevice} class="mb-4">Connect Device</Button>
 		{:else}
 			<Tabs.Root value={Tab.Config}>
-				<Tabs.List class="flex w-full flex-row justify-center">
+				<Tabs.List class="flex w-full flex-row justify-center mb-4">
 					<Tabs.Trigger value={Tab.Config} disabled={$disableConfigTab} class="grow"
 						>Config</Tabs.Trigger
 					>
