@@ -54,7 +54,7 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 
 ## Web configuration tool
 
-The [web config tool](https://hwxlr8.github.io/beef-board/) allows you to quickly configure multiple settings, reset settings to default values or to launch the bootloader to flash a new firmware.
+The [web config tool](https://hwxlr8.github.io/beef-board/) allows you to quickly configure multiple settings, reset them to default values or flash firmware onto your beef board.
 
 ![image](assets/web-config.png)
 
