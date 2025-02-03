@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 	import MemoryMap from 'nrf-intel-hex';
-	
+	import { persisted } from 'svelte-persisted-store';
+
 	import { TriangleAlert } from 'lucide-svelte';
 	import { Alert } from '$lib/components/ui/alert';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
 	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 	import Progress from '$lib/components/ui/progress/progress.svelte';
@@ -30,6 +34,8 @@
 	let message = 'Ready';
 	let progress = 0;
 	let stage = Stage.Standby;
+
+	const hideFirmwareWarningStorage = persisted('hideFirmwareWarning', false);
 
 	onMount(async () => {
 		try {
@@ -126,9 +132,10 @@
 		<Button on:click={onDisconnect} class="mb-4" variant="destructive">Cancel</Button>
 
 		<Alert class="mb-4">
-			<TriangleAlert class="h-4 w-4" />
 			<AlertTitle>Can't find the bootloader device?</AlertTitle>
-			<AlertDescription>{@html `You probably don't have the required drivers installed. <a href="https://github.com/qmk/qmk_driver_installer/releases/latest" style="text-decoration: underline">Download and run qmk_driver_installer.exe</a>, and retry the flashing process.`}</AlertDescription>
+			<AlertDescription
+				>{@html `You probably don't have the required drivers installed. <a href="https://github.com/qmk/qmk_driver_installer/releases/latest" style="text-decoration: underline">Download and run qmk_driver_installer.exe</a>, and retry the flashing process.`}</AlertDescription
+			>
 		</Alert>
 	{:else}
 		<h3 class="mb-2 text-lg font-semibold">Connected to Bootloader</h3>
@@ -149,7 +156,35 @@
 					variant="destructive"
 				></WarningAlert>
 			{:else}
-				<Button on:click={flashFirmware} class="mb-4">Flash Firmware</Button>
+				{#if !get(hideFirmwareWarningStorage)}
+					<AlertDialog.Root closeOnOutsideClick={true}>
+						<AlertDialog.Trigger asChild let:builder>
+							<Button builders={[builder]}>Flash Firmware</Button>
+						</AlertDialog.Trigger>
+						<AlertDialog.Content>
+							<AlertDialog.Header>
+								<AlertDialog.Title>Are you sure?</AlertDialog.Title>
+								<AlertDialog.Description>
+									⚠️ WARNING: Only flash firmware made for Beef Board. Flashing unknown firmware
+									could damage your device. Click Continue to proceed with flashing, or Cancel to
+									abort.
+								</AlertDialog.Description>
+							</AlertDialog.Header>
+							<div class="items-top flex space-x-2">
+								<Checkbox id="warning" bind:checked={$hideFirmwareWarningStorage} />
+								<div class="grid gap-1.5 leading-none">
+									<Label for="warning" class="text-sm">Don't remind me again</Label>
+								</div>
+							</div>
+							<AlertDialog.Footer>
+								<AlertDialog.Action on:click={flashFirmware}>Continue</AlertDialog.Action>
+								<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+							</AlertDialog.Footer>
+						</AlertDialog.Content>
+					</AlertDialog.Root>
+				{:else}
+					<Button on:click={flashFirmware} class="mb-4">Flash Firmware</Button>
+				{/if}
 				<Button on:click={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
 			{/if}
 		{:else}

@@ -179,13 +179,13 @@
 					</AlertDialog.Description>
 				</AlertDialog.Header>
 				<AlertDialog.Footer>
-					<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 					<AlertDialog.Action
 						on:click={async () => {
 							await sendCommand(Command.ResetConfig);
 							await waitForReconnection();
 						}}>Continue</AlertDialog.Action
 					>
+					<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 				</AlertDialog.Footer>
 			</AlertDialog.Content>
 		</AlertDialog.Root>
