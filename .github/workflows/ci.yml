@@ -63,3 +63,8 @@ jobs:
           name: beef-tool
           path: |
             tmp/*
+
+  beef-config:
+    uses: ./.github/workflows/web-ci.yml
+    with:
+      upload_artifacts: false
