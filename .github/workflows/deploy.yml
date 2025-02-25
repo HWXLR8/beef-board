@@ -6,35 +6,9 @@ on:
 
 jobs:
   build:
-    name: Build site
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./beef-config
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: '**/package-lock.json'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
-        run: |
-          npm run build
-
-      - name: Upload Artifacts
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'beef-config/build/'
+    uses: ./.github/workflows/web-ci.yml
+    with:
+      upload_artifacts: true
 
   deploy:
     name: Deploy
