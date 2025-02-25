@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import ColorPicker from 'svelte-awesome-color-picker';
 	import type { HsvaColor } from 'colord';
+	import { mode } from 'mode-watcher';
 
 	import { type Config } from '$lib/types/config';
 	import { Hsv } from '$lib/types/types';
@@ -50,15 +51,26 @@
 </script>
 
 {#if hsvField}
-	<div class="mb-4">
-		<div
-			bind:this={colourPickerElement}
-			role="none"
-			on:pointerdown={handleHsvStart}
-			on:pointerup={handleHsvEnd}
-			on:input={handleHsvChange}
-		>
-			<ColorPicker position="responsive" isAlpha={false} on:input bind:hsv={hsva} />
-		</div>
+	<div
+		class="mb-4"
+		class:cp-dark={$mode === 'dark'}
+		bind:this={colourPickerElement}
+		role="none"
+		on:pointerdown={handleHsvStart}
+		on:pointerup={handleHsvEnd}
+		on:input={handleHsvChange}
+	>
+		<ColorPicker position="responsive" isAlpha={false} on:input bind:hsv={hsva} />
 	</div>
 {/if}
+
+<style>
+	.cp-dark {
+		/* Comes from the dark class in app.css */
+		--cp-bg-color: hsl(222.2 84% 4.9%);
+		--cp-border-color: hsl(217.2 32.6% 17.5%);
+		--cp-text-color: 217.2 32.6% 17.5%;
+		--cp-input-color: hsl(222.2 47.4% 11.2%);
+		--cp-button-hover-color: hsl(217.2 32.6% 17.5%);
+	}
+</style>
