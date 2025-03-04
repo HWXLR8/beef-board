@@ -10,6 +10,7 @@
 
 	import ConfigScreen from '$lib/ConfigScreen.svelte';
 	import FirmwareScreen from '$lib/FirmwareScreen.svelte';
+	import LightDarkModeToggle from '$lib//LightDarkModeToggle.svelte';
 
 	import { connectDevice, disableConfigTab, device, error } from '$lib/types/state';
 
@@ -32,7 +33,10 @@
 </script>
 
 <main class="mx-auto max-w-screen-lg p-4">
-	<h1 class="mb-4 text-2xl font-bold">Beef Board Configuration</h1>
+	<div class="flex justify-between">
+		<h1 class="mb-4 text-2xl font-bold">Beef Board Configuration</h1>
+		<LightDarkModeToggle />
+	</div>
 
 	{#if loading}
 		<Skeleton class="h-10" />
@@ -49,7 +53,7 @@
 			<Button on:click={connectDevice} class="mb-4">Connect Device</Button>
 		{:else}
 			<Tabs.Root value={Tab.Config}>
-				<Tabs.List class="flex w-full flex-row justify-center mb-4">
+				<Tabs.List class="mb-4 flex w-full flex-row justify-center">
 					<Tabs.Trigger value={Tab.Config} disabled={$disableConfigTab} class="grow"
 						>Config</Tabs.Trigger
 					>
