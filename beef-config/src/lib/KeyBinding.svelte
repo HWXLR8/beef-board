@@ -3,9 +3,10 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
-	import { ControllerType, InputMode } from '$lib/types/types';
+	import { ControllerType } from '$lib/types/types';
 	import { IIDXKeyMapping, SDVXKeyMapping, type Config } from '$lib/types/config';
 	import { getKeyCode, getKeyName } from '$lib/types/hid-codes';
+	import { error } from '$lib/types/state';
 
 	export let config: Config;
 
@@ -37,29 +38,31 @@
 		window.removeEventListener('keydown', handleKeyDown);
 
 		const hidKeyCode = getKeyCode(event.code);
-		if (!hidKeyCode) return;
-
-		switch (config.controller_type) {
-			case ControllerType.IIDX:
-				if (selectedButton < 7) {
-					config.iidx_keys.main_buttons[selectedButton] = hidKeyCode;
-				} else if (selectedButton < 11) {
-					config.iidx_keys.function_buttons[selectedButton - 7] = hidKeyCode;
-				} else if (selectedButton === 11) {
-					config.iidx_keys.tt_ccw = hidKeyCode;
-				} else if (selectedButton === 12) {
-					config.iidx_keys.tt_cw = hidKeyCode;
-				}
-				break;
-			case ControllerType.SDVX:
-				if (selectedButton < 4) {
-					config.sdvx_keys.bt_buttons[selectedButton] = hidKeyCode;
-				} else if (selectedButton < 6) {
-					config.sdvx_keys.fx_buttons[selectedButton - 4] = hidKeyCode;
-				} else if (selectedButton === 9) {
-					config.sdvx_keys.start = hidKeyCode;
-				}
-				break;
+		if (hidKeyCode) {
+			switch (config.controller_type) {
+				case ControllerType.IIDX:
+					if (selectedButton < 7) {
+						config.iidx_keys.main_buttons[selectedButton] = hidKeyCode;
+					} else if (selectedButton < 11) {
+						config.iidx_keys.function_buttons[selectedButton - 7] = hidKeyCode;
+					} else if (selectedButton === 11) {
+						config.iidx_keys.tt_ccw = hidKeyCode;
+					} else if (selectedButton === 12) {
+						config.iidx_keys.tt_cw = hidKeyCode;
+					}
+					break;
+				case ControllerType.SDVX:
+					if (selectedButton < 4) {
+						config.sdvx_keys.bt_buttons[selectedButton] = hidKeyCode;
+					} else if (selectedButton < 6) {
+						config.sdvx_keys.fx_buttons[selectedButton - 4] = hidKeyCode;
+					} else if (selectedButton === 9) {
+						config.sdvx_keys.start = hidKeyCode;
+					}
+					break;
+			}
+		} else {
+			error.set(`Cannot bind button to ${event.code}`);
 		}
 
 		selectedButton = null;
