@@ -2,6 +2,60 @@ import { get } from 'svelte/store';
 import { ReportId } from '$lib/types/hid';
 import { device } from '$lib/types/state';
 import { TurntableMode, BarMode, ControllerType, InputMode, Hsv } from '$lib/types/types';
+import * as HIDCodes from '$lib/types/hid-codes';
+
+export class IIDXKeyMapping {
+  public main_buttons: number[];
+  public function_buttons: number[];
+  public tt_ccw: number;
+  public tt_cw: number;
+  public padding: number[];
+
+  constructor() {
+    this.main_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_S, // 1
+      HIDCodes.HID_KEYBOARD_SC_D, // 2
+      HIDCodes.HID_KEYBOARD_SC_F, // 3
+      HIDCodes.HID_KEYBOARD_SC_SPACE, // 4
+      HIDCodes.HID_KEYBOARD_SC_J, // 5
+      HIDCodes.HID_KEYBOARD_SC_K, // 6
+      HIDCodes.HID_KEYBOARD_SC_L // 7
+    ];
+    this.function_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_1_AND_EXCLAMATION, // E1/Start
+      HIDCodes.HID_KEYBOARD_SC_2_AND_AT, // E2
+      HIDCodes.HID_KEYBOARD_SC_3_AND_HASHMARK, // E3
+      HIDCodes.HID_KEYBOARD_SC_4_AND_DOLLAR // E4/Select
+    ];
+    this.tt_ccw = HIDCodes.HID_KEYBOARD_SC_DOWN_ARROW; // TT-
+    this.tt_cw = HIDCodes.HID_KEYBOARD_SC_UP_ARROW; // TT+
+    this.padding = Array(7).fill(0);
+  }
+}
+
+export class SDVXKeyMapping {
+  public bt_buttons: number[];
+  public fx_buttons: number[];
+  public padding_1: number[];
+  public start: number;
+  public padding_2: number[];
+
+  constructor() {
+    this.bt_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_D, // BT-A
+      HIDCodes.HID_KEYBOARD_SC_F, // BT-B
+      HIDCodes.HID_KEYBOARD_SC_J, // BT-C
+      HIDCodes.HID_KEYBOARD_SC_K // BT-D
+    ];
+    this.fx_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_C, // FX-L
+      HIDCodes.HID_KEYBOARD_SC_M // FX-R
+    ];
+    this.padding_1 = Array(2).fill(0);
+    this.start = HIDCodes.HID_KEYBOARD_SC_ENTER; // Start
+    this.padding_2 = Array(11).fill(0);
+  }
+}
 
 export class Config {
   version: number;
@@ -23,6 +77,8 @@ export class Config {
   iidx_input_mode: InputMode;
   sdvx_input_mode: InputMode;
   tt_sustain_ms: number = 0;
+  iidx_keys: IIDXKeyMapping = new IIDXKeyMapping();
+  sdvx_keys: SDVXKeyMapping = new SDVXKeyMapping();
 
   constructor(configData: DataView) {
     this.version = configData.getUint8(0);
@@ -79,10 +135,46 @@ export class Config {
     if (this.version >= 12) {
       this.tt_sustain_ms = configData.getUint8(34);
     }
+
+    // Read key mappings if version supports it
+    if (this.version >= 13) {
+      let offset = 35;
+
+      // Read IIDX key mappings)
+      for (let i = 0; i < this.iidx_keys.main_buttons.length; i++) {
+        this.iidx_keys.main_buttons[i] = configData.getUint8(offset++);
+      }
+
+      for (let i = 0; i < this.iidx_keys.function_buttons.length; i++) {
+        this.iidx_keys.function_buttons[i] = configData.getUint8(offset++);
+      }
+
+      this.iidx_keys.tt_ccw = configData.getUint8(offset++);
+      this.iidx_keys.tt_cw = configData.getUint8(offset++);
+
+      // Skip padding
+      offset += this.iidx_keys.padding.length;
+
+      // Read SDVX key mappings
+      for (let i = 0; i < this.sdvx_keys.bt_buttons.length; i++) {
+        this.sdvx_keys.bt_buttons[i] = configData.getUint8(offset++);
+      }
+
+      for (let i = 0; i < this.sdvx_keys.fx_buttons.length; i++) {
+        this.sdvx_keys.fx_buttons[i] = configData.getUint8(offset++);
+      }
+
+      offset += this.sdvx_keys.padding_1.length;
+
+      this.sdvx_keys.start = configData.getUint8(offset++);
+
+      // Skip padding
+      offset += this.sdvx_keys.padding_2.length;
+    }
   }
 }
 
-const packetSize = 64;
+const packetSize = 1024;
 
 export async function readConfig(): Promise<Config> {
   const dev = get(device);
@@ -122,6 +214,32 @@ export async function updateConfig(config: Config): Promise<void> {
         configView.setUint8(i++, h);
         configView.setUint8(i++, s);
         configView.setUint8(i++, v);
+        continue;
+      }
+
+      if (value instanceof IIDXKeyMapping) {
+        for (const v of value.main_buttons) {
+          configView.setUint8(i++, Number(v));
+        }
+        for (const v of value.function_buttons) {
+          configView.setUint8(i++, Number(v));
+        }
+        configView.setUint8(i++, value.tt_ccw);
+        configView.setUint8(i++, value.tt_cw);
+        i += value.padding.length;
+        continue;
+      }
+
+      if (value instanceof SDVXKeyMapping) {
+        for (const v of value.bt_buttons) {
+          configView.setUint8(i++, Number(v));
+        }
+        for (const v of value.fx_buttons) {
+          configView.setUint8(i++, Number(v));
+        }
+        i += value.padding_1.length;
+        configView.setUint8(i++, value.start);
+        i += value.padding_2.length;
         continue;
       }
 

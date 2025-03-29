@@ -12,21 +12,6 @@ namespace SDVX {
     uint16_t Button; // bit-field representing which buttons have been pressed
   } ATTR_PACKED;
 
-  enum {
-    KEYBOARD_KEYS = 9
-  };
-  const uint8_t key_codes[KEYBOARD_KEYS] = {
-    HID_KEYBOARD_SC_D, // BT-A
-    HID_KEYBOARD_SC_F, // BT-B
-    HID_KEYBOARD_SC_J, // BT-C
-    HID_KEYBOARD_SC_K, // BT-D
-    HID_KEYBOARD_SC_C, // FX-L
-    HID_KEYBOARD_SC_M, // FX-R
-    0,
-    0,
-    HID_KEYBOARD_SC_ENTER // Start
-  };
-
   HidReport<USB_JoystickReport_Data_t, INTERFACE_ID_Joystick, JOYSTICK_IN_EPADDR> joystick_hid_report;
   HidReport<Beef::USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_hid_report;
   HidReport<Beef::USB_MouseReport_Data_t, INTERFACE_ID_Mouse, MOUSE_IN_EPADDR> mouse_hid_report;
@@ -54,7 +39,9 @@ namespace SDVX {
         auto keyboard_report = (Beef::USB_KeyboardReport_Data_t*)report_data;
         *report_size = sizeof(*keyboard_report);
 
-        process_keyboard(keyboard_report, key_codes, KEYBOARD_KEYS);
+        process_keyboard(keyboard_report,
+                         current_config.sdvx_keys.key_codes,
+                         sizeof(current_config.sdvx_keys.key_codes));
 
         return false;
       }

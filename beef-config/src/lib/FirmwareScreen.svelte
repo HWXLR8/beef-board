@@ -4,7 +4,6 @@
 	import MemoryMap from 'nrf-intel-hex';
 	import { persisted } from 'svelte-persisted-store';
 
-	import { TriangleAlert } from 'lucide-svelte';
 	import { Alert } from '$lib/components/ui/alert';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';

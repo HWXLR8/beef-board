@@ -44,6 +44,39 @@ enum {
 
 config current_config;
 
+// Default key mappings
+const IIDXKeyMapping DEFAULT_IIDX_KEYS = {
+  .key_codes = {
+    HID_KEYBOARD_SC_S,                 // 1
+    HID_KEYBOARD_SC_D,                 // 2
+    HID_KEYBOARD_SC_F,                 // 3
+    HID_KEYBOARD_SC_SPACE,             // 4
+    HID_KEYBOARD_SC_J,                 // 5
+    HID_KEYBOARD_SC_K,                 // 6
+    HID_KEYBOARD_SC_L,                 // 7
+    HID_KEYBOARD_SC_1_AND_EXCLAMATION, // E1/Start
+    HID_KEYBOARD_SC_2_AND_AT,          // E2
+    HID_KEYBOARD_SC_3_AND_HASHMARK,    // E3
+    HID_KEYBOARD_SC_4_AND_DOLLAR,     // E4/Select
+    HID_KEYBOARD_SC_DOWN_ARROW,       // TT -
+    HID_KEYBOARD_SC_UP_ARROW          // TT +
+  }
+};
+
+const SDVXKeyMapping DEFAULT_SDVX_KEYS = {
+  .key_codes = {
+    HID_KEYBOARD_SC_D, // BT-A
+    HID_KEYBOARD_SC_F, // BT-B
+    HID_KEYBOARD_SC_J, // BT-C
+    HID_KEYBOARD_SC_K, // BT-D
+    HID_KEYBOARD_SC_C, // FX-L
+    HID_KEYBOARD_SC_M, // FX-R
+    0,
+    0,
+    HID_KEYBOARD_SC_ENTER // Start
+  }
+};
+
 bool update_config(config* self) {
   switch (self->version) {
     case 0:
@@ -90,6 +123,11 @@ bool update_config(config* self) {
       self->version++;
     case 11:
       self->tt_sustain_ms = 200;
+      self->version++;
+    case 12:
+      // Key mapping support
+      self->iidx_keys = DEFAULT_IIDX_KEYS;
+      self->sdvx_keys = DEFAULT_SDVX_KEYS;
       self->version++;
       return true;
     default:
@@ -163,7 +201,7 @@ void config_save(const config &new_config) {
   }
   update_tt_transitions(new_config.reverse_tt);
 
-  current_config = new_config;
+  memcpy(&current_config, &new_config, sizeof(config));
   current_config.reverse_tt &= 1;
   current_config.disable_leds &= 1;
   eeprom_update_block(&current_config, CONFIG_BASE_ADDR, sizeof(config));
