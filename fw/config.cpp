@@ -57,9 +57,9 @@ const IIDXKeyMapping DEFAULT_IIDX_KEYS = {
     HID_KEYBOARD_SC_1_AND_EXCLAMATION, // E1/Start
     HID_KEYBOARD_SC_2_AND_AT,          // E2
     HID_KEYBOARD_SC_3_AND_HASHMARK,    // E3
-    HID_KEYBOARD_SC_4_AND_DOLLAR,     // E4/Select
-    HID_KEYBOARD_SC_DOWN_ARROW,       // TT -
-    HID_KEYBOARD_SC_UP_ARROW          // TT +
+    HID_KEYBOARD_SC_4_AND_DOLLAR,      // E4/Select
+    HID_KEYBOARD_SC_DOWN_ARROW,        // TT -
+    HID_KEYBOARD_SC_UP_ARROW           // TT +
   }
 };
 
