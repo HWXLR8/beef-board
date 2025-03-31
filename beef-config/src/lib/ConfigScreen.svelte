@@ -72,6 +72,13 @@
 </script>
 
 {#if config}
+	{#if config.version < 13}
+		<WarningAlert
+			title="Outdated Firmware"
+			description="Your firmware version is too old. Some features may not be available. Please update your firmware to access all features."
+		/>
+	{/if}
+
 	<div class="mb-4">
 		<Label for="controller-type">Controller Mode</Label>
 		<Select.Root
