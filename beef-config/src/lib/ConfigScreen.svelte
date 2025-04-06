@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 
 	import InputModes from '$lib/InputModes.svelte';
+	import KeyBinding from '$lib/KeyBinding.svelte';
 	import LightEffectSelect from '$lib/LightEffectSelect.svelte';
 	import SliderInput from '$lib/SliderInput.svelte';
 	import Switch from '$lib/Switch.svelte';
@@ -161,6 +162,11 @@
 			<InputModes bind:inputMode={config.sdvx_input_mode} />
 			<Switch label="Disable LEDs" bind:checked={config.disable_leds} />
 		</div>
+	{/if}
+
+	{#if config.version >= 13}
+		<Separator class="mb-4" />
+		<KeyBinding bind:config />
 	{/if}
 
 	<Separator class="mb-4" />

@@ -51,6 +51,17 @@ enum class Command : uint8_t {
   ResetConfig
 };
 
+// Key mapping structures
+struct IIDXKeyMapping {
+  uint8_t key_codes[13];
+  uint8_t padding[7];
+};
+
+struct SDVXKeyMapping {
+  uint8_t key_codes[9];
+  uint8_t padding[11];
+};
+
 // Do not reorder these fields
 struct config {
   uint8_t version;
@@ -72,6 +83,8 @@ struct config {
   InputMode iidx_input_mode;
   InputMode sdvx_input_mode;
   uint8_t tt_sustain_ms;
+  IIDXKeyMapping iidx_keys;
+  SDVXKeyMapping sdvx_keys;
 };
 
 struct callback {

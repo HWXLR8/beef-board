@@ -13,25 +13,6 @@ namespace IIDX {
     uint16_t Button; // bit-field representing which buttons have been pressed
   } ATTR_PACKED;
 
-  enum {
-    KEYBOARD_KEYS = 13
-  };
-  const uint8_t key_codes[KEYBOARD_KEYS] = {
-    HID_KEYBOARD_SC_S, // 1
-    HID_KEYBOARD_SC_D, // 2
-    HID_KEYBOARD_SC_F, // 3
-    HID_KEYBOARD_SC_SPACE, // 4
-    HID_KEYBOARD_SC_J, // 5
-    HID_KEYBOARD_SC_K, // 6
-    HID_KEYBOARD_SC_L, // 7
-    HID_KEYBOARD_SC_1_AND_EXCLAMATION, // E1/Start
-    HID_KEYBOARD_SC_2_AND_AT, // E2
-    HID_KEYBOARD_SC_3_AND_HASHMARK, // E3
-    HID_KEYBOARD_SC_4_AND_DOLLAR, // E4/Select
-    HID_KEYBOARD_SC_DOWN_ARROW, // TT -
-    HID_KEYBOARD_SC_UP_ARROW // TT +
-  };
-
   HidReport<USB_JoystickReport_Data_t, INTERFACE_ID_Joystick, JOYSTICK_IN_EPADDR> joystick_hid_report;
   HidReport<Beef::USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_hid_report;
   UsbHandler usb_handler;
@@ -75,7 +56,9 @@ namespace IIDX {
         auto keyboard_report = (Beef::USB_KeyboardReport_Data_t*)report_data;
         *report_size = sizeof(*keyboard_report);
 
-        process_keyboard(keyboard_report, key_codes, KEYBOARD_KEYS);
+        process_keyboard(keyboard_report,
+                         current_config.iidx_keys.key_codes,
+                         sizeof(current_config.iidx_keys.key_codes));
 
         return false;
       }
