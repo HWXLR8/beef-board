@@ -15,11 +15,11 @@ FW_VER = 0x$(shell git rev-parse --short=8 HEAD)
 
 FASTLED_SRC = FastLED/src
 SRC = $(wildcard *.c) $(wildcard *.cpp) $(wildcard devices/iidx/*.cpp) $(wildcard devices/sdvx/*.cpp) \
-	$(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/hsv2rgb.cpp $(FASTLED_SRC)/lib8tion.cpp \
+	$(FASTLED_SRC)/cled_controller.cpp $(FASTLED_SRC)/colorutils.cpp $(FASTLED_SRC)/crgb.cpp $(FASTLED_SRC)/FastLED.cpp $(FASTLED_SRC)/hsv2rgb.cpp $(FASTLED_SRC)/lib8tion.cpp \
 	$(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH = LUFA
-CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -include fastled_shim.h \
-	-DFASTLED_NO_PINMAP \
+CC_FLAGS = -DUSE_LUFA_CONFIG_HEADER -IConfig/ \
+	-DFASTLED_NO_PINMAP -I$(FASTLED_SRC) -I$(FASTLED_SRC)/fl -include fastled_shim.h \
 	-DBEEF_LED_REFRESH=$(BEEF_LED_REFRESH) -DBEEF_TT_RAINBOW_SPIN_SPEED=$(BEEF_TT_RAINBOW_SPIN_SPEED) \
 	-DBEEF_DEBOUNCE=$(BEEF_DEBOUNCE) -DRING_LIGHT_LEDS=$(RING_LIGHT_LEDS) -DLIGHT_BAR_LEDS=$(LIGHT_BAR_LEDS) \
 	-DFW_VER=$(FW_VER)

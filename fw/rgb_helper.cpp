@@ -80,10 +80,10 @@ namespace RgbHelper {
   }
 
   void show_tt() {
-    tt_controller->showLeds();
+    tt_controller->showLeds(255);
   }
 
   void show_bar() {
-    bar_controller->showLeds();
+    bar_controller->showLeds(255);
   }
 }
