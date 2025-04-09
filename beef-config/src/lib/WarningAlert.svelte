@@ -6,7 +6,7 @@
 
 	export let title: string;
 	export let description: string;
-	export let variant: 'default' | 'destructive' | undefined = 'default';
+	export let variant: 'default' | 'destructive' = 'default';
 </script>
 
 <Alert class="mb-4" {variant}>

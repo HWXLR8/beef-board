@@ -72,6 +72,13 @@
 </script>
 
 {#if config}
+	{#if config.version < 13}
+		<WarningAlert
+			title="Outdated Firmware"
+			description="Your firmware version is too old. Some features may not be available. Please update your firmware to access all features."
+		/>
+	{/if}
+
 	<div class="mb-4">
 		<Label for="controller-type">Controller Mode</Label>
 		<Select.Root
@@ -170,30 +177,30 @@
 	{/if}
 
 	<Separator class="mb-4" />
-
-	<div class="mt-4">
-		<AlertDialog.Root closeOnOutsideClick={true}>
-			<AlertDialog.Trigger asChild let:builder>
-				<Button builders={[builder]} variant="destructive">Reset Config</Button>
-			</AlertDialog.Trigger>
-			<AlertDialog.Content>
-				<AlertDialog.Header>
-					<AlertDialog.Title>Are you sure?</AlertDialog.Title>
-					<AlertDialog.Description>
-						This action cannot be undone. This will reset all settings to their default values and
-						the controller will disconnect.
-					</AlertDialog.Description>
-				</AlertDialog.Header>
-				<AlertDialog.Footer>
-					<AlertDialog.Action
-						on:click={async () => {
-							await sendCommand(Command.ResetConfig);
-							await waitForReconnection();
-						}}>Continue</AlertDialog.Action
-					>
-					<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-				</AlertDialog.Footer>
-			</AlertDialog.Content>
-		</AlertDialog.Root>
-	</div>
 {/if}
+
+<div class="mt-4">
+	<AlertDialog.Root closeOnOutsideClick={true}>
+		<AlertDialog.Trigger asChild let:builder>
+			<Button builders={[builder]} variant="destructive">Reset Config</Button>
+		</AlertDialog.Trigger>
+		<AlertDialog.Content>
+			<AlertDialog.Header>
+				<AlertDialog.Title>Are you sure?</AlertDialog.Title>
+				<AlertDialog.Description>
+					This action cannot be undone. This will reset all settings to their default values and
+					the controller will disconnect.
+				</AlertDialog.Description>
+			</AlertDialog.Header>
+			<AlertDialog.Footer>
+				<AlertDialog.Action
+					on:click={async () => {
+						await sendCommand(Command.ResetConfig);
+						await waitForReconnection();
+					}}>Continue</AlertDialog.Action
+				>
+				<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			</AlertDialog.Footer>
+		</AlertDialog.Content>
+	</AlertDialog.Root>
+</div>
