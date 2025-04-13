@@ -65,7 +65,7 @@
 		{/if}
 
 		{#if $error}
-			<Alert variant="destructive" class="mb-4">
+			<Alert variant="destructive" class="mt-4">
 				<AlertTitle>Error</AlertTitle>
 				<AlertDescription>{$error}</AlertDescription>
 			</Alert>
