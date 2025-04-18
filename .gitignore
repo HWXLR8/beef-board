@@ -1,3 +1,7 @@
+**/.idea
+**/.vscode
+
+fw/.cache
 fw/obj
 fw/*.bin
 fw/*.eep
@@ -6,6 +10,7 @@ fw/*.hex
 fw/*.lss
 fw/*.map
 fw/*.sym
+fw/compile_commands.json
 
 pcb/*-backups
 pcb/*.kicad_prl
