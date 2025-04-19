@@ -19,3 +19,9 @@ remote-board/*.kicad_prl
 remote-board/*.bak
 remote-board/fp-info-cache
 remote-board/sym-lib-table
+
+tt-adapter/*-backups
+tt-adapter/*.kicad_prl
+tt-adapter/*.bak
+tt-adapter/fp-info-cache
+tt-adapter/sym-lib-table
