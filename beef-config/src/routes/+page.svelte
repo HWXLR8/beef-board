@@ -1,26 +1,24 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import { Alert } from '$lib/components/ui/alert';
-	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
-	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
+	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
-	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import * as Tabs from '$lib/components/ui/tabs';
 
 	import ConfigScreen from '$lib/ConfigScreen.svelte';
 	import FirmwareScreen from '$lib/FirmwareScreen.svelte';
 	import LightDarkModeToggle from '$lib//LightDarkModeToggle.svelte';
 
-	import { connectDevice, disableConfigTab, device, error } from '$lib/types/state';
+	import { connectDevice, appState } from '$lib/types/state.svelte';
 
 	const Tab = {
 		Config: 'config',
 		Firmware: 'dfu'
 	} as const;
 
-	let browserSupported = false;
-	let loading = true;
+	let browserSupported = $state(false);
+	let loading = $state(true);
 
 	onMount(() => {
 		checkBrowserSupport();
@@ -32,7 +30,7 @@
 	}
 </script>
 
-<main class="mx-auto max-w-screen-lg p-4">
+<main class="mx-auto max-w-(--breakpoint-lg) p-4">
 	<div class="flex justify-between">
 		<h1 class="mb-4 text-2xl font-bold">Beef Board Configuration</h1>
 		<LightDarkModeToggle />
@@ -49,12 +47,12 @@
 			</AlertDescription>
 		</Alert>
 	{:else}
-		{#if !$device}
-			<Button on:click={connectDevice} class="mb-4">Connect Device</Button>
+		{#if !appState.device}
+			<Button onclick={connectDevice} class="mb-4">Connect Device</Button>
 		{:else}
 			<Tabs.Root value={Tab.Config}>
 				<Tabs.List class="mb-4 flex w-full flex-row justify-center">
-					<Tabs.Trigger value={Tab.Config} disabled={$disableConfigTab} class="grow"
+					<Tabs.Trigger value={Tab.Config} disabled={appState.disableConfigTab} class="grow"
 						>Config</Tabs.Trigger
 					>
 					<Tabs.Trigger value={Tab.Firmware} class="grow">Firmware</Tabs.Trigger>
@@ -64,10 +62,10 @@
 			</Tabs.Root>
 		{/if}
 
-		{#if $error}
+		{#if appState.error}
 			<Alert variant="destructive" class="mt-4">
 				<AlertTitle>Error</AlertTitle>
-				<AlertDescription>{$error}</AlertDescription>
+				<AlertDescription>{appState.error}</AlertDescription>
 			</Alert>
 		{/if}
 	{/if}

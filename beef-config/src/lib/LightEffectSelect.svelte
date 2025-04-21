@@ -2,43 +2,30 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
 
-	import ColorPicker from '$lib/ColorPicker.svelte';
-	import type { Config } from '$lib/types/config';
-	import type { BarMode, HsvEnumMapping, TurntableMode } from '$lib/types/types';
+	import type { BarMode, TurntableMode } from '$lib/types/types.svelte';
 
-	export let label: string;
-	export let config: Config;
-	export let effect: T;
-	export let modeMapping: Record<T, HsvEnumMapping>;
+	interface Props {
+		label: string;
+		effect: T;
+		modeMapping: T[];
+	}
 
-	const modeMappingIter = Object.entries<HsvEnumMapping>(modeMapping);
+	let { label, effect = $bindable(), modeMapping }: Props = $props();
 </script>
 
 <div class="mb-4">
 	<Label>{label}</Label>
 	<Select.Root
-		selected={{
-			value: effect,
-			label: modeMapping[effect].displayName
-		}}
-		onSelectedChange={(value) => {
-			if (value) {
-				effect = value.value;
-			}
-		}}
+		type="single"
+		bind:value={effect}
 	>
-		<Select.Trigger class="w-[180px]">
-			<Select.Value placeholder={label} />
-		</Select.Trigger>
+		<Select.Trigger class="w-[180px]">{effect}</Select.Trigger>
 		<Select.Content>
 			<Select.Group>
-				{#each modeMappingIter as [value, label]}
-					<Select.Item value={Number(value)} label={label.displayName}
-						>{label.displayName}</Select.Item
-					>
+				{#each modeMapping as value}
+					<Select.Item {value}>{value}</Select.Item>
 				{/each}
 			</Select.Group>
 		</Select.Content>
 	</Select.Root>
 </div>
-<ColorPicker bind:config hsvField={modeMapping[effect].hsvField} />
