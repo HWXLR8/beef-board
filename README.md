@@ -1,5 +1,11 @@
-# beef board
+# beef board<a name="intro"></a>
 [![Continuous Integration](https://github.com/HWXLR8/beef-board/actions/workflows/ci.yml/badge.svg)](https://github.com/HWXLR8/beef-board/actions/workflows/ci.yml)
+
+1. [Wiring configuration](#wiring-configuration)
+2. [Settings](#settings)
+3. [SpiceTools companion scripts](#spicetools)
+4. [Bill of Materials](#bom)
+5. [Credits](#credits)
 
 This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOENIXWAN+ and FAUCETWO controllers. Games currently supported:
 
@@ -13,7 +19,7 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
   <img src="assets/legend.png" width="700"/>
 </p>
 
-## Wiring configuration
+## Wiring configuration<a name="wiring-configuration"></a>
 
 <details>
 
@@ -50,7 +56,7 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 
 </details>
 
-## Configuration
+## Settings<a name="settings"></a>
 
 ## Web configuration tool
 
@@ -100,7 +106,11 @@ There also exist button combinations which perform special actions if held while
 | SDVX mode - HID | B1 + B9 |
 | SDVX mode - Keyboard | B2 + B9 |
 
-## BOM
+## SpiceTools companion scripts<a name="spicetools"></a>
+
+A collection of scripts and tools are available for SpiceTools users to enhance your playing experience. Check the `README.md` under `spiceapi` for instructions and what they do.
+
+## Bill of Materials<a name="bom"></a>
 
 ```plaintext
 ### PIN HEADERS ###
@@ -133,7 +143,7 @@ There also exist button combinations which perform special actions if held while
 2   USB-B (ED2983-ND)
 ```
 
-## Credits
+## Credits<a name="credits"></a>
 
 * HW design by [HWXLR8](https://github.com/HWXLR8)
 * FW written by [HWXLR8](https://github.com/HWXLR8) / [supervaka](https://github.com/supervaka) / [ASleepyCat](https://github.com/ASleepyCat)

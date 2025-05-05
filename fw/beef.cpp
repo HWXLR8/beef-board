@@ -221,6 +221,7 @@ void EVENT_USB_Device_ConfigurationChanged() {
   Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
   Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
   Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  Endpoint_ConfigureEndpoint(LIGHTS_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
 
   // We don't use StartOfFrame events to poll as it's too slow and results in lots of jitter from inputs
 }
@@ -249,7 +250,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
         case HID_REPORTID_Command:
           return false;
         case HID_REPORTID_FirmwareVersion: {
-          const uint32_t firmware_version = FW_VER;
+          constexpr uint32_t firmware_version = FW_VER;
           memcpy(ReportData, &firmware_version, sizeof(firmware_version));
           *ReportSize = sizeof(firmware_version);
           return false;

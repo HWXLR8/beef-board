@@ -17,7 +17,7 @@ namespace IIDX {
       // Add a second-long rest period
       BreathingPattern breathing_pattern(BREATHING_TIMER);
 
-      bool set_hsv(HSV hsv) {
+      bool set_hsv(const HSV &hsv) {
         return RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
       }
 
@@ -29,7 +29,7 @@ namespace IIDX {
                                       FAST_SPIN_TIMER,
                                       RING_LIGHT_LEDS / 2);
       // Render two spinning LEDs
-      bool spin(const HSV &hsv, int8_t tt_report) {
+      bool spin(const HSV &hsv, const int8_t tt_report) {
         if (spin_pattern.update(tt_report)) {
           set_leds_off();
 
@@ -125,7 +125,7 @@ namespace IIDX {
       }
 
       // Illuminate + as blue, - as red in two halves
-      void reverse_tt(bool reverse_tt) {
+      void reverse_tt(const bool reverse_tt) {
         auto first_half = CRGB::Blue;
         auto second_half = CRGB::Red;
         if (reverse_tt) {
@@ -231,7 +231,7 @@ namespace IIDX {
     namespace Bar {
       bool force_update;
 
-      enum class SpectrumSide : uint8_t {
+      enum class PlayerSide : uint8_t {
         P1,
         P2
       };
@@ -240,8 +240,19 @@ namespace IIDX {
         return RgbHelper::set_rgb(bar_leds, LIGHT_BAR_LEDS, CRGB::Black);
       }
 
+      void flip_leds(const PlayerSide side) {
+        if (side == PlayerSide::P1) {
+          // Flip for P1
+          for (uint8_t i = 0; i < LIGHT_BAR_LEDS / 2; i++) {
+            const auto tmp = bar_leds[i];
+            bar_leds[i] = bar_leds[LIGHT_BAR_LEDS-1-i];
+            bar_leds[LIGHT_BAR_LEDS-1-i] = tmp;
+          }
+        }
+      }
+
       Bpm bpm(LIGHT_BAR_LEDS);
-      bool spectrum(const SpectrumSide side) {
+      bool spectrum(const PlayerSide side) {
         static uint8_t last_level;
 
         const auto level = bpm.update(button_state);
@@ -251,17 +262,37 @@ namespace IIDX {
           update = true;
           set_leds_off();
           fill_rainbow(bar_leds, level, 0, -16);
-          if (side == SpectrumSide::P1) {
-            // Flip for P1
-            for (uint8_t i = 0; i < LIGHT_BAR_LEDS / 2; i++) {
-              const auto tmp = bar_leds[i];
-              bar_leds[i] = bar_leds[LIGHT_BAR_LEDS-1-i];
-              bar_leds[LIGHT_BAR_LEDS-1-i] = tmp;
-            }
-          }
+          flip_leds(side);
         }
 
         last_level = level;
+        return update;
+      }
+
+      Ticker tape_led_ticker(50);
+      rgb_light tape_leds[LIGHT_BAR_LEDS];
+      bool tape_led(const PlayerSide side) {
+        auto update = false;
+        HID_Task(tape_leds, LIGHTS_OUT_EPADDR);
+
+        if (rgb_standby) {
+          static uint8_t i = 0;
+          const auto ticks = tape_led_ticker.get_ticks();
+          update = ticks > 0;
+          if (update) {
+            set_leds_off();
+            i = (i + ticks) % LIGHT_BAR_LEDS;
+            bar_leds[LIGHT_BAR_LEDS - 1 - i] = CRGB::White;
+          }
+        } else {
+          for (uint8_t i = 0; i < LIGHT_BAR_LEDS; ++i) {
+            const auto rgb = CRGB(tape_leds[i].r, tape_leds[i].g, tape_leds[i].b);
+            update |= bar_leds[LIGHT_BAR_LEDS - 1 - i] != rgb;
+            bar_leds[LIGHT_BAR_LEDS - 1 - i] = rgb;
+          }
+        }
+
+        flip_leds(side);
         return update;
       }
 
@@ -270,13 +301,19 @@ namespace IIDX {
 
         switch(current_config.bar_effect) {
           case BarMode::KeySpectrumP1:
-            update |= spectrum(SpectrumSide::P1);
+            update |= spectrum(PlayerSide::P1);
             break;
           case BarMode::KeySpectrumP2:
-            update |= spectrum(SpectrumSide::P2);
+            update |= spectrum(PlayerSide::P2);
             break;
           case BarMode::HID:
             update |= RgbHelper::hid(bar_leds, LIGHT_BAR_LEDS, lights);
+            break;
+          case BarMode::TapeLedP1:
+            update |= tape_led(PlayerSide::P1);
+            break;
+          case BarMode::TapeLedP2:
+            update |= tape_led(PlayerSide::P2);
             break;
           case BarMode::Disable:
             update |= set_leds_off();

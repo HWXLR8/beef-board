@@ -64,6 +64,20 @@ jobs:
           path: |
             tmp/*
 
+  spiceapi:
+    name: Build spiceapi
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: spiceapi
+          path: |
+            spiceapi/*
+
   beef-config:
     uses: ./.github/workflows/web-ci.yml
     with:

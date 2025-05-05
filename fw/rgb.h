@@ -26,6 +26,8 @@ enum class BarMode : uint8_t {
   KeySpectrumP2,
   Placeholder3, // audio spectrum
   HID,
+  TapeLedP1,
+  TapeLedP2,
   Disable,
   Count
 };

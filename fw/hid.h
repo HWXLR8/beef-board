@@ -47,8 +47,8 @@ struct HidReport {
 
 // HID functions
 template<typename T>
-void HID_Task(T &led_state) {
-  Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
+void HID_Task(T &led_state, const uint8_t endpoint) {
+  Endpoint_SelectEndpoint(endpoint);
 
   // check if a packet has been sent from the host
   if (Endpoint_IsOUTReceived()) {

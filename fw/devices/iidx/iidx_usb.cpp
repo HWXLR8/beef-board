@@ -80,7 +80,7 @@ namespace IIDX {
   }
 
   void UsbHandler::update(const config &config) {
-    HID_Task(led_data);
+    HID_Task(led_data, JOYSTICK_OUT_EPADDR);
 
     tt_x.poll();
     const auto tt1_report = button_x.poll(config.tt_deadzone,
@@ -89,7 +89,7 @@ namespace IIDX {
     process_buttons(tt1_report);
 
     update_button_lighting(led_data.buttons);
-    RgbManager::update(tt1_report,led_data);
+    RgbManager::update(tt1_report, led_data);
   }
 
   void usb_init(const config &config) {

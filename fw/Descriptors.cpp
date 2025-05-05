@@ -2,6 +2,8 @@
 
 const USB_Descriptor_HIDReport_Datatype_t* JoystickHIDReport;
 uint16_t SizeOfJoystickHIDReport;
+const USB_Descriptor_HIDReport_Datatype_t* LightsHIDReport;
+uint16_t SizeOfLightsHIDReport;
 const USB_Descriptor_Device_t* DeviceDescriptor;
 const USB_Descriptor_Configuration_t* ConfigurationDescriptor;
 uint8_t LedStringCount;
@@ -94,6 +96,10 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
           Address = &ConfigurationDescriptor->HID_ConfigHID;
           Size    = sizeof(USB_HID_Descriptor_HID_t);
           break;
+        case INTERFACE_ID_Lights:
+          Address = &ConfigurationDescriptor->HID_LightsID;
+          Size    = sizeof(USB_HID_Descriptor_HID_t);
+          break;
         default:
           break;
       }
@@ -116,6 +122,12 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
         case INTERFACE_ID_Config:
           Address = &ConfigHIDReport;
           Size    = sizeof(ConfigHIDReport);
+          break;
+        case INTERFACE_ID_Lights:
+          if (SizeOfLightsHIDReport > 0) {
+            Address = LightsHIDReport;
+            Size    = SizeOfLightsHIDReport;
+          }
           break;
         default:
           break;
