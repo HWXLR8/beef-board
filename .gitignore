@@ -1,3 +1,4 @@
+fw/.cache
 fw/obj
 fw/*.bin
 fw/*.eep
@@ -6,6 +7,7 @@ fw/*.hex
 fw/*.lss
 fw/*.map
 fw/*.sym
+fw/compile_commands.json
 
 pcb/*-backups
 pcb/*.kicad_prl
@@ -25,3 +27,6 @@ tt-adapter/*.kicad_prl
 tt-adapter/*.bak
 tt-adapter/fp-info-cache
 tt-adapter/sym-lib-table
+
+**/.vscode
+**/.idea
