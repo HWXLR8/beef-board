@@ -273,9 +273,9 @@ namespace IIDX {
       rgb_light tape_leds[LIGHT_BAR_LEDS];
       bool tape_led(const PlayerSide side) {
         auto update = false;
-        HID_Task(tape_leds, LIGHTS_OUT_EPADDR);
+        HID_Task(tape_leds, lights_out_state);
 
-        if (rgb_standby) {
+        if (lights_out_state.on_standby()) {
           static uint8_t i = 0;
           const auto ticks = tape_led_ticker.get_ticks();
           update = ticks > 0;

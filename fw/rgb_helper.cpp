@@ -55,8 +55,8 @@ namespace RgbHelper {
 
   // Share same lighting state between different lights for HID standby animation
   BreathingPattern hid_standby;
-  bool hid(CRGB* leds, const uint8_t n, rgb_light lights) {
-    if (rgb_standby) {
+  bool hid(CRGB* leds, const uint8_t n, const rgb_light &lights) {
+    if (joystick_out_state.on_standby()) {
       return breathing(hid_standby, leds, n, {});
     }
     return set_rgb(leds, n, lights);
@@ -70,7 +70,7 @@ namespace RgbHelper {
       return false;
 
     static uint32_t last_show = 0;
-    const uint32_t min_micros = 1000000 / BEEF_LED_REFRESH;
+    constexpr uint32_t min_micros = 1000000 / BEEF_LED_REFRESH;
     const uint32_t now = micros();
     if (now-last_show < min_micros)
       return false;

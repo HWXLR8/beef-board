@@ -87,7 +87,8 @@ int main() {
   config_init(&current_config);
   usb_init(current_config);
 
-  timer_arm(&hid_lights_expiry_timer, 0);
+  timer_arm(&joystick_out_state.hid_expiry_timer, 0);
+  timer_arm(&lights_out_state.hid_expiry_timer, 0);
 
   RgbHelper::init();
 
@@ -322,10 +323,7 @@ void set_led(volatile uint8_t* PORT,
 }
 
 void set_hid_standby_lighting() {
-  const auto hid_expiry = timer_is_expired(&hid_lights_expiry_timer);
-
-  reactive_led = hid_expiry;
-  rgb_standby = hid_expiry;
+  reactive_led = joystick_out_state.on_standby();
 }
 
 void process_buttons() {

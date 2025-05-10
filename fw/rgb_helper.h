@@ -36,7 +36,7 @@ namespace RgbHelper {
   bool set_hsv(CRGB* leds, uint8_t n, const HSV &hsv);
   bool breathing(BreathingPattern &breathing_pattern,
                  CRGB* leds, uint8_t n, const HSV &hsv);
-  bool hid(CRGB* leds, uint8_t n, rgb_light lights);
+  bool hid(CRGB* leds, uint8_t n, const rgb_light &lights);
 
   bool ready_to_present();
   void show_tt();

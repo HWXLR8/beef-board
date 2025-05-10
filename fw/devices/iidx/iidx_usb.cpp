@@ -80,7 +80,7 @@ namespace IIDX {
   }
 
   void UsbHandler::update(const config &config) {
-    HID_Task(led_data, JOYSTICK_OUT_EPADDR);
+    HID_Task(led_data, joystick_out_state);
 
     tt_x.poll();
     const auto tt1_report = button_x.poll(config.tt_deadzone,
