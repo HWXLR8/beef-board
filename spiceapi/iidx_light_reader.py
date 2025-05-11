@@ -11,7 +11,7 @@ then sends them to a USB HID device in a specific format:
 import sys
 # Set this to where your spiceapi python files are located
 # These are available in spice2x releases
-sys.path.append("/path/to/spice2x/api/resources/python")
+sys.path.append(r"G:\spice2x.github.io\src\spice2x\api\resources\python")
 import time
 import argparse
 try:
@@ -82,16 +82,18 @@ def find_usb_device(vid, pid):
         print(f"Error finding HID device: {e}")
         return None
 
-def read_tape_leds(conn):
+def read_tape_leds(conn, name):
     """Read the IIDX tape LED states.
 
     Args:
         conn (Connection): The connection to the spiceapi server
+        name (str): The name of the tape LED device to get
 
     Returns:
         dict: List of tape LED states
     """
-    return iidx_tapeled_get(conn)[0]
+    res = iidx_tapeled_get(conn, name)
+    return res[0].get(name)
 
 def format_tape_leds(tape_leds):
     """Format tape LED data into 48 integers (16 RGB LEDs).
@@ -102,26 +104,23 @@ def format_tape_leds(tape_leds):
     Returns:
         list: 48 integers representing 16 RGB LEDs
     """
-    # Get LEDs from tape_leds
-    side_panel_left_leds = tape_leds.get("side_panel_left", [])
-
-    # Create 16 RGB LEDs with values from control_panel_under
+    # Create 16 RGB LEDs with values from tape LEDs
     result = []
 
     # If we have no LED data, return all zeros
-    if not side_panel_left_leds:
+    if not tape_leds:
         return [0, 0, 0] * NUM_OF_LEDS
 
     # Calculate how many RGB triplets we have
-    total_triplets = len(side_panel_left_leds) // 3
+    total_triplets = len(tape_leds) // 3
 
     # If we have 16 or fewer LEDs, just use them directly
     if total_triplets <= NUM_OF_LEDS:
         for i in range(total_triplets):
             index = i * 3
-            r = int(side_panel_left_leds[index]) & 0xFF
-            g = int(side_panel_left_leds[index + 1]) & 0xFF
-            b = int(side_panel_left_leds[index + 2]) & 0xFF
+            r = int(tape_leds[index]) & 0xFF
+            g = int(tape_leds[index + 1]) & 0xFF
+            b = int(tape_leds[index + 2]) & 0xFF
             result.extend([r, g, b])
 
         # Fill the rest with zeros if needed
@@ -141,9 +140,9 @@ def format_tape_leds(tape_leds):
 
             for j in range(start_idx, end_idx):
                 base_idx = j * 3
-                r_sum += side_panel_left_leds[base_idx]
-                g_sum += side_panel_left_leds[base_idx + 1]
-                b_sum += side_panel_left_leds[base_idx + 2]
+                r_sum += tape_leds[base_idx]
+                g_sum += tape_leds[base_idx + 1]
+                b_sum += tape_leds[base_idx + 2]
 
             # Calculate the average and convert to byte values
             r = int((r_sum / count)) & 0xFF
@@ -192,6 +191,7 @@ def parse_arguments():
 
     parser.add_argument('--port', type=int, required=True, help='SpiceAPI server port')
     parser.add_argument('--password', default='', help='SpiceAPI server password')
+    parser.add_argument('--name', default='Cabinet Left', help='Tape LED device name to choose for RGB data')
 
     return parser.parse_args()
 
@@ -220,11 +220,13 @@ def main():
                     conn = connect_to_spiceapi(args.port, args.password)
                 except Exception:
                     print(f"Error connecting to spiceapi server, retrying in a bit...")
-                    time.sleep(5)
+                    time.sleep(1)
                     continue
 
             # Read light states
-            tape_leds = read_tape_leds(conn)
+            tape_leds = read_tape_leds(conn, args.name)
+            if tape_leds is None:
+                raise ValueError(f"Unknown tape LED device '{args.name}'")
 
             # Format data for USB HID output
             tape_led_values = format_tape_leds(tape_leds)
@@ -240,7 +242,7 @@ def main():
     except (ConnectionResetError, KeyboardInterrupt):
         print("\nExiting...")
     finally:
-        # Close connection
+        # Close connections
         device.close()
         if conn:
             conn.close()
