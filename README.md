@@ -1,12 +1,6 @@
 # beef board<a name="intro"></a>
 [![Continuous Integration](https://github.com/HWXLR8/beef-board/actions/workflows/ci.yml/badge.svg)](https://github.com/HWXLR8/beef-board/actions/workflows/ci.yml)
 
-1. [Wiring configuration](#wiring-configuration)
-2. [Settings](#settings)
-3. [SpiceTools companion scripts](#spicetools)
-4. [Bill of Materials](#bom)
-5. [Credits](#credits)
-
 This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOENIXWAN+ and FAUCETWO controllers. Games currently supported:
 
 * Beatmania IIDX
@@ -18,6 +12,14 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
   <img src="assets/back.png" height="250">
   <img src="assets/legend.png" width="700"/>
 </p>
+
+## Contents
+
+1. [Wiring configuration](#wiring-configuration)
+2. [Settings](#settings)
+3. [SpiceTools companion scripts](#spicetools)
+4. [Bill of Materials](#bom)
+5. [Credits](#credits)
 
 ## Wiring configuration<a name="wiring-configuration"></a>
 
