@@ -3,12 +3,21 @@
 #include "Descriptors.h"
 #include "timer.h"
 
+struct hid_state {
+  uint8_t endpoint;
+  timer hid_expiry_timer;
+
+  bool on_standby() {
+    return timer_is_expired(&hid_expiry_timer);
+  }
+};
+
 // flag to represent whether the LEDs are controlled by host or not
 // when not controlled by host, LEDs light up while the corresponding
 // button is held
 extern bool reactive_led;
-extern bool rgb_standby;
-extern timer hid_lights_expiry_timer;
+extern hid_state joystick_out_state;
+extern hid_state lights_out_state;
 
 namespace Beef {
   struct USB_KeyboardReport_Data_t {
@@ -47,16 +56,15 @@ struct HidReport {
 
 // HID functions
 template<typename T>
-void HID_Task(T &led_state) {
-  Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
+void HID_Task(T &led_state, hid_state &state) {
+  Endpoint_SelectEndpoint(state.endpoint);
 
   // check if a packet has been sent from the host
   if (Endpoint_IsOUTReceived()) {
     // check if packet contains data
     if (Endpoint_IsReadWriteAllowed()) { // read generic report data
       Endpoint_Read_Stream_LE(&led_state, sizeof(T), nullptr);
-
-      timer_arm(&hid_lights_expiry_timer, 1000);
+      timer_arm(&state.hid_expiry_timer, 1000);
     }
 
     // finalize the stream transfer to send the last packet

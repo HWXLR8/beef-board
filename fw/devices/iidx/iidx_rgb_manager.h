@@ -12,7 +12,7 @@ namespace IIDX {
   } ATTR_PACKED;
 
   namespace RgbManager {
-    void update(const int8_t tt_report, const hid_lights &led_state_from_hid_report);
+    void update(int8_t tt_report, const hid_lights &led_state_from_hid_report);
     namespace Turntable {
       extern bool force_update;
 

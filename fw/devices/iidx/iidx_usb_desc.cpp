@@ -2,7 +2,7 @@
 #include "iidx_usb_desc.h"
 
 namespace IIDX {
-  const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
+  constexpr USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
     HID_RI_USAGE_PAGE(8, 0x01),
     HID_RI_USAGE(8, 0x04),
     HID_RI_COLLECTION(8, 0x01),
@@ -46,10 +46,24 @@ namespace IIDX {
     HID_RI_END_COLLECTION(0)
   };
 
-  // official Konami infinitas controller VID/PID
-  const auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x8048);
+  constexpr USB_Descriptor_HIDReport_Datatype_t PROGMEM LightsHIDReport[] = {
+    HID_RI_USAGE_PAGE(16, 0xFFEB),
+    HID_RI_USAGE(8, 0x02),
+    HID_RI_LOGICAL_MINIMUM(8, 0x00),
+    HID_RI_LOGICAL_MAXIMUM(16, 0xFF),
+    HID_RI_COLLECTION(8, 0x01),
+      // Tape LED
+      HID_RI_USAGE(8, 1),
+      HID_RI_REPORT_SIZE(8, 0x08 * 3),
+      HID_RI_REPORT_COUNT(8, LIGHT_BAR_LEDS),
+      HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+    HID_RI_END_COLLECTION(0)
+  };
 
-  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport));
+  // official Konami infinitas controller VID/PID
+  constexpr auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x8048);
+
+  constexpr auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport), sizeof(LightsHIDReport));
 
   enum {
     LedStringCount = 17
@@ -93,10 +107,12 @@ namespace IIDX {
 
   void usb_desc_init() {
     ::JoystickHIDReport = JoystickHIDReport;
-    ::SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
+    SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
+    ::LightsHIDReport = LightsHIDReport;
+    SizeOfLightsHIDReport = sizeof(LightsHIDReport);
     ::DeviceDescriptor = &DeviceDescriptor;
     ::ConfigurationDescriptor = &ConfigurationDescriptor;
     ::LedStringCount = LedStringCount;
-    ::LedStrings = led_names;
+    LedStrings = led_names;
   }
 }

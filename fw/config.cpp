@@ -130,6 +130,12 @@ bool update_config(config* self) {
       self->sdvx_keys = DEFAULT_SDVX_KEYS;
       self->version++;
       return true;
+    case 13:
+      // Added new effects
+      if (self->bar_effect >= BarMode::TapeLedP1) {
+        self->bar_effect = BarMode(uint8_t(self->bar_effect)+2);
+      }
+      self->version++;
     default:
       return false;
   }

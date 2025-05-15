@@ -8,6 +8,8 @@
 #define LedStringBase 0x10
 
 #define HID_RI_STRING_INDEX(DataBits, ...) _HID_RI_ENTRY(HID_RI_TYPE_LOCAL, 0x70, DataBits, __VA_ARGS__)
+#define HID_RI_STRING_MINIMUM(DataBits, ...) _HID_RI_ENTRY(HID_RI_TYPE_LOCAL, 0x80, DataBits, __VA_ARGS__)
+#define HID_RI_STRING_MAXIMUM(DataBits, ...) _HID_RI_ENTRY(HID_RI_TYPE_LOCAL, 0x90, DataBits, __VA_ARGS__)
 
 #define HID_PADDING_INPUT(Number) \
 HID_RI_REPORT_SIZE(8, Number), \
@@ -39,7 +41,7 @@ HID_RI_COLLECTION(8, 0x02), \
   HID_RI_STRING_INDEX(8, LedStringBase+Number), \
   HID_RI_REPORT_SIZE(8, 0x01), \
   HID_RI_REPORT_COUNT(8, 0x01), \
-  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE), \
+  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE), \
 HID_RI_END_COLLECTION(0)
 
 #define HID_RGB(Number) \
@@ -53,7 +55,7 @@ HID_RI_COLLECTION(8, 0x02), \
   HID_RI_STRING_INDEX(8, LedStringBase+Number), \
   HID_RI_REPORT_SIZE(8, 0x08), \
   HID_RI_REPORT_COUNT(8, 0x01), \
-  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE), \
+  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE), \
 HID_RI_END_COLLECTION(0), \
 HID_RI_USAGE(8, 2), \
 HID_RI_COLLECTION(8, 0x02), \
@@ -62,7 +64,7 @@ HID_RI_COLLECTION(8, 0x02), \
   HID_RI_STRING_INDEX(8, LedStringBase+Number+1), \
   HID_RI_REPORT_SIZE(8, 0x08), \
   HID_RI_REPORT_COUNT(8, 0x01), \
-  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE), \
+  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE), \
 HID_RI_END_COLLECTION(0), \
 HID_RI_USAGE(8, 3), \
 HID_RI_COLLECTION(8, 0x02), \
@@ -71,7 +73,7 @@ HID_RI_COLLECTION(8, 0x02), \
   HID_RI_STRING_INDEX(8, LedStringBase+Number+2), \
   HID_RI_REPORT_SIZE(8, 0x08), \
   HID_RI_REPORT_COUNT(8, 0x01), \
-  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE), \
+  HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE), \
 HID_RI_END_COLLECTION(0)
 
 // Type define for the device configuration descriptor structure. This
@@ -100,6 +102,10 @@ typedef struct {
 
   USB_Descriptor_Interface_t HID_ConfigInterface;
   USB_HID_Descriptor_HID_t HID_ConfigHID;
+
+  USB_Descriptor_Interface_t HID_LightsInterface;
+  USB_HID_Descriptor_HID_t HID_LightsID;
+  USB_Descriptor_Endpoint_t HID_LightsReportOUTEndpoint;
 } USB_Descriptor_Configuration_t;
 
 // HID class report descriptor. This is a special descriptor
@@ -111,6 +117,8 @@ typedef struct {
 // more details on HID report descriptors.
 extern const USB_Descriptor_HIDReport_Datatype_t* JoystickHIDReport;
 extern uint16_t SizeOfJoystickHIDReport;
+extern const USB_Descriptor_HIDReport_Datatype_t* LightsHIDReport;
+extern uint16_t SizeOfLightsHIDReport;
 extern const USB_Descriptor_Device_t* DeviceDescriptor;
 extern const USB_Descriptor_Configuration_t* ConfigurationDescriptor;
 extern uint8_t LedStringCount;
@@ -125,6 +133,7 @@ enum InterfaceDescriptors_t {
   INTERFACE_ID_Keyboard = 1, /**< Keyboard interface descriptor ID */
   INTERFACE_ID_Mouse    = 2, /**< Mouse interface descriptor ID */
   INTERFACE_ID_Config   = 3, /**< Config interface descriptor ID */
+  INTERFACE_ID_Lights   = 4, /**< Lights interface descriptor ID */
 };
 
 // Enum for the device string descriptor IDs within the device. Each
@@ -241,6 +250,9 @@ constexpr USB_Descriptor_Device_t generate_device_descriptor(uint16_t vid, uint1
 // Endpoint address of the Mouse HID reporting IN endpoint
 #define MOUSE_IN_EPADDR (ENDPOINT_DIR_IN | 4)
 
+// Endpoint address of tape LED data HID reporting OUT endpoint
+#define LIGHTS_OUT_EPADDR (ENDPOINT_DIR_OUT | 5)
+
 // Size of Hid reporting IN/OUT endpoint in bytes
 #define HID_EPSIZE FIXED_CONTROL_ENDPOINT_SIZE
 
@@ -250,12 +262,13 @@ constexpr USB_Descriptor_Device_t generate_device_descriptor(uint16_t vid, uint1
 // interfaces and endpoints. The descriptor is read out by the USB
 // host during the enumeration process when selecting a configuration
 // so that the host may correctly communicate with the USB device.
-constexpr USB_Descriptor_Configuration_t generate_configuration_descriptor(uint16_t joystick_hid_report_size) {
+constexpr USB_Descriptor_Configuration_t generate_configuration_descriptor(const uint16_t joystick_hid_report_size,
+                                                                           const uint16_t lights_hid_report_size) {
   return USB_Descriptor_Configuration_t{
     .Config = {
       .Header = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
       .TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-      .TotalInterfaces = 4,
+      .TotalInterfaces = 5,
       .ConfigurationNumber = 1,
       .ConfigurationStrIndex = NO_DESCRIPTOR,
       .ConfigAttributes = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
@@ -360,6 +373,31 @@ constexpr USB_Descriptor_Configuration_t generate_configuration_descriptor(uint1
       .TotalReportDescriptors = 1,
       .HIDReportType = HID_DTYPE_Report,
       .HIDReportLength = sizeof(ConfigHIDReport)
+    },
+    .HID_LightsInterface = {
+      .Header = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+      .InterfaceNumber = INTERFACE_ID_Lights,
+      .AlternateSetting = 0x00,
+      .TotalEndpoints = lights_hid_report_size > 0 ? (uint8_t)1 : (uint8_t)0,
+      .Class = HID_CSCP_HIDClass,
+      .SubClass = HID_CSCP_NonBootSubclass,
+      .Protocol = HID_CSCP_NonBootProtocol,
+      .InterfaceStrIndex = NO_DESCRIPTOR
+    },
+    .HID_LightsID = {
+      .Header = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+      .HIDSpec = VERSION_BCD(1,1,1),
+      .CountryCode = 0x00,
+      .TotalReportDescriptors = 1,
+      .HIDReportType = HID_DTYPE_Report,
+      .HIDReportLength = lights_hid_report_size
+    },
+    .HID_LightsReportOUTEndpoint = {
+      .Header = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+      .EndpointAddress = LIGHTS_OUT_EPADDR,
+      .Attributes = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+      .EndpointSize = HID_EPSIZE,
+      .PollingIntervalMS = 0x01
     }
   };
 }

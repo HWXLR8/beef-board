@@ -18,7 +18,9 @@ export enum BarMode {
   KeySpectrumP1 = 1,
   KeySpectrumP2 = 2,
   HID = 4,
-  Off = 5
+  TapeLedP1 = 5,
+  TapeLedP2 = 6,
+  Off = 7
 }
 
 export enum ControllerType {

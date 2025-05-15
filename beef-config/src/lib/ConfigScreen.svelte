@@ -60,6 +60,8 @@
 		[BarMode.KeySpectrumP1]: new HsvEnumMapping('Key Spectrum (P1)'),
 		[BarMode.KeySpectrumP2]: new HsvEnumMapping('Key Spectrum (P2)'),
 		[BarMode.HID]: new HsvEnumMapping('HID'),
+		[BarMode.TapeLedP1]: new HsvEnumMapping('Tape LED (P1)'),
+		[BarMode.TapeLedP2]: new HsvEnumMapping('Tape LED (P2)'),
 		[BarMode.Off]: new HsvEnumMapping('Off')
 	} as const;
 

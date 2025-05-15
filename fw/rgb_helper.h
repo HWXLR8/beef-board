@@ -1,6 +1,7 @@
 #pragma once
 
 #include <FastLED/src/FastLED.h>
+#include <LUFA/Common/Common.h>
 
 #include "rgb.h"
 #include "rgb_patterns.h"
@@ -30,12 +31,12 @@ namespace RgbHelper {
 
   void init();
 
-  bool set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights);
-  bool set_rgb(CRGB* leds, const uint8_t n, const CRGB &rgb);
-  bool set_hsv(CRGB* leds, const uint8_t n, const HSV &hsv);
+  bool set_rgb(CRGB* leds, uint8_t n, const rgb_light &lights);
+  bool set_rgb(CRGB* leds, uint8_t n, const CRGB &rgb);
+  bool set_hsv(CRGB* leds, uint8_t n, const HSV &hsv);
   bool breathing(BreathingPattern &breathing_pattern,
-                 CRGB* leds, const uint8_t n, const HSV &hsv);
-  bool hid(CRGB* leds, const uint8_t n, rgb_light lights);
+                 CRGB* leds, uint8_t n, const HSV &hsv);
+  bool hid(CRGB* leds, uint8_t n, const rgb_light &lights);
 
   bool ready_to_present();
   void show_tt();

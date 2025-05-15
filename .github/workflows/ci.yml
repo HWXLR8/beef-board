@@ -30,8 +30,8 @@ jobs:
           path: fw/beef.hex
           if-no-files-found: error
 
-  beef-tool:
-    name: Build beef-tool
+  utils:
+    name: Build utils
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -52,15 +52,18 @@ jobs:
 
       - name: Prepare files for upload
         run: |
-          mkdir tmp
-          cp dist/beef-tool.exe tmp
-          cp beef-tool/README.md tmp
-          cp -r beef-tool/drivers tmp
+          mkdir -p tmp/beef-tool
+          cp dist/beef-tool.exe tmp/beef-tool
+          cp beef-tool/README.md tmp/beef-tool
+          cp -r beef-tool/drivers tmp/beef-tool
 
-      - name: Upload executable
+          mkdir -p tmp/spiceapi
+          cp -r spiceapi/* tmp/spiceapi
+
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: beef-tool
+          name: beef-utils
           path: |
             tmp/*
 

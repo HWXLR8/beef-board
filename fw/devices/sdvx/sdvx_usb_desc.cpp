@@ -2,7 +2,7 @@
 #include "sdvx_usb_desc.h"
 
 namespace SDVX {
-  const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
+  constexpr USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickHIDReport[] = {
     HID_RI_USAGE_PAGE(8, 0x01),
     HID_RI_USAGE(8, 0x04),
     HID_RI_COLLECTION(8, 0x01),
@@ -38,9 +38,9 @@ namespace SDVX {
   };
 
   // official Konami SOUND VOLTEX NEMSYS controller VID/PID
-  const auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x101C);
+  constexpr auto PROGMEM DeviceDescriptor = generate_device_descriptor(0x1CCF, 0x101C);
 
-  const auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport));
+  constexpr auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport), 0);
 
   enum {
     LedStringCount = 7
@@ -64,10 +64,10 @@ namespace SDVX {
 
   void usb_desc_init() {
     ::JoystickHIDReport = JoystickHIDReport;
-    ::SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
+    SizeOfJoystickHIDReport = sizeof(JoystickHIDReport);
     ::DeviceDescriptor = &DeviceDescriptor;
     ::ConfigurationDescriptor = &ConfigurationDescriptor;
     ::LedStringCount = LedStringCount;
-    ::LedStrings = led_names;
+    LedStrings = led_names;
   }
 }
