@@ -2,38 +2,26 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Select from '$lib/components/ui/select';
 
-	import { InputMode } from '$lib/types/types';
+	import { InputMode } from '$lib/types/types.svelte';
 
-	export let inputMode: InputMode;
+	interface Props {
+		inputMode: InputMode;
+	}
 
-	const inputModes = Object.values(InputMode)
-		.filter((v) => isNaN(Number(v)))
-		.map((_, index) => ({
-			value: index,
-			label: InputMode[index]
-		}));
+	let { inputMode = $bindable() }: Props = $props();
 </script>
 
 <div class="mb-4">
 	<Label>Input Mode</Label>
 	<Select.Root
-		selected={{
-			value: inputMode,
-			label: InputMode[inputMode]
-		}}
-		onSelectedChange={(value) => {
-			if (value) {
-				inputMode = value.value;
-			}
-		}}
+		type="single"
+		bind:value={inputMode}
 	>
-		<Select.Trigger class="w-[180px]">
-			<Select.Value placeholder="Input Mode" />
-		</Select.Trigger>
+		<Select.Trigger class="w-[180px]">{inputMode}</Select.Trigger>
 		<Select.Content>
 			<Select.Group>
-				{#each inputModes as mode}
-					<Select.Item value={mode.value} label={mode.label}>{mode.label}</Select.Item>
+				{#each Object.values(InputMode) as value}
+					<Select.Item {value}>{value}</Select.Item>
 				{/each}
 			</Select.Group>
 		</Select.Content>

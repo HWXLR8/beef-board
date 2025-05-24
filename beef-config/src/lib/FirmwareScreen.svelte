@@ -4,21 +4,19 @@
 	import MemoryMap from 'nrf-intel-hex';
 	import { persisted } from 'svelte-persisted-store';
 
-	import { Alert } from '$lib/components/ui/alert';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
-	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
-	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
+	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
-	import Progress from '$lib/components/ui/progress/progress.svelte';
+	import { Progress } from '$lib/components/ui/progress';
 
 	import WarningAlert from '$lib/WarningAlert.svelte';
 
 	import { ATMEL_MAX_TRANSFER_SIZE, DfuDevice } from '$lib/types/dfu';
 	import { Command, readCommitHash, sendCommand, waitForReconnection } from '$lib/types/hid';
-	import { onDisconnect, error, disableConfigTab } from '$lib/types/state';
+	import { onDisconnect, appState } from '$lib/types/state.svelte';
 
 	const Stage = {
 		Standby: 'standby',
@@ -26,13 +24,13 @@
 		Finished: 'finished'
 	};
 
-	let commitHash: string;
-	let dfuDevice: DfuDevice | undefined;
-	let firmwareData: MemoryMap;
-	let flashing = false;
-	let message = 'Ready';
-	let progress = 0;
-	let stage = Stage.Standby;
+	let commitHash = $state('');
+	let dfuDevice: DfuDevice | undefined = $state();
+	let firmwareData = $state(new MemoryMap());
+	let flashing = $state(false);
+	let message = $state('Ready');
+	let progress = $state(0);
+	let stage = $state(Stage.Standby);
 
 	const hideFirmwareWarningStorage = persisted('hideFirmwareWarning', false);
 
@@ -40,13 +38,13 @@
 		try {
 			commitHash = await readCommitHash();
 		} catch (err) {
-			error.set(`Error reading commit hash: ${err}`);
+			appState.error = `Error reading commit hash: ${err}`;
 		}
 	});
 
 	async function rebootDevice(): Promise<void> {
 		navigator.hid.removeEventListener('disconnect', onDisconnect);
-		disableConfigTab.set(true);
+		appState.disableConfigTab = true;
 		await sendCommand(Command.Bootloader);
 		stage = Stage.Flashing;
 		await connectToDfuDevice();
@@ -68,7 +66,7 @@
 
 			navigator.usb.addEventListener('disconnect', onDisconnect);
 		} catch (err) {
-			error.set(`Error connecting to bootloader: ${err}`);
+			appState.error = `Error connecting to bootloader: ${err}`;
 			throw err;
 		}
 	}
@@ -90,7 +88,7 @@
 
 			// Handle errors
 			reader.onerror = () => {
-				error.set('Error reading firmware file');
+				appState.error = `Error reading firmware file: ${reader.error}`;
 			};
 		}
 	}
@@ -104,7 +102,7 @@
 		try {
 			await dfuDevice!.downloadFirmware(firmwareData);
 		} catch (err) {
-			error.set(`Error flashing firmware: ${err}`);
+			appState.error = `Error flashing firmware: ${err}`;
 			throw err;
 		} finally {
 			onbeforeunload = null;
@@ -115,33 +113,38 @@
 
 	async function finishFlashing(): Promise<void> {
 		navigator.usb.removeEventListener('disconnect', onDisconnect);
-		await dfuDevice!.startApplication();
-		await dfuDevice!.device.close();
-		await waitForReconnection();
+		if (dfuDevice) {
+			await dfuDevice.startApplication();
+			await dfuDevice.device.close();
+			await waitForReconnection();
+		}
 	}
 </script>
 
 {#if stage == Stage.Standby}
 	<h3 class="mb-2 text-lg font-semibold">Firmware Commit: <code>0x{commitHash}</code></h3>
 
-	<Button on:click={rebootDevice} class="mb-4">Start Firmware Flash</Button>
+	<Button onclick={rebootDevice} class="mb-4">Start Firmware Flash</Button>
 {:else if stage == Stage.Flashing}
 	{#if !dfuDevice}
-		<Button on:click={connectToDfuDevice} class="mb-4">Connect to Bootloader</Button>
-		<Button on:click={onDisconnect} class="mb-4" variant="destructive">Cancel</Button>
+		<Button onclick={connectToDfuDevice} class="mb-4">Connect to Bootloader</Button>
+		<Button onclick={onDisconnect} class="mb-4" variant="destructive">Cancel</Button>
 
 		<Alert class="mb-4">
 			<AlertTitle>Can't find the bootloader device?</AlertTitle>
-			<AlertDescription
-				>{@html `You probably don't have the required drivers installed. <a href="https://github.com/qmk/qmk_driver_installer/releases/latest" style="text-decoration: underline">Download and run qmk_driver_installer.exe</a>, and retry the flashing process.`}</AlertDescription
-			>
+			<AlertDescription class="inline">
+				You probably don't have the required drivers installed. <a
+					href="https://github.com/qmk/qmk_driver_installer/releases/latest"
+					style="text-decoration: underline">Download and run qmk_driver_installer.exe</a
+				>, and retry the flashing process.
+			</AlertDescription>
 		</Alert>
 	{:else}
 		<h3 class="mb-2 text-lg font-semibold">Connected to Bootloader</h3>
 
 		<div class="mb-2 grid w-full max-w-sm items-center gap-1.5">
 			<Label for="fw">Select Firmware to Flash</Label>
-			<Input name="fw" type="file" accept=".hex" on:change={parseFirmwareFile} />
+			<Input name="fw" type="file" accept=".hex" onchange={parseFirmwareFile} />
 		</div>
 
 		{#if firmwareData}
@@ -156,9 +159,11 @@
 				></WarningAlert>
 			{:else}
 				{#if !get(hideFirmwareWarningStorage)}
-					<AlertDialog.Root closeOnOutsideClick={true}>
-						<AlertDialog.Trigger asChild let:builder>
-							<Button builders={[builder]}>Flash Firmware</Button>
+					<AlertDialog.Root>
+						<AlertDialog.Trigger>
+							{#snippet child({ props })}
+								<Button {...props}>Flash Firmware</Button>
+							{/snippet}
 						</AlertDialog.Trigger>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
@@ -176,22 +181,22 @@
 								</div>
 							</div>
 							<AlertDialog.Footer>
-								<AlertDialog.Action on:click={flashFirmware}>Continue</AlertDialog.Action>
+								<AlertDialog.Action onclick={flashFirmware}>Continue</AlertDialog.Action>
 								<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
 					</AlertDialog.Root>
 				{:else}
-					<Button on:click={flashFirmware} class="mb-4">Flash Firmware</Button>
+					<Button onclick={flashFirmware} class="mb-4">Flash Firmware</Button>
 				{/if}
-				<Button on:click={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
+				<Button onclick={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
 			{/if}
 		{:else}
-			<Button on:click={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
+			<Button onclick={finishFlashing} class="mb-4" variant="destructive">Cancel</Button>
 		{/if}
 	{/if}
 {:else if stage == Stage.Finished}
 	<h3 class="mb-2 text-lg font-semibold">Firmware Flashed Successfully</h3>
 	<Progress value={1} max={1} class="mb-4 w-full" />
-	<Button on:click={finishFlashing} class="mb-4">Exit</Button>
+	<Button onclick={finishFlashing} class="mb-4">Exit</Button>
 {/if}

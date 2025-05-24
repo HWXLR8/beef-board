@@ -14,67 +14,37 @@
 	import Switch from '$lib/Switch.svelte';
 	import ToolTipLabel from '$lib/ToolTipLabel.svelte';
 
-	import { readConfig, updateConfig, type Config } from '$lib/types/config';
+	import { readConfig, updateConfig, type Config } from '$lib/types/config.svelte';
 	import { Command, sendCommand, waitForReconnection } from '$lib/types/hid';
-	import { error } from '$lib/types/state';
-	import { TurntableMode, HsvEnumMapping, BarMode, ControllerType } from '$lib/types/types';
+	import { appState } from '$lib/types/state.svelte';
+	import { TurntableMode, BarMode, ControllerType } from '$lib/types/types.svelte';
 	import WarningAlert from './WarningAlert.svelte';
+	import ColorPicker from './ColorPicker.svelte';
 
-	let config: Config | undefined;
-	let controllerTypeChanged = false;
+	let config: Config | undefined = $state();
+	let controllerTypeChanged = $state(false);
 
 	onMount(async () => {
 		try {
 			config = await readConfig();
 		} catch (err) {
-			error.set(`Failed to read config: ${err}`);
+			appState.error = `${err}`;
 		}
 	});
 
-	// This gets fired twice when first loading config data,
-	// apparently will get fixed in Svelte 5?
-	$: {
+	$effect(() => {
 		if (config) {
 			try {
 				updateConfig(config);
 			} catch (err) {
-				error.set(`Failed to update config: ${err}`);
+				appState.error = `${err}`;
 			}
 		}
-	}
-
-	const ttModeMapping: Record<TurntableMode, HsvEnumMapping> = {
-		[TurntableMode.Static]: new HsvEnumMapping('Static', 'tt_static_hsv'),
-		[TurntableMode.Spin]: new HsvEnumMapping('Spin', 'tt_spin_hsv'),
-		[TurntableMode.Shift]: new HsvEnumMapping('Shift', 'tt_shift_hsv'),
-		[TurntableMode.RainbowStatic]: new HsvEnumMapping('Rainbow Static', 'tt_rainbow_static_hsv'),
-		[TurntableMode.RainbowReactive]: new HsvEnumMapping('Rainbow Reactive', 'tt_rainbow_react_hsv'),
-		[TurntableMode.RainbowSpin]: new HsvEnumMapping('Rainbow Spin', 'tt_rainbow_spin_hsv'),
-		[TurntableMode.Reactive]: new HsvEnumMapping('Reactive', 'tt_react_hsv'),
-		[TurntableMode.Breathing]: new HsvEnumMapping('Breathing', 'tt_breathing_hsv'),
-		[TurntableMode.HID]: new HsvEnumMapping('HID'),
-		[TurntableMode.Off]: new HsvEnumMapping('Off')
-	} as const;
-
-	const barModeMapping: Record<BarMode, HsvEnumMapping> = {
-		[BarMode.KeySpectrumP1]: new HsvEnumMapping('Key Spectrum (P1)'),
-		[BarMode.KeySpectrumP2]: new HsvEnumMapping('Key Spectrum (P2)'),
-		[BarMode.HID]: new HsvEnumMapping('HID'),
-		[BarMode.TapeLedP1]: new HsvEnumMapping('Tape LED (P1)'),
-		[BarMode.TapeLedP2]: new HsvEnumMapping('Tape LED (P2)'),
-		[BarMode.Off]: new HsvEnumMapping('Off')
-	} as const;
-
-	const controllerTypes = Object.values(ControllerType)
-		.filter((v) => isNaN(Number(v)))
-		.map((_, index) => ({
-			value: index,
-			label: ControllerType[index]
-		}));
+	});
 </script>
 
 {#if config}
-	{#if config.version < 13}
+	{#if config.version < 14}
 		<WarningAlert
 			title="Outdated Firmware"
 			description="Your firmware version is too old. Some features may not be available. Please update your firmware to access all features."
@@ -84,24 +54,15 @@
 	<div class="mb-4">
 		<Label for="controller-type">Controller Mode</Label>
 		<Select.Root
-			selected={{
-				value: config.controller_type,
-				label: ControllerType[config.controller_type]
-			}}
-			onSelectedChange={(value) => {
-				if (config && value) {
-					config.controller_type = value.value;
-					controllerTypeChanged = true;
-				}
-			}}
+			type="single"
+			bind:value={config.controller_type}
+			onValueChange={() => controllerTypeChanged = true}
 		>
-			<Select.Trigger class="w-[180px]">
-				<Select.Value placeholder="Controller mode" />
-			</Select.Trigger>
+			<Select.Trigger class="w-[180px]">{config.controller_type}</Select.Trigger>
 			<Select.Content>
 				<Select.Group>
-					{#each controllerTypes as type}
-						<Select.Item value={type.value} label={type.label}>{type.label}</Select.Item>
+					{#each Object.values(ControllerType) as value}
+						<Select.Item {value}>{value}</Select.Item>
 					{/each}
 				</Select.Group>
 			</Select.Content>
@@ -124,7 +85,7 @@
 			<Switch label="Reverse Turntable" bind:checked={config.reverse_tt} />
 			<div class="mb-4">
 				<ToolTipLabel label="Turntable Deadzone">
-					<p>Only affects digital turntable input</p>
+					Only affects digital turntable input
 				</ToolTipLabel>
 				<SliderInput bind:value={config.tt_deadzone} min={1} max={6} id="tt-deadzone" />
 			</div>
@@ -150,16 +111,33 @@
 			<Switch label="Disable LEDs" bind:checked={config.disable_leds} />
 
 			{#if !config.disable_leds}
+				{@const ttModeMapping = Object.values(TurntableMode)}
 				<LightEffectSelect
 					label="Turntable Effect"
-					bind:config
 					bind:effect={config.tt_effect}
 					modeMapping={ttModeMapping}
 				/>
+				{#if config.tt_effect === TurntableMode.Static}
+					<ColorPicker bind:hsv={config.tt_static_hsv} />
+				{:else if config.tt_effect === TurntableMode.Spin}
+					<ColorPicker bind:hsv={config.tt_spin_hsv} />
+				{:else if config.tt_effect === TurntableMode.Shift}
+					<ColorPicker bind:hsv={config.tt_shift_hsv} />
+				{:else if config.tt_effect === TurntableMode.RainbowStatic}
+					<ColorPicker bind:hsv={config.tt_rainbow_static_hsv} />
+				{:else if config.tt_effect === TurntableMode.RainbowReactive}
+					<ColorPicker bind:hsv={config.tt_rainbow_react_hsv} />
+				{:else if config.tt_effect === TurntableMode.RainbowSpin}
+					<ColorPicker bind:hsv={config.tt_rainbow_spin_hsv} />
+				{:else if config.tt_effect === TurntableMode.Reactive}
+					<ColorPicker bind:hsv={config.tt_react_hsv} />
+				{:else if config.tt_effect === TurntableMode.Breathing}
+					<ColorPicker bind:hsv={config.tt_breathing_hsv} />
+				{/if}
 
+				{@const barModeMapping = Object.values(BarMode)}
 				<LightEffectSelect
 					label="Light Bar Effect"
-					bind:config
 					bind:effect={config.bar_effect}
 					modeMapping={barModeMapping}
 				/>
@@ -182,21 +160,23 @@
 {/if}
 
 <div class="mt-4">
-	<AlertDialog.Root closeOnOutsideClick={true}>
-		<AlertDialog.Trigger asChild let:builder>
-			<Button builders={[builder]} variant="destructive">Reset Config</Button>
+	<AlertDialog.Root>
+		<AlertDialog.Trigger>
+			{#snippet child({ props })}
+				<Button {...props} variant="destructive">Reset Config</Button>
+			{/snippet}
 		</AlertDialog.Trigger>
 		<AlertDialog.Content>
 			<AlertDialog.Header>
 				<AlertDialog.Title>Are you sure?</AlertDialog.Title>
 				<AlertDialog.Description>
-					This action cannot be undone. This will reset all settings to their default values and
-					the controller will disconnect.
+					This action cannot be undone. This will reset all settings to their default values and the
+					controller will disconnect.
 				</AlertDialog.Description>
 			</AlertDialog.Header>
 			<AlertDialog.Footer>
 				<AlertDialog.Action
-					on:click={async () => {
+					onclick={async () => {
 						await sendCommand(Command.ResetConfig);
 						await waitForReconnection();
 					}}>Continue</AlertDialog.Action

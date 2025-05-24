@@ -1,16 +1,19 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
-	import { ControllerType } from '$lib/types/types';
-	import { IIDXKeyMapping, SDVXKeyMapping, type Config } from '$lib/types/config';
+	import { ControllerType } from '$lib/types/types.svelte';
+	import { IIDXKeyMapping, SDVXKeyMapping, type Config } from '$lib/types/config.svelte';
 	import { getKeyCode, getKeyName } from '$lib/types/hid-codes';
-	import { error } from '$lib/types/state';
+	import { appState } from '$lib/types/state.svelte';
 
-	export let config: Config;
+	interface Props {
+		config: Config;
+	}
 
-	let selectedButton: number | null = null;
+	let { config = $bindable() }: Props = $props();
+
+	let selectedButton: number | null = $state(null);
 
 	// Button labels
 	const IIDX_BUTTON_LABELS = {
@@ -62,7 +65,7 @@
 					break;
 			}
 		} else {
-			error.set(`Cannot bind button to ${event.code}`);
+			appState.error = `Cannot bind button to ${event.code}`;
 		}
 
 		selectedButton = null;
@@ -84,8 +87,10 @@
 	<div class="mb-2 flex items-center justify-between">
 		<h3 class="text-lg font-semibold">Key Bindings</h3>
 		<AlertDialog.Root>
-			<AlertDialog.Trigger asChild let:builder>
-				<Button builders={[builder]} variant="destructive">Reset Keys</Button>
+			<AlertDialog.Trigger>
+				{#snippet child({ props })}
+					<Button {...props} variant="destructive">Reset Keys</Button>
+				{/snippet}
 			</AlertDialog.Trigger>
 			<AlertDialog.Content>
 				<AlertDialog.Header>
@@ -95,100 +100,98 @@
 					</AlertDialog.Description>
 				</AlertDialog.Header>
 				<AlertDialog.Footer>
-					<AlertDialog.Action on:click={resetKeys}>Reset</AlertDialog.Action>
+					<AlertDialog.Action onclick={resetKeys}>Reset</AlertDialog.Action>
 					<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 				</AlertDialog.Footer>
 			</AlertDialog.Content>
 		</AlertDialog.Root>
 	</div>
 
-	<div class="flex flex-col">
-		{#if config.controller_type === ControllerType.IIDX}
-			<div class="mb-2 flex flex-col">
-				<Label>Main Buttons</Label>
-				<div class="grid grid-cols-4 gap-2">
-					{#each IIDX_BUTTON_LABELS.main_buttons as label, i}
-						<Button
-							variant={selectedButton === i ? 'default' : 'outline'}
-							on:click={() => startKeyCapture(i)}
-						>
-							{label}: {getKeyName(config.iidx_keys.main_buttons[i])}
-						</Button>
-					{/each}
-				</div>
-			</div>
-
-			<div class="mb-2 flex flex-col">
-				<Label>Function Buttons</Label>
-				<div class="grid grid-cols-4 gap-2">
-					{#each IIDX_BUTTON_LABELS.function_buttons as label, i}
-						<Button
-							variant={selectedButton === i + 7 ? 'default' : 'outline'}
-							on:click={() => startKeyCapture(i + 7)}
-						>
-							{label}: {getKeyName(config.iidx_keys.function_buttons[i])}
-						</Button>
-					{/each}
-				</div>
-			</div>
-
-			<div class="mb-2 flex flex-col">
-				<Label>Turntable</Label>
-				<div class="grid grid-cols-2 gap-2">
+	{#if config.controller_type === ControllerType.IIDX}
+		<Label>Main Buttons</Label>
+		<div class="mb-2 flex flex-col">
+			<div class="grid grid-cols-4 gap-2">
+				{#each IIDX_BUTTON_LABELS.main_buttons as label, i}
 					<Button
-						variant={selectedButton === 11 ? 'default' : 'outline'}
-						on:click={() => startKeyCapture(11)}
+						variant={selectedButton === i ? 'default' : 'outline'}
+						onclick={() => startKeyCapture(i)}
 					>
-						{IIDX_BUTTON_LABELS.tt_ccw}: {getKeyName(config.iidx_keys.tt_ccw)}
+						{label}: {getKeyName(config.iidx_keys.main_buttons[i])}
 					</Button>
+				{/each}
+			</div>
+		</div>
+
+		<Label>Function Buttons</Label>
+		<div class="mb-2 flex flex-col">
+			<div class="grid grid-cols-4 gap-2">
+				{#each IIDX_BUTTON_LABELS.function_buttons as label, i}
 					<Button
-						variant={selectedButton === 12 ? 'default' : 'outline'}
-						on:click={() => startKeyCapture(12)}
+						variant={selectedButton === i + 7 ? 'default' : 'outline'}
+						onclick={() => startKeyCapture(i + 7)}
 					>
-						{IIDX_BUTTON_LABELS.tt_cw}: {getKeyName(config.iidx_keys.tt_cw)}
+						{label}: {getKeyName(config.iidx_keys.function_buttons[i])}
 					</Button>
-				</div>
+				{/each}
 			</div>
-		{:else}
-			<div class="mb-2 flex flex-col">
-				<Label>BT Buttons</Label>
-				<div class="grid grid-cols-2 gap-2">
-					{#each SDVX_BUTTON_LABELS.bt_buttons as label, i}
-						<Button
-							variant={selectedButton === i ? 'default' : 'outline'}
-							on:click={() => startKeyCapture(i)}
-						>
-							{label}: {getKeyName(config.sdvx_keys.bt_buttons[i])}
-						</Button>
-					{/each}
-				</div>
-			</div>
+		</div>
 
-			<div class="mb-2 flex flex-col">
-				<Label>FX Buttons</Label>
-				<div class="grid grid-cols-2 gap-2">
-					{#each SDVX_BUTTON_LABELS.fx_buttons as label, i}
-						<Button
-							variant={selectedButton === i + 4 ? 'default' : 'outline'}
-							on:click={() => startKeyCapture(i + 4)}
-						>
-							{label}: {getKeyName(config.sdvx_keys.fx_buttons[i])}
-						</Button>
-					{/each}
-				</div>
-			</div>
-
-			<div class="flex flex-col">
-				<Label>Start Button</Label>
+		<Label>Turntable</Label>
+		<div class="mb-2 flex flex-col">
+			<div class="grid grid-cols-2 gap-2">
 				<Button
-					variant={selectedButton === 9 ? 'default' : 'outline'}
-					on:click={() => startKeyCapture(9)}
+					variant={selectedButton === 11 ? 'default' : 'outline'}
+					onclick={() => startKeyCapture(11)}
 				>
-					{SDVX_BUTTON_LABELS.start}: {getKeyName(config.sdvx_keys.start)}
+					{IIDX_BUTTON_LABELS.tt_ccw}: {getKeyName(config.iidx_keys.tt_ccw)}
+				</Button>
+				<Button
+					variant={selectedButton === 12 ? 'default' : 'outline'}
+					onclick={() => startKeyCapture(12)}
+				>
+					{IIDX_BUTTON_LABELS.tt_cw}: {getKeyName(config.iidx_keys.tt_cw)}
 				</Button>
 			</div>
-		{/if}
-	</div>
+		</div>
+	{:else}
+		<Label>BT Buttons</Label>
+		<div class="mb-2 flex flex-col">
+			<div class="grid grid-cols-2 gap-2">
+				{#each SDVX_BUTTON_LABELS.bt_buttons as label, i}
+					<Button
+						variant={selectedButton === i ? 'default' : 'outline'}
+						onclick={() => startKeyCapture(i)}
+					>
+						{label}: {getKeyName(config.sdvx_keys.bt_buttons[i])}
+					</Button>
+				{/each}
+			</div>
+		</div>
+
+		<Label>FX Buttons</Label>
+		<div class="mb-2 flex flex-col">
+			<div class="grid grid-cols-2 gap-2">
+				{#each SDVX_BUTTON_LABELS.fx_buttons as label, i}
+					<Button
+						variant={selectedButton === i + 4 ? 'default' : 'outline'}
+						onclick={() => startKeyCapture(i + 4)}
+					>
+						{label}: {getKeyName(config.sdvx_keys.fx_buttons[i])}
+					</Button>
+				{/each}
+			</div>
+		</div>
+
+		<Label>Start Button</Label>
+		<div class="flex flex-col">
+			<Button
+				variant={selectedButton === 9 ? 'default' : 'outline'}
+				onclick={() => startKeyCapture(9)}
+			>
+				{SDVX_BUTTON_LABELS.start}: {getKeyName(config.sdvx_keys.start)}
+			</Button>
+		</div>
+	{/if}
 
 	{#if selectedButton !== null}
 		<div class="bg-muted mt-4 rounded-md p-4">Press any key to bind...</div>

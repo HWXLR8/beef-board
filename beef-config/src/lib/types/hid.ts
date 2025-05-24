@@ -1,5 +1,4 @@
-import { get } from 'svelte/store';
-import { device, onDisconnect, connectDevice } from '$lib/types/state';
+import { appState, onDisconnect, connectDevice } from '$lib/types/state.svelte';
 
 export enum ReportId {
   Config = 1,
@@ -41,13 +40,12 @@ export async function detectDevice(): Promise<HIDDevice | null> {
 }
 
 export async function readCommitHash(): Promise<string> {
-  const dev = get(device);
-  if (!dev) {
+  if (!appState.device) {
     throw new Error('Device not connected');
   }
 
   try {
-    const result = await dev.receiveFeatureReport(ReportId.FirmwareVersion);
+    const result = await appState.device.receiveFeatureReport(ReportId.FirmwareVersion);
     const hashData = new DataView(result.buffer.slice(1)); // Skip report id
     return hashData.getUint32(0, true).toString(16).padStart(8, '0');
   } catch (err) {
@@ -56,14 +54,13 @@ export async function readCommitHash(): Promise<string> {
 }
 
 export async function sendCommand(command: Command): Promise<void> {
-  const dev = get(device);
-  if (!dev) {
+  if (!appState.device) {
     throw new Error('Device not connected');
   }
 
   try {
     const commandData = new Uint8Array([command]);
-    await dev.sendFeatureReport(ReportId.Command, commandData);
+    await appState.device.sendFeatureReport(ReportId.Command, commandData);
   } catch (err) {
     throw new Error('Failed to send command', { cause: err });
   }

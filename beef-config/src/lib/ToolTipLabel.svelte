@@ -1,20 +1,27 @@
 <script lang="ts">
-	import { CircleHelp } from 'lucide-svelte';
+	import { CircleHelp } from '@lucide/svelte';
 
 	import { Label } from '$lib/components/ui/label';
-	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
-	export let label: string;
+	interface Props {
+		label: string;
+		children?: import('svelte').Snippet;
+	}
+
+	let { label, children }: Props = $props();
 </script>
 
 <div class="flex items-center space-x-1">
 	<Label>{label}</Label>
-	<Tooltip.Root>
-		<Tooltip.Trigger>
-			<CircleHelp />
-		</Tooltip.Trigger>
-		<Tooltip.Content>
-			<slot />
-		</Tooltip.Content>
-	</Tooltip.Root>
+	<Tooltip.Provider>
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<CircleHelp />
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				{@render children?.()}
+			</Tooltip.Content>
+		</Tooltip.Root>
+	</Tooltip.Provider>
 </div>
