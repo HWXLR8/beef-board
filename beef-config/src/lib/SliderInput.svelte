@@ -1,28 +1,32 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Slider from '$lib/components/ui/slider/slider.svelte';
+	import { Input } from '$lib/components/ui/input';
+	import { Slider } from '$lib/components/ui/slider';
 
-	export let value: number;
-	export let min: number;
-	export let max: number;
-	export let id: string;
-	export let reversed = false;
+	interface Props {
+		value: number;
+		min: number;
+		max: number;
+		id: string;
+		reversed?: boolean;
+	}
 
-	let displayedValue = reversed ? max + 1 - value : value;
-	$: sliderValue = [displayedValue];
-	$: value = reversed ? max + 1 - displayedValue : displayedValue;
+	let { value = $bindable(), min, max, id, reversed = false }: Props = $props();
+
+	let displayedValue = $state(reversed ? max + 1 - value : value);
+
+	$effect(() => {
+		value = reversed ? max + 1 - displayedValue : displayedValue;
+	});
 </script>
 
 <div class="flex items-center space-x-6">
 	<Slider
+		type="single"
 		{id}
 		{min}
 		{max}
-		step={1}
-		bind:value={sliderValue}
-		onValueChange={(v) => {
-			displayedValue = v[0];
-		}}
+		value={displayedValue}
+		onValueCommit={(v) => (displayedValue = v)}
 	/>
 	<Input class="w-1/5" {id} {min} {max} type="number" bind:value={displayedValue} />
 </div>

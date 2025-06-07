@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { TriangleAlert } from 'lucide-svelte';
-	import { Alert } from '$lib/components/ui/alert';
-	import AlertDescription from '$lib/components/ui/alert/alert-description.svelte';
-	import AlertTitle from '$lib/components/ui/alert/alert-title.svelte';
+	import { TriangleAlert } from '@lucide/svelte';
+	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 
-	export let title: string;
-	export let description: string;
-	export let variant: 'default' | 'destructive' = 'default';
+	interface Props {
+		title: string;
+		description: string;
+		variant?: 'default' | 'destructive';
+	}
+
+	let { title, description, variant = 'default' }: Props = $props();
 </script>
 
 <Alert class="mb-4" {variant}>

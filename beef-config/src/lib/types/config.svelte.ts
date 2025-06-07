@@ -1,8 +1,9 @@
-import { get } from 'svelte/store';
 import { ReportId } from '$lib/types/hid';
-import { device } from '$lib/types/state';
-import { TurntableMode, BarMode, ControllerType, InputMode, Hsv } from '$lib/types/types';
+import { appState } from '$lib/types/state.svelte';
+import { TurntableMode, BarMode, ControllerType, InputMode, Hsv, numberToTurntableMode, numberToBarMode, numberToControllerType, numberToInputMode, turntableModeToNumber, barModeToNumber, controllerTypeToNumber, inputModeToNumber } from '$lib/types/types.svelte';
 import * as HIDCodes from '$lib/types/hid-codes';
+
+const packetSize = 1024;
 
 export class IIDXKeyMapping {
   public main_buttons: number[];
@@ -58,34 +59,34 @@ export class SDVXKeyMapping {
 }
 
 export class Config {
-  version: number;
-  reverse_tt: boolean;
-  tt_effect: TurntableMode;
-  tt_deadzone: number;
-  bar_effect: BarMode;
-  disable_leds: boolean;
-  tt_static_hsv: Hsv;
-  tt_spin_hsv: Hsv;
-  tt_shift_hsv: Hsv;
-  tt_rainbow_static_hsv: Hsv;
-  tt_rainbow_react_hsv: Hsv;
-  tt_rainbow_spin_hsv: Hsv;
-  tt_react_hsv: Hsv;
-  tt_breathing_hsv: Hsv;
-  tt_ratio: number;
-  controller_type: ControllerType;
-  iidx_input_mode: InputMode;
-  sdvx_input_mode: InputMode;
-  tt_sustain_ms: number = 0;
-  iidx_keys: IIDXKeyMapping = new IIDXKeyMapping();
-  sdvx_keys: SDVXKeyMapping = new SDVXKeyMapping();
+  version = $state(0);
+  reverse_tt = $state(false);
+  tt_effect = $state(TurntableMode.Static);
+  tt_deadzone = $state(0);
+  bar_effect = $state(BarMode.KeySpectrumP1);
+  disable_leds = $state(false);
+  tt_static_hsv = $state(new Hsv(0, 0, 0));
+  tt_spin_hsv = $state(new Hsv(0, 0, 0));
+  tt_shift_hsv = $state(new Hsv(0, 0, 0));
+  tt_rainbow_static_hsv = $state(new Hsv(0, 0, 0));
+  tt_rainbow_react_hsv = $state(new Hsv(0, 0, 0));
+  tt_rainbow_spin_hsv = $state(new Hsv(0, 0, 0));
+  tt_react_hsv = $state(new Hsv(0, 0, 0));
+  tt_breathing_hsv = $state(new Hsv(0, 0, 0));
+  tt_ratio = $state(0);
+  controller_type = $state(ControllerType.IIDX);
+  iidx_input_mode = $state(InputMode.Joystick);
+  sdvx_input_mode = $state(InputMode.Joystick);
+  tt_sustain_ms = $state(0);
+  iidx_keys = $state(new IIDXKeyMapping());
+  sdvx_keys = $state(new SDVXKeyMapping());
 
   constructor(configData: DataView) {
     this.version = configData.getUint8(0);
     this.reverse_tt = configData.getUint8(1) as unknown as boolean;
-    this.tt_effect = configData.getUint8(2) as TurntableMode;
+    this.tt_effect = numberToTurntableMode[configData.getUint8(2)];
     this.tt_deadzone = configData.getUint8(3);
-    this.bar_effect = configData.getUint8(4) as BarMode;
+    this.bar_effect = numberToBarMode[configData.getUint8(4)];
     this.disable_leds = configData.getUint8(5) as unknown as boolean;
     this.tt_static_hsv = new Hsv(
       configData.getUint8(6),
@@ -128,9 +129,9 @@ export class Config {
       configData.getUint8(29)
     );
     this.tt_ratio = configData.getUint8(30);
-    this.controller_type = configData.getUint8(31) as ControllerType;
-    this.iidx_input_mode = configData.getUint8(32) as InputMode;
-    this.sdvx_input_mode = configData.getUint8(33) as InputMode;
+    this.controller_type = numberToControllerType[configData.getUint8(31)];
+    this.iidx_input_mode = numberToInputMode[configData.getUint8(32)];
+    this.sdvx_input_mode = numberToInputMode[configData.getUint8(33)];
 
     if (this.version >= 12) {
       this.tt_sustain_ms = configData.getUint8(34);
@@ -174,16 +175,13 @@ export class Config {
   }
 }
 
-const packetSize = 1024;
-
 export async function readConfig(): Promise<Config> {
-  const dev = get(device);
-  if (!dev) {
+  if (!appState.device) {
     throw new Error('Device not connected');
   }
 
   try {
-    const result = await dev.receiveFeatureReport(ReportId.Config);
+    const result = await appState.device.receiveFeatureReport(ReportId.Config);
     const configData = new DataView(result.buffer.slice(1)); // Skip report id
 
     const version = configData.getUint8(0);
@@ -193,62 +191,109 @@ export async function readConfig(): Promise<Config> {
 
     return new Config(configData);
   } catch (err) {
-    return Promise.reject(new Error('Failed to read config', { cause: err }));
+    throw new Error(`Failed to read config: ${err}`);
   }
 }
 
 export async function updateConfig(config: Config): Promise<void> {
-  const dev = get(device);
-  if (!dev) {
+  if (!appState.device) {
     throw new Error('Device not connected');
   }
+
+  console.log("updating config")
 
   try {
     const configBuffer = new ArrayBuffer(packetSize);
     const configView = new DataView(configBuffer);
 
-    let i = 0;
-    for (const [_, value] of Object.entries(config)) {
-      if (value instanceof Hsv) {
-        const [h, s, v] = value.toHid();
-        configView.setUint8(i++, h);
-        configView.setUint8(i++, s);
-        configView.setUint8(i++, v);
-        continue;
+    configView.setUint8(0, config.version);
+    configView.setUint8(1, Number(config.reverse_tt));
+    configView.setUint8(2, turntableModeToNumber[config.tt_effect]);
+    configView.setUint8(3, config.tt_deadzone);
+    configView.setUint8(4, barModeToNumber[config.bar_effect]);
+    configView.setUint8(5, Number(config.disable_leds));
+    let [h, s, v] = config.tt_static_hsv.toHid();
+    configView.setUint8(6, h);
+    configView.setUint8(7, s);
+    configView.setUint8(8, v);
+    [h, s, v] = config.tt_spin_hsv.toHid();
+    configView.setUint8(9, h);
+    configView.setUint8(10, s);
+    configView.setUint8(11, v);
+    [h, s, v] = config.tt_shift_hsv.toHid();
+    configView.setUint8(12, h);
+    configView.setUint8(13, s);
+    configView.setUint8(14, v);
+    [h, s, v] = config.tt_rainbow_static_hsv.toHid();
+    configView.setUint8(15, h);
+    configView.setUint8(16, s);
+    configView.setUint8(17, v);
+    [h, s, v] = config.tt_rainbow_react_hsv.toHid();
+    configView.setUint8(18, h);
+    configView.setUint8(19, s);
+    configView.setUint8(20, v);
+    [h, s, v] = config.tt_rainbow_spin_hsv.toHid();
+    configView.setUint8(21, h);
+    configView.setUint8(22, s);
+    configView.setUint8(23, v);
+    [h, s, v] = config.tt_react_hsv.toHid();
+    configView.setUint8(24, h);
+    configView.setUint8(25, s);
+    configView.setUint8(26, v);
+    [h, s, v] = config.tt_breathing_hsv.toHid();
+    configView.setUint8(27, h);
+    configView.setUint8(28, s);
+    configView.setUint8(29, v);
+    configView.setUint8(30, config.tt_ratio);
+    configView.setUint8(31, controllerTypeToNumber[config.controller_type]);
+    configView.setUint8(32, inputModeToNumber[config.iidx_input_mode]);
+    configView.setUint8(33, inputModeToNumber[config.sdvx_input_mode]);
+
+    // Write tt_sustain_ms if version supports it
+    if (config.version >= 12) {
+      configView.setUint8(34, config.tt_sustain_ms);
+    }
+
+    // Write key mappings if version supports it
+    if (config.version >= 13) {
+      let offset = 35;
+
+      // Write IIDX key mappings
+      for (let i = 0; i < config.iidx_keys.main_buttons.length; i++) {
+        configView.setUint8(offset++, config.iidx_keys.main_buttons[i]);
       }
 
-      if (value instanceof IIDXKeyMapping) {
-        for (const v of value.main_buttons) {
-          configView.setUint8(i++, Number(v));
-        }
-        for (const v of value.function_buttons) {
-          configView.setUint8(i++, Number(v));
-        }
-        configView.setUint8(i++, value.tt_ccw);
-        configView.setUint8(i++, value.tt_cw);
-        i += value.padding.length;
-        continue;
+      for (let i = 0; i < config.iidx_keys.function_buttons.length; i++) {
+        configView.setUint8(offset++, config.iidx_keys.function_buttons[i]);
       }
 
-      if (value instanceof SDVXKeyMapping) {
-        for (const v of value.bt_buttons) {
-          configView.setUint8(i++, Number(v));
-        }
-        for (const v of value.fx_buttons) {
-          configView.setUint8(i++, Number(v));
-        }
-        i += value.padding_1.length;
-        configView.setUint8(i++, value.start);
-        i += value.padding_2.length;
-        continue;
+      configView.setUint8(offset++, config.iidx_keys.tt_ccw);
+      configView.setUint8(offset++, config.iidx_keys.tt_cw);
+
+      // Skip padding
+      offset += config.iidx_keys.padding.length;
+
+      // Write SDVX key mappings
+      for (let i = 0; i < config.sdvx_keys.bt_buttons.length; i++) {
+        configView.setUint8(offset++, config.sdvx_keys.bt_buttons[i]);
       }
 
-      configView.setUint8(i++, Number(value));
+      for (let i = 0; i < config.sdvx_keys.fx_buttons.length; i++) {
+        configView.setUint8(offset++, config.sdvx_keys.fx_buttons[i]);
+      }
+
+      // Skip padding
+      offset += config.sdvx_keys.padding_1.length;
+
+      configView.setUint8(offset++, config.sdvx_keys.start);
+
+      // Skip padding
+      offset += config.sdvx_keys.padding_2.length;
     }
 
     const data = new Uint8Array(configBuffer);
-    await dev.sendFeatureReport(ReportId.Config, data);
+    await appState.device.sendFeatureReport(ReportId.Config, data);
   } catch (err) {
-    return Promise.reject(new Error('Failed to update config', { cause: err }));
+    throw new Error(`Failed to update config: ${err}`);
   }
 }

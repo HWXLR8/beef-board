@@ -2,8 +2,12 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Switch } from '$lib/components/ui/switch';
 
-	export let label: string;
-	export let checked: boolean;
+	interface Props {
+		label: string;
+		checked: boolean;
+	}
+
+	let { label, checked = $bindable() }: Props = $props();
 </script>
 
 <div class="mb-4 flex items-center space-x-2">
