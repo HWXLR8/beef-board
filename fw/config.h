@@ -85,6 +85,9 @@ struct config {
   uint8_t tt_sustain_ms;
   IIDXKeyMapping iidx_keys;
   SDVXKeyMapping sdvx_keys;
+  uint8_t iidx_buttons_debounce;
+  uint8_t iidx_effectors_debounce;
+  uint8_t sdvx_buttons_debounce;
 };
 
 struct callback {

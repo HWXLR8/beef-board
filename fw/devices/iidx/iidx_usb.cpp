@@ -16,8 +16,9 @@ namespace IIDX {
   HidReport<USB_JoystickReport_Data_t, INTERFACE_ID_Joystick, JOYSTICK_IN_EPADDR> joystick_hid_report;
   HidReport<Beef::USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_hid_report;
   UsbHandler usb_handler;
+  Debouncer<BUTTONS> buttons_debounce;
+  Debouncer<BUTTONS> effectors_debounce;
 
-  DebounceState effectors_debounce(4);
   void process_buttons(const int8_t tt1_report) {
     switch (tt1_report) {
       case -1:
@@ -30,7 +31,8 @@ namespace IIDX {
         break;
     }
 
-    debounce(effectors_debounce, EFFECTORS_ALL);
+    button_state = buttons_debounce.debounce(button_state, MAIN_BUTTONS_ALL);
+    button_state = effectors_debounce.debounce(button_state, EFFECTORS_ALL);
   }
 
   bool UsbHandler::create_hid_report(USB_ClassInfo_HID_Device_t* const hid_interface_info,
@@ -92,6 +94,20 @@ namespace IIDX {
     RgbManager::update(tt1_report, led_data);
   }
 
+  void UsbHandler::config_update(const config &new_config) {
+    if (new_config.tt_effect != current_config.tt_effect) {
+      RgbManager::Turntable::set_leds_off();
+      RgbManager::Turntable::force_update = true;
+    }
+    if (new_config.bar_effect != current_config.bar_effect) {
+      RgbManager::Bar::set_leds_off();
+      RgbManager::Bar::force_update = true;
+    }
+    update_tt_transitions(new_config.reverse_tt);
+    buttons_debounce.init(new_config.iidx_buttons_debounce);
+    effectors_debounce.init(new_config.iidx_effectors_debounce);
+  }
+
   void usb_init(const config &config) {
     usb_desc_init();
 
@@ -99,6 +115,8 @@ namespace IIDX {
     get_button_combo_callback = get_button_combo;
 
     button_x.init(config.tt_deadzone, true, tt_x.get());
+    buttons_debounce.init(config.iidx_buttons_debounce);
+    effectors_debounce.init(config.iidx_effectors_debounce);
 
     update_tt_transitions(config.reverse_tt);
   }

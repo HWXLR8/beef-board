@@ -8,7 +8,6 @@ TARGET = beef
 
 BEEF_LED_REFRESH ?= 60
 BEEF_TT_RAINBOW_SPIN_SPEED ?= 1
-BEEF_DEBOUNCE ?= 1
 RING_LIGHT_LEDS ?= 24
 LIGHT_BAR_LEDS ?= 16
 FW_VER = 0x$(shell git rev-parse --short=8 HEAD)
