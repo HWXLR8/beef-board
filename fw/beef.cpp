@@ -13,7 +13,6 @@
 #include "beef.h"
 #include "combo.h"
 #include "config.h"
-#include "debounce.h"
 #include "pin.h"
 #include "rgb_helper.h"
 
@@ -85,12 +84,11 @@ int main() {
   setup_hardware();
 
   config_init(&current_config);
+  RgbHelper::init(current_config);
   usb_init(current_config);
 
   timer_arm(&joystick_out_state.hid_expiry_timer, 0);
   timer_arm(&lights_out_state.hid_expiry_timer, 0);
-
-  RgbHelper::init();
 
   while (true) {
     if (sleep) {

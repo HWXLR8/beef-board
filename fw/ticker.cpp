@@ -1,7 +1,15 @@
 #include "ticker.h"
 #include "timer.h"
 
-Ticker::Ticker(uint8_t tick_duration) : tick_duration(tick_duration){}
+Ticker::Ticker() {}
+
+Ticker::Ticker(const uint8_t tick_duration) {
+  init(tick_duration);
+}
+
+void Ticker::init(const uint8_t tick_duration) {
+  this->tick_duration = tick_duration;
+}
 
 uint8_t Ticker::get_ticks() {
   if (first_tick) {

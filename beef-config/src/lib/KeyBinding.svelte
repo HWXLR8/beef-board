@@ -85,7 +85,7 @@
 
 <div class="mb-4">
 	<div class="mb-2 flex items-center justify-between">
-		<h3 class="text-lg font-semibold">Key Bindings</h3>
+		<h3 class="text-xl font-bold">Key Bindings</h3>
 		<AlertDialog.Root>
 			<AlertDialog.Trigger>
 				{#snippet child({ props })}

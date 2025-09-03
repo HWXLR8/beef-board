@@ -5,15 +5,16 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	interface Props {
+		forId: string;
 		label: string;
 		children?: import('svelte').Snippet;
 	}
 
-	let { label, children }: Props = $props();
+	let { forId, label, children }: Props = $props();
 </script>
 
 <div class="flex items-center space-x-1">
-	<Label>{label}</Label>
+	<Label for={forId}>{label}</Label>
 	<Tooltip.Provider>
 		<Tooltip.Root>
 			<Tooltip.Trigger>

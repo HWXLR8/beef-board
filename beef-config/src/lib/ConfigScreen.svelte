@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
+	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
 	import { Separator } from '$lib/components/ui/separator/index.js';
@@ -18,8 +20,8 @@
 	import { Command, sendCommand, waitForReconnection } from '$lib/types/hid';
 	import { appState } from '$lib/types/state.svelte';
 	import { TurntableMode, BarMode, ControllerType } from '$lib/types/types.svelte';
-	import WarningAlert from './WarningAlert.svelte';
-	import ColorPicker from './ColorPicker.svelte';
+	import WarningAlert from '$lib/WarningAlert.svelte';
+	import ColorPicker from '$lib/ColorPicker.svelte';
 
 	let config: Config | undefined = $state();
 	let controllerTypeChanged = $state(false);
@@ -44,7 +46,7 @@
 </script>
 
 {#if config}
-	{#if config.version < 15}
+	{#if config.version < 16}
 		<WarningAlert
 			title="Outdated Firmware"
 			description="Your firmware version is too old. Some features may not be available. Please update your firmware to access all features."
@@ -56,7 +58,7 @@
 		<Select.Root
 			type="single"
 			bind:value={config.controller_type}
-			onValueChange={() => controllerTypeChanged = true}
+			onValueChange={() => (controllerTypeChanged = true)}
 		>
 			<Select.Trigger class="w-[180px]">{config.controller_type}</Select.Trigger>
 			<Select.Content>
@@ -80,19 +82,22 @@
 
 	{#if config.controller_type === ControllerType.IIDX}
 		<div>
-			<h3 class="mb-2 text-lg font-semibold">IIDX Configuration</h3>
+			<h2 class="mb-2 text-xl font-bold">IIDX Configuration</h2>
 			<InputModes bind:inputMode={config.iidx_input_mode} />
+
+			<h3 class="mb-2 text-xl font-bold">Turntable</h3>
+
 			<Switch label="Reverse Turntable" bind:checked={config.reverse_tt} />
 			<div class="mb-4">
-				<ToolTipLabel label="Turntable Deadzone">
-					Only affects digital turntable input
-				</ToolTipLabel>
+				<ToolTipLabel forId="tt-deadzone" label="Turntable Deadzone"
+					>Only affects digital turntable input</ToolTipLabel
+				>
 				<SliderInput bind:value={config.tt_deadzone} min={1} max={6} id="tt-deadzone" />
 			</div>
 
 			{#if config.version >= 12}
 				<div class="mb-4">
-					<ToolTipLabel label="Turntable Sustain Time">
+					<ToolTipLabel forId="tt-sustain-time" label="Turntable Sustain Time">
 						<p>Controls how long in milliseconds the last turntable direction is sustained.</p>
 						<p>
 							It effectively controls how sensitive the digital TT is to when the turntable starts
@@ -110,16 +115,33 @@
 			</div>
 
 			{#if config.version >= 15}
+				<Separator class="mb-4" />
+
+				<h3 class="mb-2 text-xl font-bold">Debouncing</h3>
 				<div class="mb-4">
 					<Label for="iidx-button-debounce">Button Debounce</Label>
-					<SliderInput bind:value={config.iidx_buttons_debounce} min={0} max={50} id="iidx-button-debounce" />
+					<SliderInput
+						bind:value={config.iidx_buttons_debounce}
+						min={0}
+						max={50}
+						id="iidx-button-debounce"
+					/>
 				</div>
 
 				<div class="mb-4">
 					<Label for="iidx-effector-debounce">Effector Debounce</Label>
-					<SliderInput bind:value={config.iidx_effectors_debounce} min={0} max={50} id="iidx-effector-debounce" />
+					<SliderInput
+						bind:value={config.iidx_effectors_debounce}
+						min={0}
+						max={50}
+						id="iidx-effector-debounce"
+					/>
 				</div>
 			{/if}
+
+			<Separator class="mb-4" />
+
+			<h3 class="mb-2 text-xl font-bold">Lights</h3>
 
 			<Switch label="Disable LEDs" bind:checked={config.disable_leds} />
 
@@ -154,17 +176,80 @@
 					bind:effect={config.bar_effect}
 					modeMapping={barModeMapping}
 				/>
+
+				{#if config.version >= 16}
+					<Accordion.Root type="single">
+						<Accordion.Item value="item-1">
+							<Accordion.Trigger>Advanced</Accordion.Trigger>
+							<Accordion.Content>
+								<div class="mb-4">
+									<ToolTipLabel forId="led-refresh" label="RGB LED Refresh Rate">
+										<p>
+											Controls how often the RGB LEDs are updated. Higher values result in smoother
+											LED animations at the cost of performance.
+										</p>
+									</ToolTipLabel>
+									<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
+								</div>
+
+								<div class="mb-4">
+									<ToolTipLabel
+										forId="rainbow-spin-speed"
+										label="Rainbow Lighting Effect Spin Speed"
+									>
+										<p>
+											Controls the speed and reactiveness of rainbow spin effects (e.g. Rainbow
+											Reactive, Rainbow Spin)
+										</p>
+									</ToolTipLabel>
+									<SliderInput
+										bind:value={config.rainbow_spin_speed}
+										min={1}
+										max={5}
+										id="rainbow-spin-speed"
+									/>
+								</div>
+
+								<div class="mb-4">
+									<ToolTipLabel forId="tt-leds" label="Turntable LEDs">
+										<p>
+											Controls the number of LEDs lit on the turntable. Higher values use more
+											power and may affect performance.
+										</p>
+										<br />
+										<p>Requires rebooting the board to take effect.</p>
+									</ToolTipLabel>
+									<Input
+										class="w-1/5"
+										id="tt-leds"
+										min={1}
+										max={255}
+										type="number"
+										bind:value={config.tt_leds}
+									/>
+								</div>
+							</Accordion.Content>
+						</Accordion.Item>
+					</Accordion.Root>
+				{/if}
 			{/if}
 		</div>
 	{:else if config.controller_type === ControllerType.SDVX}
 		<div>
-			<h3 class="mb-2 text-lg font-semibold">SDVX Configuration</h3>
+			<h2 class="mb-2 text-xl font-bold">SDVX Configuration</h2>
 			<InputModes bind:inputMode={config.sdvx_input_mode} />
+
+			<h3 class="mb-2 text-xl font-bold">Debouncing</h3>
 
 			{#if config.version >= 15}
 				<div class="mb-4">
 					<Label for="sdvx-button-debounce">Button Debounce</Label>
-					<SliderInput bind:value={config.sdvx_buttons_debounce} min={0} max={50} id="sdvx-button-debounce" />
+					<SliderInput
+						bind:value={config.sdvx_buttons_debounce}
+						min={0}
+						max={50}
+						id="sdvx-button-debounce"
+					/>
 				</div>
 			{/if}
 

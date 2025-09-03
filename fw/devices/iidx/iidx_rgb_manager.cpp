@@ -1,10 +1,11 @@
 #include "../beef.h"
 #include "../bpm.h"
+#include "config.h"
 #include "iidx_rgb_manager.h"
 
 enum {
-  SPIN_TIMER = 50 * RING_ANIM_NORMALISE,
-  FAST_SPIN_TIMER = 25 * RING_ANIM_NORMALISE,
+  SPIN_TIMER = 50,
+  FAST_SPIN_TIMER = 25,
   REACT_TIMER = 500,
   BREATHING_TIMER = 3000
 };
@@ -18,16 +19,14 @@ namespace IIDX {
       BreathingPattern breathing_pattern(BREATHING_TIMER);
 
       bool set_hsv(const HSV &hsv) {
-        return RgbHelper::set_hsv(tt_leds, RING_LIGHT_LEDS, hsv);
+        return RgbHelper::set_hsv(tt_leds, RgbHelper::num_tt_leds, hsv);
       }
 
       bool set_leds_off() {
-        return RgbHelper::set_rgb(tt_leds, RING_LIGHT_LEDS, CRGB::Black);
+        return RgbHelper::set_rgb(tt_leds, RgbHelper::num_tt_leds, CRGB::Black);
       }
 
-      SpinPattern spin_pattern(SPIN_TIMER,
-                                      FAST_SPIN_TIMER,
-                                      RING_LIGHT_LEDS / 2);
+      SpinPattern spin_pattern;
       // Render two spinning LEDs
       bool spin(const HSV &hsv, const int8_t tt_report) {
         if (spin_pattern.update(tt_report)) {
@@ -36,7 +35,7 @@ namespace IIDX {
           const auto colour = CHSV(hsv.h, 255, 255);
           const auto spin_counter = spin_pattern.get();
           tt_leds[spin_counter] = colour;
-          tt_leds[spin_counter+(RING_LIGHT_LEDS/2)] = colour;
+          tt_leds[spin_counter + (RgbHelper::num_tt_leds / 2)] = colour;
 
           return true;
         }
@@ -60,16 +59,17 @@ namespace IIDX {
         bool update = false;
         if (force_update || prev_pos != pos) {
           fill_rainbow_circular(tt_leds,
-                                RING_LIGHT_LEDS,
+                                RgbHelper::num_tt_leds,
                                 -pos);
           update = true;
         }
         prev_pos = pos;
 
         // Emulate HSV adjustments
-        for (auto &led : tt_leds) {
-          const auto prev_led = led;
-          led += (CRGB::White - led).
+        for (uint8_t i = 0; i < RgbHelper::num_tt_leds; i++) {
+          auto &led = tt_leds[i];
+          const auto prev_led = tt_leds[i];
+          tt_leds[i] += (CRGB::White - tt_leds[i]).
             scale8(255 - hsv.s);
           led.nscale8(hsv.v);
           update |= prev_led != led;
@@ -85,7 +85,7 @@ namespace IIDX {
 
         const auto ticks = rainbow_react_ticker.get_ticks();
         if (ticks > 0) {
-          pos += ticks * tt_report * BEEF_TT_RAINBOW_SPIN_SPEED;
+          pos += ticks * tt_report * current_config.rainbow_spin_speed;
           render_rainbow(hsv, pos);
           return true;
         }
@@ -96,7 +96,7 @@ namespace IIDX {
       bool render_rainbow_spin(const HSV &hsv,
                                const int8_t tt_report) {
         if (rainbow_spin_pattern.update(tt_report)) {
-          const uint8_t pos = rainbow_spin_pattern.get() * BEEF_TT_RAINBOW_SPIN_SPEED;
+          const uint8_t pos = rainbow_spin_pattern.get() * current_config.rainbow_spin_speed;
           return render_rainbow(hsv, pos);
         }
         return false;
@@ -134,10 +134,10 @@ namespace IIDX {
         }
 
         uint8_t i = 0;
-        for (; i < RING_LIGHT_LEDS / 2; i++) {
+        for (; i < RgbHelper::num_tt_leds / 2; i++) {
           tt_leds[i] = first_half;
         }
-        for (; i < RING_LIGHT_LEDS; i++) {
+        for (; i < RgbHelper::num_tt_leds; i++) {
           tt_leds[i] = second_half;
         }
 
@@ -148,12 +148,12 @@ namespace IIDX {
       void display_tt_change(const CRGB &colour,
                              const uint8_t value,
                              const uint8_t range) {
-        const uint8_t num_of_leds = value * (RING_LIGHT_LEDS / range);
+        const uint8_t num_of_leds = value * (RgbHelper::num_tt_leds / range);
         uint8_t i = 0;
         for (; i < num_of_leds; i++) {
           tt_leds[i] = colour;
         }
-        for (; i < RING_LIGHT_LEDS; i++) {
+        for (; i < RgbHelper::num_tt_leds; i++) {
           tt_leds[i] = CRGB::Black;
         }
 
@@ -210,11 +210,11 @@ namespace IIDX {
             break;
           case TurntableMode::Breathing:
             update |= RgbHelper::breathing(breathing_pattern,
-                                           tt_leds, RING_LIGHT_LEDS,
+                                           tt_leds, RgbHelper::num_tt_leds,
                                            current_config.tt_breathing_hsv);
             break;
           case TurntableMode::HID:
-            update |= RgbHelper::hid(tt_leds, RING_LIGHT_LEDS, lights);
+            update |= RgbHelper::hid(tt_leds, RgbHelper::num_tt_leds, lights);
             break;
           case TurntableMode::Disable:
             update |= set_leds_off();
@@ -327,26 +327,27 @@ namespace IIDX {
       }
     }
 
+    void init(const config &cfg) {
+      Turntable::spin_pattern.init(SPIN_TIMER * RgbHelper::tt_anim_normalise,
+                                   FAST_SPIN_TIMER * RgbHelper::tt_anim_normalise,
+                                   RgbHelper::num_tt_leds / 2);
+    }
+
     void update(const int8_t tt_report,
                 const hid_lights &led_state_from_hid_report) {
-#if RING_LIGHT_LEDS != 0 || LIGHT_BAR_LEDS != 0
       if (!RgbHelper::ready_to_present()) {
         return;
       }
 
-#if RING_LIGHT_LEDS > 0
       if (Turntable::update(tt_report,
                             led_state_from_hid_report.tt_lights)) {
         RgbHelper::show_tt();
       }
-#endif
 
 #if LIGHT_BAR_LEDS > 0
       if (Bar::update(led_state_from_hid_report.bar_lights)) {
         RgbHelper::show_bar();
       }
-#endif
-
 #endif
     }
   }

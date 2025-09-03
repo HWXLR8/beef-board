@@ -1,17 +1,12 @@
 #pragma once
 
 #include <FastLED/src/FastLED.h>
-#include <LUFA/Common/Common.h>
 
+#include "config.h"
 #include "rgb.h"
 #include "rgb_patterns.h"
 
 // Keep these as #defines to make sure order of operations is correct
-#if RING_LIGHT_LEDS > 0
-#define RING_ANIM_NORMALISE 24 / RING_LIGHT_LEDS
-#else
-#define RING_ANIM_NORMALISE 1
-#endif
 #if LIGHT_BAR_LEDS > 0
 #define BAR_ANIM_NORMALISE 16 / LIGHT_BAR_LEDS
 #else
@@ -19,7 +14,7 @@
 #endif
 
 constexpr auto DEFAULT_COLOUR = HSV{ 128, 255, 255 }; // Aqua
-extern CRGB tt_leds[RING_LIGHT_LEDS];
+extern CRGB* tt_leds;
 extern CRGB bar_leds[LIGHT_BAR_LEDS];
 
 struct rgb_light {
@@ -28,8 +23,12 @@ struct rgb_light {
 
 namespace RgbHelper {
   extern timer combo_timer;
+  extern uint32_t min_micros;
+  extern uint8_t tt_anim_normalise;
+  extern uint8_t num_tt_leds;
 
-  void init();
+  void init(const config &cfg);
+  void update(const config &new_cfg);
 
   bool set_rgb(CRGB* leds, uint8_t n, const rgb_light &lights);
   bool set_rgb(CRGB* leds, uint8_t n, const CRGB &rgb);

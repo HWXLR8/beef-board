@@ -22,15 +22,6 @@ enum {
   CONFIG_CHANGE_NOTIFY_TIME = 1000
 };
 
-#if BEEF_LED_REFRESH <= 0
-#define BEEF_LED_REFRESH 1
-#elif BEEF_LED_REFRESH > 400
-#define BEEF_LED_REFRESH 400 // FastLED has a default max refresh rate of 400 for WS2812 LEDs
-#endif
-#if BEEF_LED_REFRESH > 60
-#warning "Setting BEEF_LED_REFRESH to a high value will incur a performance penalty. Turntable/QE inputs may not register correctly."
-#endif
-
 #ifndef FW_VER
 #define FW_VER 0xDEADBEEF
 #endif
@@ -88,6 +79,9 @@ struct config {
   uint8_t iidx_buttons_debounce;
   uint8_t iidx_effectors_debounce;
   uint8_t sdvx_buttons_debounce;
+  uint8_t led_refresh;
+  uint8_t rainbow_spin_speed;
+  uint8_t tt_leds;
 };
 
 struct callback {
