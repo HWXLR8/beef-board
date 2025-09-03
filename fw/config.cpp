@@ -203,11 +203,11 @@ void config_save(const config &new_config) {
     FastLED.clear(true);
   }
 
+  usb_handler->config_update(new_config);
+
   memcpy(&current_config, &new_config, sizeof(config));
   current_config.reverse_tt &= 1;
   current_config.disable_leds &= 1;
-  usb_handler->config_update(new_config);
-
   eeprom_update_block(&current_config, CONFIG_BASE_ADDR, sizeof(config));
 }
 
