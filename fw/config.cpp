@@ -138,7 +138,7 @@ bool update_config(config* self) {
       self->version++;
     case 14:
       self->iidx_buttons_debounce = 0;
-      self->iidx_effectors_debounce = 10;
+      self->iidx_effectors_debounce = 4;
       self->sdvx_buttons_debounce = 0;
       self->version++;
     default:
