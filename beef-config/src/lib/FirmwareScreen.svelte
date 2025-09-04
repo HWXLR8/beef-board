@@ -131,9 +131,9 @@
 		<Button onclick={onDisconnect} class="mb-4" variant="destructive">Cancel</Button>
 
 		<Alert class="mb-4">
-			<AlertTitle>Can't find the bootloader device?</AlertTitle>
+			<AlertTitle>Having trouble connecting to the bootloader?</AlertTitle>
 			<AlertDescription class="inline">
-				You probably don't have the required drivers installed. <a
+				You probably need to install/reinstall the required drivers. <a
 					href="https://github.com/qmk/qmk_driver_installer/releases/latest"
 					style="text-decoration: underline">Download and run qmk_driver_installer.exe</a
 				>, and retry the flashing process.
