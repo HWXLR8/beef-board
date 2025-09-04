@@ -16,6 +16,7 @@ namespace SDVX {
   HidReport<Beef::USB_KeyboardReport_Data_t, INTERFACE_ID_Keyboard, KEYBOARD_IN_EPADDR> keyboard_hid_report;
   HidReport<Beef::USB_MouseReport_Data_t, INTERFACE_ID_Mouse, MOUSE_IN_EPADDR> mouse_hid_report;
   UsbHandler usb_handler;
+  Debouncer<9> debouncer;
 
   Axis* axis_x;
   Axis* axis_y;
@@ -80,7 +81,13 @@ namespace SDVX {
     button_x.poll(1, 0, axis_x->get());
     button_y.poll(1, 0, axis_y->get());
 
+    button_state = debouncer.debounce(button_state);
+
     update_button_lighting(led_data.buttons);
+  }
+
+  void UsbHandler::config_update(const config &new_config) {
+    debouncer.init(new_config.sdvx_buttons_debounce);
   }
 
   void usb_init(const config &config) {
@@ -93,6 +100,7 @@ namespace SDVX {
     axis_y = &analog_y;
     button_x.init(1, false, axis_x->get());
     button_y.init(1, false, axis_y->get());
+    debouncer.init(config.sdvx_buttons_debounce);
 
     update_tt_transitions(false);
   }

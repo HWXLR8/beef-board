@@ -44,7 +44,7 @@
 </script>
 
 {#if config}
-	{#if config.version < 14}
+	{#if config.version < 15}
 		<WarningAlert
 			title="Outdated Firmware"
 			description="Your firmware version is too old. Some features may not be available. Please update your firmware to access all features."
@@ -108,6 +108,19 @@
 				<!-- We store TT ratio but present it as TT sensitivity, so invert the range -->
 				<SliderInput bind:value={config.tt_ratio} min={1} max={6} id="tt-ratio" reversed={true} />
 			</div>
+
+			{#if config.version >= 15}
+				<div class="mb-4">
+					<Label for="iidx-button-debounce">Button Debounce</Label>
+					<SliderInput bind:value={config.iidx_buttons_debounce} min={0} max={50} id="iidx-button-debounce" />
+				</div>
+
+				<div class="mb-4">
+					<Label for="iidx-effector-debounce">Effector Debounce</Label>
+					<SliderInput bind:value={config.iidx_effectors_debounce} min={0} max={50} id="iidx-effector-debounce" />
+				</div>
+			{/if}
+
 			<Switch label="Disable LEDs" bind:checked={config.disable_leds} />
 
 			{#if !config.disable_leds}
@@ -147,6 +160,14 @@
 		<div>
 			<h3 class="mb-2 text-lg font-semibold">SDVX Configuration</h3>
 			<InputModes bind:inputMode={config.sdvx_input_mode} />
+
+			{#if config.version >= 15}
+				<div class="mb-4">
+					<Label for="sdvx-button-debounce">Button Debounce</Label>
+					<SliderInput bind:value={config.sdvx_buttons_debounce} min={0} max={50} id="sdvx-button-debounce" />
+				</div>
+			{/if}
+
 			<Switch label="Disable LEDs" bind:checked={config.disable_leds} />
 		</div>
 	{/if}

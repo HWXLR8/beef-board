@@ -136,6 +136,11 @@ bool update_config(config* self) {
         self->bar_effect = BarMode(uint8_t(self->bar_effect)+2);
       }
       self->version++;
+    case 14:
+      self->iidx_buttons_debounce = 0;
+      self->iidx_effectors_debounce = 4;
+      self->sdvx_buttons_debounce = 0;
+      self->version++;
     default:
       return false;
   }
@@ -194,18 +199,11 @@ void config_save(const config &new_config) {
     return;
   }
 
-  if (new_config.tt_effect != current_config.tt_effect) {
-    IIDX::RgbManager::Turntable::set_leds_off();
-    IIDX::RgbManager::Turntable::force_update = true;
-  }
-  if (new_config.bar_effect != current_config.bar_effect) {
-    IIDX::RgbManager::Bar::set_leds_off();
-    IIDX::RgbManager::Bar::force_update = true;
-  }
   if (new_config.disable_leds) {
     FastLED.clear(true);
   }
-  update_tt_transitions(new_config.reverse_tt);
+
+  usb_handler->config_update(new_config);
 
   memcpy(&current_config, &new_config, sizeof(config));
   current_config.reverse_tt &= 1;

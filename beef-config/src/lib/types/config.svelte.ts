@@ -80,6 +80,9 @@ export class Config {
   tt_sustain_ms = $state(0);
   iidx_keys = $state(new IIDXKeyMapping());
   sdvx_keys = $state(new SDVXKeyMapping());
+  iidx_buttons_debounce = $state(0);
+  iidx_effectors_debounce = $state(0);
+  sdvx_buttons_debounce = $state(0);
 
   constructor(configData: DataView) {
     this.version = configData.getUint8(0);
@@ -138,9 +141,8 @@ export class Config {
     }
 
     // Read key mappings if version supports it
+    let offset = 35;
     if (this.version >= 13) {
-      let offset = 35;
-
       // Read IIDX key mappings)
       for (let i = 0; i < this.iidx_keys.main_buttons.length; i++) {
         this.iidx_keys.main_buttons[i] = configData.getUint8(offset++);
@@ -171,6 +173,12 @@ export class Config {
 
       // Skip padding
       offset += this.sdvx_keys.padding_2.length;
+    }
+
+    if (this.version >= 15) {
+      this.iidx_buttons_debounce = configData.getUint8(offset++);
+      this.iidx_effectors_debounce = configData.getUint8(offset++);
+      this.sdvx_buttons_debounce = configData.getUint8(offset++);
     }
   }
 }
@@ -255,9 +263,8 @@ export async function updateConfig(config: Config): Promise<void> {
     }
 
     // Write key mappings if version supports it
+    let offset = 35;
     if (config.version >= 13) {
-      let offset = 35;
-
       // Write IIDX key mappings
       for (let i = 0; i < config.iidx_keys.main_buttons.length; i++) {
         configView.setUint8(offset++, config.iidx_keys.main_buttons[i]);
@@ -289,6 +296,12 @@ export async function updateConfig(config: Config): Promise<void> {
 
       // Skip padding
       offset += config.sdvx_keys.padding_2.length;
+    }
+
+    if (config.version >= 15) {
+      configView.setUint8(offset++, config.iidx_buttons_debounce);
+      configView.setUint8(offset++, config.iidx_effectors_debounce);
+      configView.setUint8(offset++, config.sdvx_buttons_debounce);
     }
 
     const data = new Uint8Array(configBuffer);

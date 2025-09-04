@@ -1,7 +1,5 @@
 #pragma once
 
-#include <LUFA/Drivers/USB/USB.h>
-
 #include "config.h"
 #include "debounce.h"
 #include "hid.h"
@@ -31,7 +29,6 @@ void process_keyboard(Beef::USB_KeyboardReport_Data_t* const hid_key_codes,
 void update_button_lighting(uint16_t led_state);
 void clear_all_lights();
 
-void debounce(DebounceState &debounce, uint16_t mask);
 bool is_only_pressed(uint16_t button_bits, uint16_t ignore = 0);
 bool is_pressed(uint16_t button_bits, uint16_t ignore = 0);
 void jump_to_bootloader();
