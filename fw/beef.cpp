@@ -305,12 +305,6 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
   }
 }
 
-void debounce(DebounceState &debounce, uint16_t mask) {
-  button_state =
-    (button_state & ~mask) |
-    (debounce.debounce(button_state & mask));
-}
-
 void set_led(volatile uint8_t* PORT,
              const uint8_t button_number,
              const uint8_t led_pin,
