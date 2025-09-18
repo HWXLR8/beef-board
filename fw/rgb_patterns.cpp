@@ -32,6 +32,8 @@ uint8_t BreathingPattern::update() {
   return v;
 }
 
+SpinPattern::SpinPattern(){}
+
 SpinPattern::SpinPattern(const uint8_t spin_duration,
                          const uint8_t fast_spin_duration,
                          const uint8_t limit) :
@@ -39,6 +41,15 @@ SpinPattern::SpinPattern(const uint8_t spin_duration,
   fast_spin_duration(fast_spin_duration),
   limit(limit),
   ticker(Ticker(spin_duration)){}
+
+void SpinPattern::init(const uint8_t spin_duration,
+                       const uint8_t fast_spin_duration,
+                       const uint8_t limit) {
+  this->spin_duration = spin_duration;
+  this->fast_spin_duration = fast_spin_duration;
+  this->limit = limit;
+  this->ticker.init(spin_duration);
+}
 
 bool SpinPattern::update(const int8_t tt_report) {
   if (last_tt_report != tt_report) {

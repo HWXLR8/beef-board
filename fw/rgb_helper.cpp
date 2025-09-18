@@ -2,7 +2,7 @@
 #include "hid.h"
 #include "rgb_helper.h"
 
-CRGB tt_leds[RING_LIGHT_LEDS];
+CRGB* tt_leds;
 CRGB bar_leds[LIGHT_BAR_LEDS];
 
 namespace RgbHelper {
@@ -13,18 +13,33 @@ namespace RgbHelper {
   };
 
   timer combo_timer{};
+  uint32_t min_micros = 0;
+  uint8_t tt_anim_normalise = 0;
+  uint8_t num_tt_leds = 0;
 
   CLEDController* tt_controller;
   CLEDController* bar_controller;
 
-  void init() {
-    timer_init(&combo_timer);
+  void set_refresh_rate(uint8_t rate) {
+    min_micros = 1000000 / rate;
+  }
 
-    tt_controller = &FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, RING_LIGHT_LEDS)
+  void init(const config &cfg) {
+    timer_init(&combo_timer);
+    tt_anim_normalise = 24 / cfg.tt_leds;
+    num_tt_leds = cfg.tt_leds;
+    tt_leds = static_cast<CRGB*>(calloc(num_tt_leds, sizeof(CRGB)));
+    update(cfg);
+
+    tt_controller = &FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, num_tt_leds)
       .setDither(DISABLE_DITHER);
     bar_controller = &FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, LIGHT_BAR_LEDS)
       .setDither(DISABLE_DITHER);
     FastLED.setMaxRefreshRate(0); // We have our own frame rate limiter
+  }
+
+  void update(const config &new_cfg) {
+    set_refresh_rate(new_cfg.led_refresh);
   }
 
   bool set_rgb(CRGB* leds, const uint8_t n, const rgb_light &lights) {
@@ -70,7 +85,6 @@ namespace RgbHelper {
       return false;
 
     static uint32_t last_show = 0;
-    constexpr uint32_t min_micros = 1000000 / BEEF_LED_REFRESH;
     const uint32_t now = micros();
     if (now-last_show < min_micros)
       return false;

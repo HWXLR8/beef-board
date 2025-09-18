@@ -83,6 +83,9 @@ export class Config {
   iidx_buttons_debounce = $state(0);
   iidx_effectors_debounce = $state(0);
   sdvx_buttons_debounce = $state(0);
+  led_refresh = $state(0);
+  rainbow_spin_speed = $state(0);
+  tt_leds = $state(0);
 
   constructor(configData: DataView) {
     this.version = configData.getUint8(0);
@@ -179,6 +182,12 @@ export class Config {
       this.iidx_buttons_debounce = configData.getUint8(offset++);
       this.iidx_effectors_debounce = configData.getUint8(offset++);
       this.sdvx_buttons_debounce = configData.getUint8(offset++);
+    }
+
+    if (this.version >= 16) {
+      this.led_refresh = configData.getUint8(offset++);
+      this.rainbow_spin_speed = configData.getUint8(offset++);
+      this.tt_leds = configData.getUint8(offset++);
     }
   }
 }
@@ -302,6 +311,12 @@ export async function updateConfig(config: Config): Promise<void> {
       configView.setUint8(offset++, config.iidx_buttons_debounce);
       configView.setUint8(offset++, config.iidx_effectors_debounce);
       configView.setUint8(offset++, config.sdvx_buttons_debounce);
+    }
+
+    if (config.version >= 16) {
+      configView.setUint8(offset++, config.led_refresh);
+      configView.setUint8(offset++, config.rainbow_spin_speed);
+      configView.setUint8(offset++, config.tt_leds);
     }
 
     const data = new Uint8Array(configBuffer);

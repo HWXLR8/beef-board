@@ -2,8 +2,10 @@
 
 class Ticker {
 public:
+  Ticker();
   explicit Ticker(uint8_t tick_duration);
 
+  void init(uint8_t tick_duration);
   uint8_t get_ticks();
   void reset();
   void reset(uint8_t tick_duration);

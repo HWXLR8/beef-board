@@ -119,5 +119,7 @@ namespace IIDX {
     effectors_debounce.init(config.iidx_effectors_debounce);
 
     update_tt_transitions(config.reverse_tt);
+
+    RgbManager::init(config);
   }
 }

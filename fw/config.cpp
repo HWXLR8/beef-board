@@ -141,6 +141,11 @@ bool update_config(config* self) {
       self->iidx_effectors_debounce = 4;
       self->sdvx_buttons_debounce = 0;
       self->version++;
+    case 15:
+      self->led_refresh = 60;
+      self->rainbow_spin_speed = 1;
+      self->tt_leds = 24;
+      self->version++;
     default:
       return false;
   }
@@ -166,6 +171,15 @@ bool validate_config(const config &self) {
     return false;
   }
   if (self.sdvx_input_mode > InputMode::Keyboard) {
+    return false;
+  }
+  if (self.led_refresh == 0) {
+    return false;
+  }
+  if (self.rainbow_spin_speed == 0) {
+    return false;
+  }
+  if (self.tt_leds == 0) {
     return false;
   }
 
@@ -203,6 +217,7 @@ void config_save(const config &new_config) {
     FastLED.clear(true);
   }
 
+  RgbHelper::update(new_config);
   usb_handler->config_update(new_config);
 
   memcpy(&current_config, &new_config, sizeof(config));
