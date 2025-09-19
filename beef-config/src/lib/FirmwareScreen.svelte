@@ -26,7 +26,7 @@
 
 	let commitHash = $state('');
 	let dfuDevice: DfuDevice | undefined = $state();
-	let firmwareData = $state(new MemoryMap());
+	let firmwareData: MemoryMap | undefined = $state();
 	let flashing = $state(false);
 	let message = $state('Ready');
 	let progress = $state(0);
@@ -100,7 +100,7 @@
 		};
 
 		try {
-			await dfuDevice!.downloadFirmware(firmwareData);
+			await dfuDevice!.downloadFirmware(firmwareData!);
 		} catch (err) {
 			appState.error = `Error flashing firmware: ${err}`;
 			throw err;
