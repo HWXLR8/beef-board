@@ -4,6 +4,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  AVR_GCC_VERSION: "15.2.0"
+
 jobs:
   fw-ci:
     name: Build Firmware
@@ -17,10 +20,10 @@ jobs:
           submodules: recursive
       - name: Install avr-gcc
         run: |
-          curl -L -o /tmp/avr-gcc-14.1.0-x64-linux.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
+          curl -L -o /tmp/avr-gcc-${AVR_GCC_VERSION}-x64-linux.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v${AVR_GCC_VERSION}-1/avr-gcc-${AVR_GCC_VERSION}-x64-linux.tar.bz2
           echo Extracting avr-gcc archive
-          tar xf /tmp/avr-gcc-14.1.0-x64-linux.tar.bz2 --directory /opt
-          echo "PATH=/opt/avr-gcc-14.1.0-x64-linux/bin:$(echo $PATH)" >> $GITHUB_ENV
+          tar xf /tmp/avr-gcc-${AVR_GCC_VERSION}-x64-linux.tar.bz2 --directory /opt
+          echo "PATH=/opt/avr-gcc-${AVR_GCC_VERSION}-x64-linux/bin:$(echo $PATH)" >> $GITHUB_ENV
       - name: make
         run: |
           make
