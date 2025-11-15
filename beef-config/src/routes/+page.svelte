@@ -31,8 +31,9 @@
 </script>
 
 <main class="mx-auto max-w-(--breakpoint-lg) p-4">
+	<title>Beef Board Configurator</title>
 	<div class="flex justify-between">
-		<h1 class="mb-4 text-2xl font-bold">Beef Board Configuration</h1>
+		<h1 class="mb-4 text-2xl font-bold">Beef Board Configurator</h1>
 		<LightDarkModeToggle />
 	</div>
 
