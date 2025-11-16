@@ -45,7 +45,7 @@
 		"tw-animate-css": "^1.3.0",
 		"typescript": "^5.5.0",
 		"typescript-eslint": "^8.20.0",
-		"vite": "^6.3.5"
+		"vite": "^6.4.1"
 	},
 	"type": "module",
 	"dependencies": {
