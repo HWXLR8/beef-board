@@ -1052,7 +1052,7 @@
 		(path "/6aa606d7-059b-4014-b4fd-2dfc0e4f2ee9")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start 1.8 -1.8)
 			(end -1.8 -1.8)
@@ -2039,7 +2039,7 @@
 		(path "/1977d59a-a1a0-4b86-9421-9a986a657e88")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -3461,7 +3461,7 @@
 		(path "/eae4e80b-84b9-4e3c-86af-7e76df2cb8a0")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -4318,7 +4318,7 @@
 		(path "/1da63f94-d57c-4903-8d89-ad099dc8cda8")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -5302,7 +5302,7 @@
 		(path "/9b4d8cb4-8504-4962-846f-a5eaf667505a")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -6227,7 +6227,7 @@
 		(path "/f0a99541-4b9b-4fe3-8b4b-222446056caa")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.36 -2.11)
 			(end -2.36 -0.86)
@@ -7369,7 +7369,7 @@
 		(path "/1068167e-1db7-42e3-8d57-35fd30179b59")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start 10.06 3.51)
 			(end 10.06 -2.46)
@@ -7828,7 +7828,7 @@
 		(path "/573b6d66-ef83-4996-9245-c09dd2ceccfb")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start 4.06 2.91)
 			(end 4.06 -1.81)
@@ -8235,7 +8235,7 @@
 		(path "/f7f283a5-97ae-4785-b3a5-51eee70934aa")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -8692,7 +8692,7 @@
 		(path "/c67f11ca-fd29-40a8-aeb9-d1e851098eab")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -9129,7 +9129,7 @@
 		(path "/3a47f4b0-2f01-445d-a066-04b349d7e0a3")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -9588,7 +9588,7 @@
 		(path "/0abe67d4-6972-4015-b1cb-dc21eb630845")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.36 -2.11)
 			(end -2.36 -0.86)
@@ -10332,7 +10332,7 @@
 		(path "/00f9f935-e5d6-4899-bba6-e1b684afd755")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -10791,7 +10791,7 @@
 		(path "/445bbbfb-c504-449d-b127-a3deecebb7cc")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start 10.06 3.51)
 			(end 10.06 -2.46)
@@ -12173,7 +12173,7 @@
 		(path "/de535200-db10-49f4-adac-8884931cb514")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -13555,7 +13555,7 @@
 		(path "/fd4dd302-7833-4e89-b2bb-46fc52eb897a")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -14003,7 +14003,7 @@
 		(path "/bbd2e71b-7ad7-45c5-b12f-4ed14c391c24")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -14850,7 +14850,7 @@
 		(path "/e0debcd1-e6cf-42d9-8565-3f205a3b81a9")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start 1.8 -1.8)
 			(end -1.8 -1.8)
@@ -15047,7 +15047,7 @@
 		(path "/056426bf-ee1a-4427-bbe0-faf607dcd763")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -18260,7 +18260,7 @@
 		(path "/cb199105-b4d8-4233-a16c-7da0da3c9d60")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -19222,7 +19222,7 @@
 		(path "/bea25397-bfdf-45b2-8a1c-a1ceef435989")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -19681,7 +19681,7 @@
 		(path "/4ef72222-51a2-4d40-938f-29d393f8a37d")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -20140,7 +20140,7 @@
 		(path "/1e2a14d4-f11e-45ed-a107-0a91e99057e9")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -21124,7 +21124,7 @@
 		(path "/1dd19158-a79f-4eea-8d92-13507212ac83")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -21771,7 +21771,7 @@
 		(path "/fac45a67-e224-4eeb-a606-287676b5af40")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -22629,7 +22629,7 @@
 		(path "/53b578bc-95d2-4956-80fc-3f972cdcb2e3")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -23276,7 +23276,7 @@
 		(path "/5f617db8-cf99-45b7-a1aa-08e44f194701")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -23724,7 +23724,7 @@
 		(path "/60c912b2-a7b4-4c3f-9ae9-2ff0bf1ae0f2")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start -2.85 -2.75)
 			(end -2.85 -1.5)
@@ -24183,7 +24183,7 @@
 		(path "/590d16d5-d17c-4d13-ad9a-306ce55287b8")
 		(sheetname "/")
 		(sheetfile "beef-board.kicad_sch")
-		(attr through_hole)
+		(attr through_hole exclude_from_pos_files exclude_from_bom dnp)
 		(fp_line
 			(start 12.56 3.51)
 			(end 12.56 -2.46)
