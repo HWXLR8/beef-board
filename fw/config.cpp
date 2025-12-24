@@ -77,80 +77,6 @@ const SDVXKeyMapping DEFAULT_SDVX_KEYS = {
   }
 };
 
-bool update_config(config* self) {
-  switch (self->version) {
-    case 0:
-      self->reverse_tt = 0;
-      self->tt_effect = TurntableMode::Spin;
-      self->version++;
-    case 1:
-      self->tt_deadzone = 4;
-      self->version++;
-    case 2:
-      self->bar_effect = BarMode::HID;
-      self->version++;
-    case 3:
-      self->disable_leds = 0;
-      self->version++;
-    case 4:
-      self->tt_static_hsv = DEFAULT_COLOUR;
-      self->version++;
-    case 5:
-      if (self->tt_effect >= TurntableMode::RainbowSpin) // Added new effect
-        self->tt_effect = TurntableMode(uint8_t(self->tt_effect)+1);
-      self->version++;
-    case 6:
-      self->tt_spin_hsv = DEFAULT_COLOUR;
-      self->tt_shift_hsv = { 0, 255, 255 };
-      self->tt_rainbow_static_hsv = { 0, 255, 255 };
-      self->tt_rainbow_react_hsv = { 0, 255, 255 };
-      self->tt_rainbow_spin_hsv = { 0, 255, 255 };
-      self->tt_react_hsv = DEFAULT_COLOUR;
-      self->tt_breathing_hsv = DEFAULT_COLOUR;
-      self->version++;
-    case 7:
-      self->tt_ratio = 2;
-      self->version++;
-    case 8:
-      self->controller_type = ControllerType::IIDX;
-      self->version++;
-    case 9:
-      self->iidx_input_mode = InputMode::Joystick;
-      self->sdvx_input_mode = InputMode::Joystick;
-      self->version++;
-    case 10:
-      // Web config support
-      self->version++;
-    case 11:
-      self->tt_sustain_ms = 200;
-      self->version++;
-    case 12:
-      // Key mapping support
-      self->iidx_keys = DEFAULT_IIDX_KEYS;
-      self->sdvx_keys = DEFAULT_SDVX_KEYS;
-      self->version++;
-      return true;
-    case 13:
-      // Added new effects
-      if (self->bar_effect >= BarMode::TapeLedP1) {
-        self->bar_effect = BarMode(uint8_t(self->bar_effect)+2);
-      }
-      self->version++;
-    case 14:
-      self->iidx_buttons_debounce = 0;
-      self->iidx_effectors_debounce = 4;
-      self->sdvx_buttons_debounce = 0;
-      self->version++;
-    case 15:
-      self->led_refresh = 60;
-      self->rainbow_spin_speed = 1;
-      self->tt_leds = 24;
-      self->version++;
-    default:
-      return false;
-  }
-}
-
 bool validate_config(const config &self) {
   if (self.tt_effect >= TurntableMode::Count) {
     return false;
@@ -199,9 +125,77 @@ void config_init(config* self) {
 }
 
 void config_update(config* self) {
-  if (update_config(self)) {
-    eeprom_update_block(self, CONFIG_BASE_ADDR, sizeof(config));
+  switch (self->version) {
+    case 0:
+      self->reverse_tt = 0;
+      self->tt_effect = TurntableMode::Spin;
+      self->version++;
+    case 1:
+      self->tt_deadzone = 4;
+      self->version++;
+    case 2:
+      self->bar_effect = BarMode::HID;
+      self->version++;
+    case 3:
+      self->disable_leds = 0;
+      self->version++;
+    case 4:
+      self->tt_static_hsv = DEFAULT_COLOUR;
+      self->version++;
+    case 5:
+      if (self->tt_effect >= TurntableMode::RainbowSpin) // Added new effect
+        self->tt_effect = TurntableMode(uint8_t(self->tt_effect)+1);
+      self->version++;
+    case 6:
+      self->tt_spin_hsv = DEFAULT_COLOUR;
+      self->tt_shift_hsv = { 0, 255, 255 };
+      self->tt_rainbow_static_hsv = { 0, 255, 255 };
+      self->tt_rainbow_react_hsv = { 0, 255, 255 };
+      self->tt_rainbow_spin_hsv = { 0, 255, 255 };
+      self->tt_react_hsv = DEFAULT_COLOUR;
+      self->tt_breathing_hsv = DEFAULT_COLOUR;
+      self->version++;
+    case 7:
+      self->tt_ratio = 2;
+      self->version++;
+    case 8:
+      self->controller_type = ControllerType::IIDX;
+      self->version++;
+    case 9:
+      self->iidx_input_mode = InputMode::Joystick;
+      self->sdvx_input_mode = InputMode::Joystick;
+      self->version++;
+    case 10:
+      // Web config support
+      self->version++;
+    case 11:
+      self->tt_sustain_ms = 133;
+      self->version++;
+    case 12:
+      // Key mapping support
+      self->iidx_keys = DEFAULT_IIDX_KEYS;
+      self->sdvx_keys = DEFAULT_SDVX_KEYS;
+      self->version++;
+    case 13:
+      // Added new effects
+      if (self->bar_effect >= BarMode::TapeLedP1) {
+        self->bar_effect = BarMode(uint8_t(self->bar_effect)+2);
+      }
+      self->version++;
+    case 14:
+      self->iidx_buttons_debounce = 0;
+      self->iidx_effectors_debounce = 4;
+      self->sdvx_buttons_debounce = 0;
+      self->version++;
+    case 15:
+      self->led_refresh = 60;
+      self->rainbow_spin_speed = 1;
+      self->tt_leds = 24;
+      self->version++;
+    default: break;
   }
+
+  eeprom_update_block(self, CONFIG_BASE_ADDR, sizeof(config));
 }
 
 void config_update_setting(uint8_t* addr, const uint8_t val) {
