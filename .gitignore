@@ -9,6 +9,26 @@ fw/*.map
 fw/*.sym
 fw/compile_commands.json
 
+fw-next/.cache
+fw-next/.cmake
+fw-next/CMakeFiles
+fw-next/CMakeCache.txt
+fw-next/cmake-build-*
+fw-next/compile_commands.json
+fw-next/generated
+fw-next/Makefile
+fw-next/pico-sdk
+fw-next/pico_flash_region.ld
+fw-next/Testing
+fw-next/*.a
+fw-next/*.bin
+fw-next/*.cmake
+fw-next/*.dis
+fw-next/*.elf
+fw-next/*.hex
+fw-next/*.map
+fw-next/*.uf2
+
 pcb/*-backups
 pcb/*.kicad_prl
 pcb/*.bak

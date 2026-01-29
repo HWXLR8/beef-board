@@ -1,3 +1,6 @@
 [submodule "fw/FastLED"]
 	path = fw/FastLED
 	url = https://github.com/FastLED/FastLED
+[submodule "fw-next/FastLED"]
+	path = fw-next/FastLED
+	url = https://github.com/FastLED/FastLED
