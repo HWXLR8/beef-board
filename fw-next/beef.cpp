@@ -1,4 +1,3 @@
-#include <FastLED.h>
 #include <unordered_map>
 
 #include "pins.h"
@@ -33,31 +32,7 @@ struct __attribute__((packed)) hid_lights
 };
 
 hid_lights lights;
-CRGB leds[24] = {};
-
-void button_press_callback(uint gpio, uint32_t _)
-{
-    const auto button = gpio_button_mapping.at(gpio);
-    button_state |= 1 << button;
-    button_lights |= 1 << button;
-}
-
-void button_release_callback(uint gpio, uint32_t _)
-{
-    const auto button = gpio_button_mapping.at(gpio);
-    button_state &= ~(1 << button);
-    button_lights &= ~(1 << button);
-}
-
-void process_buttons()
-{
-    for (auto i = 0; i < NUM_BUTTONS; i++)
-    {
-        const auto button_pin = button_pins[i];
-        auto v = gpio_get(button_pin.input_pin);
-        gpio_put(button_pin.led_pin, v);
-    }
-}
+// CRGB leds[24];
 
 void hw_init()
 {
@@ -70,11 +45,12 @@ void hw_init()
         gpio_init(led_pin);
         gpio_set_dir(led_pin, GPIO_OUT);
     }
-    // for (const auto pin : tt_pins)
-    // {
-    //     gpio_init(pin);
-    //     gpio_pull_up(pin);
-    // }
+    for (const auto pin : tt_pins)
+    {
+        gpio_init(pin);
+        gpio_pull_up(pin);
+        gpio_set_inover(pin, GPIO_OVERRIDE_INVERT);
+    }
 
     // adc_init();
     // for (const auto adc_pin : adc_gpio_pins)
@@ -82,11 +58,44 @@ void hw_init()
     //     adc_gpio_init(adc_pin);
     // }
 
-    // FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(leds, 24);
+    // gpio_init(TT_DATA_GPIO);
+    // gpio_set_dir(TT_DATA_GPIO, GPIO_OUT);
+    // FastLED.addLeds<NEOPIXEL, TT_DATA_GPIO>(leds, 24);
 
     // reboot to bootloader if B1 and B2 are held on startup
     if (gpio_get(button_pins[0].input_pin) && gpio_get(button_pins[1].input_pin))
         rom_reset_usb_boot(0, 0);
+}
+
+void process_buttons()
+{
+    for (auto i = 0; i < NUM_BUTTONS; i++)
+    {
+        const auto button_pin = button_pins[i];
+        auto v = gpio_get(button_pin.input_pin);
+        gpio_put(button_pin.led_pin, v);
+    }
+}
+
+void process_tt()
+{
+    constexpr auto direction = 1;
+    constexpr auto opposite_direction = -1;
+    constexpr int8_t tt_transitions[4][4] = {
+        { 0, direction, opposite_direction, 0 },
+        { opposite_direction, 0, 0, direction },
+        { direction, 0, 0, opposite_direction },
+        { 0, opposite_direction, direction, 0 }
+    };
+    static uint8_t h = 0;
+
+    static uint8_t prev = 0;
+    const uint8_t a = gpio_get(tt_pins[0]);
+    const uint8_t b = gpio_get(tt_pins[1]);
+    const uint8_t curr = (a << 1) | b;
+
+    const auto dir = tt_transitions[prev][curr];
+    prev = curr;
 }
 
 [[noreturn]] int main()
@@ -100,5 +109,6 @@ void hw_init()
             rom_reset_usb_boot(0, 0);
 
         process_buttons();
+        process_tt();
     }
 }

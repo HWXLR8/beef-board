@@ -43,8 +43,8 @@ constexpr static uint8_t adc_gpio_pins[] = {
     41  // AE2
 };
 
-constexpr static uint8_t BAR_DATA_PIN = 42;
-constexpr static uint8_t TT_DATA_PIN = 43;
+constexpr static uint8_t BAR_DATA_GPIO = 33;
+constexpr static uint8_t TT_DATA_GPIO = 34;
 
 inline bool __no_inline_not_in_flash_func(get_bootsel_button)()
 {
