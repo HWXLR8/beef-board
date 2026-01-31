@@ -8,8 +8,8 @@ env:
   AVR_GCC_VERSION: "15.2.0"
 
 jobs:
-  fw-ci:
-    name: Build Firmware
+  fw-ci-avr:
+    name: Build Firmware (AVR)
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -31,6 +31,26 @@ jobs:
         with:
           name: beef-fw
           path: fw/beef.hex
+          if-no-files-found: error
+
+  fw-ci-arm:
+    name: Build Firmware (ARM)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./fw-next
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: make
+        run: |
+          cmake .
+          make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beef-fw-next
+          path: fw-next/beef-board.uf2
           if-no-files-found: error
 
   utils:

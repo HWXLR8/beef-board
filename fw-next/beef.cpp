@@ -1,5 +1,3 @@
-#include <unordered_map>
-
 #include "pins.h"
 #include "rgb_helper.h"
 #include "tusb.h"
