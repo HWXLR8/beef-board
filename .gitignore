@@ -9,6 +9,7 @@ fw/*.map
 fw/*.sym
 fw/compile_commands.json
 
+fw-next/_deps
 fw-next/.cache
 fw-next/.cmake
 fw-next/CMakeFiles

@@ -27,6 +27,8 @@ set(PICO_BOARD beef-board CACHE STRING "Board type")
 set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR}/boards)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
+set(PICO_SDK_FETCH_FROM_GIT 1)
+set(PICO_SDK_FETCH_FROM_GIT_TAG ${sdkVersion})
 include(pico_sdk_import.cmake)
 
 project(beef-board C CXX ASM)

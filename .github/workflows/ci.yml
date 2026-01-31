@@ -6,6 +6,7 @@ concurrency:
 
 env:
   AVR_GCC_VERSION: "15.2.0"
+  ARM_GCC_VERSION: "14.2.rel1"
 
 jobs:
   fw-ci-avr:
@@ -43,6 +44,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Install arm-gcc
+        run: |
+          curl -L -o /tmp/arm-gnu-toolchain-${ARM_GCC_VERSION}-x86_64-arm-none-eabi.tar.xz https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_GCC_VERSION}/binrel/arm-gnu-toolchain-${ARM_GCC_VERSION}-x86_64-arm-none-eabi.tar.xz
+          echo Extracting arm-gnu-toolchain archive
+          tar xf /tmp/arm-gnu-toolchain-${ARM_GCC_VERSION}-x86_64-arm-none-eabi.tar.xz --directory /opt
+          echo "PATH=/opt/arm-gnu-toolchain-${ARM_GCC_VERSION}-x86_64-arm-none-eabi/bin:$(echo $PATH)" >> $GITHUB_ENV
       - name: make
         run: |
           cmake .
