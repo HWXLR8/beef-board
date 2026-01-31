@@ -28,4 +28,7 @@ pico_board_cmake_set_default(PICO_RP2350_A2_SUPPORTED, 1)
 #define PICO_RP2350_A2_SUPPORTED 1
 #endif
 
+// no PICO_VBUS_PIN
+// no PICO_VSYS_PIN
+
 #endif
