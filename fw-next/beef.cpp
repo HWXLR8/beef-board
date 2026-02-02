@@ -165,7 +165,7 @@ void process_tt()
     static uint8_t prev = 0;
     const uint8_t a = gpio_get(tt_pins[0]);
     const uint8_t b = gpio_get(tt_pins[1]);
-    const uint8_t curr = (a << 1) | b;
+    const uint8_t curr = (b << 1) | a;
 
     const auto dir = tt_transitions[prev][curr];
     prev = curr;
