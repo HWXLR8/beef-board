@@ -190,8 +190,10 @@ void process_lights()
 
     while (true)
     {
+#ifndef NDEBUG
         if (get_bootsel_button())
             rom_reset_usb_boot(0, 0);
+#endif
 
         tud_task();
 
