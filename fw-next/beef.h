@@ -1,10 +1,9 @@
 #pragma once
+
 #include <cstdint>
 
 extern uint16_t button_state;
 extern bool reactive_leds;
-
-void update_tt_transitions();
 
 // button macros to map to bit positions within button_state
 enum

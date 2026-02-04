@@ -1,4 +1,5 @@
 #pragma once
+
 #include "beef.h"
 
 namespace IIDX

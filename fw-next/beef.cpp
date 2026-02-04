@@ -3,12 +3,16 @@
 // #include <FastLED.h>
 
 #include "beef.h"
+
+#include "analog_button.h"
+#include "axis.h"
 #include "combo.h"
 #include "config.h"
 #include "pins.h"
 #include "rgb_helper.h"
 #include "tusb.h"
 #include "bsp/board_api.h"
+#include "devices/iidx/iidx_usb.h"
 #include "hardware/gpio.h"
 #include "pico/bootrom.h"
 #include "pico/stdio.h"
@@ -16,11 +20,8 @@
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
-int tt_x = 0;
 timer_t hid_expiry_timer;
 bool reactive_leds = true;
-
-int8_t tt_transitions[4][4];
 
 struct __attribute__((packed)) hid_lights
 {
@@ -74,7 +75,7 @@ static void send_hid_report()
     };
 
     joystick_report_data_t report = {
-        .X = static_cast<uint8_t>(tt_x / config.tt_ratio),
+        .X = tt_x.get(),
         .Y = 127
     };
 
@@ -147,7 +148,7 @@ void hw_init()
 void controller_init()
 {
     combo_init();
-    update_tt_transitions();
+    button_x = new AnalogButton(config.tt_deadzone, true);
 }
 
 void usb_init()
@@ -156,20 +157,6 @@ void usb_init()
     tusb_rhport_init_t dev_init = { .role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_AUTO };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
     stdio_init_all();
-}
-
-void update_tt_transitions()
-{
-    const int8_t direction = config.reverse_tt ? -1 : 1;
-    const int8_t opposite_direction = -direction;
-
-    const int8_t updated_tt_transitions[4][4] = {
-        { 0, direction, opposite_direction, 0 },
-        { opposite_direction, 0, 0, direction },
-        { direction, 0, 0, opposite_direction },
-        { 0, opposite_direction, direction, 0 }
-    };
-    memcpy(tt_transitions, updated_tt_transitions, sizeof(tt_transitions));
 }
 
 void process_buttons()
@@ -181,22 +168,19 @@ void process_buttons()
         auto v = gpio_get(button_pin.input_pin);
         button_state |= v << i;
     }
-}
 
-void process_tt()
-{
-    static uint8_t prev = 0;
-    const uint8_t a = gpio_get(tt_pins[0]);
-    const uint8_t b = gpio_get(tt_pins[1]);
-    const uint8_t curr = (b << 1) | a;
-
-    const auto dir = tt_transitions[prev][curr];
-    prev = curr;
-
-    tt_x += dir;
-    const auto max = 256 * config.tt_ratio;
-    if (tt_x < 0) tt_x = max - tt_x;
-    tt_x %= max;
+    const auto tt1_report = button_x->poll(tt_x.get());
+    switch (tt1_report)
+    {
+    case -1:
+        button_state |= IIDX::BUTTON_TT_NEG;
+        break;
+    case 1:
+        button_state |= IIDX::BUTTON_TT_POS;
+        break;
+    default:
+        break;
+    }
 }
 
 void process_lights()
@@ -236,9 +220,9 @@ void process_lights()
 
         tud_task();
 
+        tt_x.poll();
         process_buttons();
         process_combos();
-        process_tt();
         process_lights();
 
         hid_task();

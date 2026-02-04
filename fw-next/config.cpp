@@ -138,7 +138,6 @@ void config_t::save() const
 std::optional<callback_t> toggle_reverse_tt()
 {
     config.reverse_tt = !config.reverse_tt;
-    update_tt_transitions();
     // IIDX::RgbManager::Turntable::reverse_tt(reverse_tt);
 
     config.save();

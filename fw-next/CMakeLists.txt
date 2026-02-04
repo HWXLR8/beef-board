@@ -38,17 +38,21 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(beef-board
+        analog_button.cpp
+        analog_button.h
+        axis.cpp
+        axis.h
         beef.cpp
         beef.h
-        config.cpp
-        config.h
-        rgb_helper.cpp
-        rgb_helper.h
-        tusb_config.h
-        usb_descriptors.c
         combo.cpp
         combo.h
+        config.cpp
+        config.h
+        rgb_helper.h
         timer.h
+        tusb_config.h
+        usb_descriptors.c
+
         devices/iidx/iidx_combo.cpp
         devices/iidx/iidx_combo.h
         devices/iidx/iidx_usb.h

@@ -1,12 +1,11 @@
 #pragma once
-#include "bsp/board_api.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "bsp/board_api.h"
 #include "hardware/gpio.h"
-#include "pico/stdlib.h"
 
 #define HIGH 0x1
 #define LOW  0x0
