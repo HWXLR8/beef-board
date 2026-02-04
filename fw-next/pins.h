@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdio>
 #include "hardware/gpio.h"
 #include "hardware/sync.h"
 #include "hardware/structs/ioqspi.h"
@@ -26,10 +25,6 @@ constexpr static button_pin_t button_pins[NUM_BUTTONS] = {
     { 4, 5 },   // B10
     { 6, 7 }    // B11
 };
-constexpr static uint64_t button_gpio_mask = 1 << button_pins[0].led_pin | 1 << button_pins[1].led_pin |
-    1 << button_pins[2].led_pin | 1 << button_pins[3].led_pin | 1 << button_pins[4].led_pin |
-    1 << button_pins[5].led_pin | 1 << button_pins[6].led_pin | 1ULL << button_pins[7].led_pin |
-    1 << button_pins[8].led_pin | 1 << button_pins[9].led_pin | 1 << button_pins[10].led_pin;
 
 constexpr static uint8_t tt_pins[] = {
     2,  // E1D2

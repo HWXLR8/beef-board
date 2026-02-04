@@ -40,10 +40,18 @@ pico_sdk_init()
 add_executable(beef-board
         beef.cpp
         beef.h
+        config.cpp
+        config.h
         rgb_helper.cpp
         rgb_helper.h
         tusb_config.h
         usb_descriptors.c
+        combo.cpp
+        combo.h
+        timer.h
+        devices/iidx/iidx_combo.cpp
+        devices/iidx/iidx_combo.h
+        devices/iidx/iidx_usb.h
 )
 
 pico_set_program_name(beef-board "beef-board")
@@ -51,7 +59,10 @@ pico_set_program_version(beef-board "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(beef-board 0)
-pico_enable_stdio_usb(beef-board 0)
+pico_enable_stdio_usb(beef-board 1)
+target_compile_definitions(beef-board PRIVATE
+        PICO_STDIO_USB_ENABLE_IRQ_BACKGROUND_TASK=0
+)
 
 # Add the standard library to the build
 target_link_libraries(beef-board
@@ -62,7 +73,7 @@ target_link_libraries(beef-board
 target_include_directories(beef-board PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_precompile_headers(beef-board PRIVATE
+#[[target_precompile_headers(beef-board PRIVATE
         "include/Arduino.h"
 )
 
@@ -85,20 +96,21 @@ target_link_libraries(fastled
         hardware_pwm
         hardware_spi
         hardware_timer
-        pico_bootrom
-        pico_stdlib
-        tinyusb_board
-        tinyusb_device
 )
 target_include_directories(fastled PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
-)
+)]]
 
 # Add any user requested libraries
 target_link_libraries(beef-board
         hardware_adc
+        hardware_flash
         hardware_timer
-        fastled
+        pico_bootrom
+        pico_flash
+        tinyusb_board
+        tinyusb_device
+        #fastled
 )
 
 pico_add_extra_outputs(beef-board)

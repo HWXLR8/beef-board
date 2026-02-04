@@ -1,4 +1,5 @@
 #pragma once
+#include "bsp/board_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +22,7 @@ inline uint32_t micros()
 
 inline uint32_t millis()
 {
-    return to_ms_since_boot(get_absolute_time());
+    return board_millis();
 }
 
 inline void delayMicroseconds(uint32_t us)

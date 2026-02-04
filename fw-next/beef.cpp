@@ -1,15 +1,26 @@
+// #define FASTLED_RP2040_CLOCKLESS_PIO 0
+// #define FASTLED_RP2040_CLOCKLESS_M0_FALLBACK 1
+// #include <FastLED.h>
+
+#include "beef.h"
+#include "combo.h"
+#include "config.h"
 #include "pins.h"
 #include "rgb_helper.h"
 #include "tusb.h"
 #include "bsp/board_api.h"
 #include "hardware/gpio.h"
 #include "pico/bootrom.h"
+#include "pico/stdio.h"
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
-uint8_t tt_x = 0;
-uint32_t hid_expiry_time = 0;
+int tt_x = 0;
+timer_t hid_expiry_timer;
+bool reactive_leds = true;
+
+int8_t tt_transitions[4][4];
 
 struct __attribute__((packed)) hid_lights
 {
@@ -50,17 +61,11 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
     (void)report_type;
 
     memcpy(&lights, buffer, bufsize);
-    hid_expiry_time = board_millis() + 1000;
+    hid_expiry_timer.arm(1000);
 }
 
 static void send_hid_report()
 {
-    // skip if hid is not ready yet
-    if (!tud_hid_ready())
-    {
-        return;
-    }
-
     struct __attribute__((packed)) joystick_report_data_t
     {
         uint8_t X;
@@ -69,7 +74,7 @@ static void send_hid_report()
     };
 
     joystick_report_data_t report = {
-        .X = tt_x,
+        .X = static_cast<uint8_t>(tt_x / config.tt_ratio),
         .Y = 127
     };
 
@@ -82,19 +87,26 @@ static void send_hid_report()
     tud_hid_report(0, &report, sizeof(report));
 }
 
-// Every millisecond, we will sent 1 report for each HID profile (keyboard, mouse etc ..)
+// Every millisecond, we will send 1 report for each HID profile (keyboard, mouse etc ..)
 // tud_hid_report_complete_cb() is used to send the next report after previous one is complete
 void hid_task()
 {
+    // skip if hid is not ready yet
+    if (!tud_hid_ready())
+    {
+        return;
+    }
+
     // Poll every millisecond
     constexpr uint32_t interval_ms = 1;
     static uint32_t start_ms = 0;
 
-    if (board_millis() - start_ms < interval_ms)
+    const auto now = board_millis();
+    if (now - start_ms < interval_ms)
     {
         return; // not enough time
     }
-    start_ms += interval_ms;
+    start_ms = now;
 
     send_hid_report();
 }
@@ -132,11 +144,32 @@ void hw_init()
         rom_reset_usb_boot(0, 0);
 }
 
+void controller_init()
+{
+    combo_init();
+    update_tt_transitions();
+}
+
 void usb_init()
 {
     board_init();
     tusb_rhport_init_t dev_init = { .role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_AUTO };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
+    stdio_init_all();
+}
+
+void update_tt_transitions()
+{
+    const int8_t direction = config.reverse_tt ? -1 : 1;
+    const int8_t opposite_direction = -direction;
+
+    const int8_t updated_tt_transitions[4][4] = {
+        { 0, direction, opposite_direction, 0 },
+        { opposite_direction, 0, 0, direction },
+        { direction, 0, 0, opposite_direction },
+        { 0, opposite_direction, direction, 0 }
+    };
+    memcpy(tt_transitions, updated_tt_transitions, sizeof(tt_transitions));
 }
 
 void process_buttons()
@@ -152,16 +185,6 @@ void process_buttons()
 
 void process_tt()
 {
-    constexpr auto direction = 1;
-    constexpr auto opposite_direction = -1;
-    constexpr int8_t tt_transitions[4][4] = {
-        { 0, direction, opposite_direction, 0 },
-        { opposite_direction, 0, 0, direction },
-        { direction, 0, 0, opposite_direction },
-        { 0, opposite_direction, direction, 0 }
-    };
-    static uint8_t h = 0;
-
     static uint8_t prev = 0;
     const uint8_t a = gpio_get(tt_pins[0]);
     const uint8_t b = gpio_get(tt_pins[1]);
@@ -171,22 +194,38 @@ void process_tt()
     prev = curr;
 
     tt_x += dir;
+    const auto max = 256 * config.tt_ratio;
+    if (tt_x < 0) tt_x = max - tt_x;
+    tt_x %= max;
 }
 
 void process_lights()
 {
-    const auto leds = board_millis() > hid_expiry_time ? button_state : lights.buttons;
+    uint16_t led_state = lights.buttons;
+    if (reactive_leds || !hid_expiry_timer.is_active())
+        led_state = button_state;
+
+    if (config.disable_leds ||
+        // Temporarily black out button LEDs to notify a setting change
+        combo_lights_timer.is_active())
+    {
+        led_state = 0;
+    }
+
     for (auto i = 0; i < NUM_BUTTONS; ++i)
     {
-        gpio_put(button_pins[i].led_pin, leds & (1 << i));
+        gpio_put(button_pins[i].led_pin, led_state & (1 << i));
     }
 }
 
 [[noreturn]] int main()
 {
-    stdio_init_all();
     hw_init();
+    config_init();
+    controller_init();
     usb_init();
+
+    // FastLED.show();
 
     while (true)
     {
@@ -198,6 +237,7 @@ void process_lights()
         tud_task();
 
         process_buttons();
+        process_combos();
         process_tt();
         process_lights();
 
