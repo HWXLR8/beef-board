@@ -48,7 +48,7 @@ void QeAxis::poll()
     if (config.reverse_tt) dir *= -1;
     position += dir;
     const auto max = 256 * config.tt_ratio;
-    if (position < 0) position = max - position;
+    if (position < 0) position += max;
     position %= max;
 }
 
