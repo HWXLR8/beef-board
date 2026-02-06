@@ -8,7 +8,6 @@ pico_board_cmake_set(PICO_PLATFORM, rp2350)
 
 // --- RP2350 VARIANT ---
 #define PICO_RP2350A 0
-#define PICO_RP2350 1 // Needed for FastLED
 
 // --- FLASH ---
 

@@ -1,7 +1,3 @@
-// #define FASTLED_RP2040_CLOCKLESS_PIO 0
-// #define FASTLED_RP2040_CLOCKLESS_M0_FALLBACK 1
-// #include <FastLED.h>
-
 #include "beef.h"
 
 #include "analog_button.h"
@@ -9,8 +5,9 @@
 #include "combo.h"
 #include "config.h"
 #include "pins.h"
-#include "rgb_helper.h"
+#include "rgb.h"
 #include "tusb.h"
+#include "ws2812.h"
 #include "bsp/board_api.h"
 #include "devices/iidx/iidx_usb.h"
 #include "hardware/gpio.h"
@@ -25,13 +22,12 @@ bool reactive_leds = true;
 
 struct __attribute__((packed)) hid_lights
 {
-    uint16_t buttons;
-    rgb_light tt_lights;
-    rgb_light bar_lights;
+    uint16_t buttons = 0;
+    rgb_t tt_lights;
+    rgb_t bar_lights;
 };
 
 hid_lights lights;
-// CRGB leds[24];
 
 //--------------------------------------------------------------------+
 // USB HID
@@ -63,6 +59,8 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
 
     memcpy(&lights, buffer, bufsize);
     hid_expiry_timer.arm(1000);
+    fill_solid(tt_leds.begin(), tt_leds.end(), lights.tt_lights);
+    fill_solid(bar_leds.begin(), bar_leds.end(), lights.bar_lights);
 }
 
 static void send_hid_report()
@@ -136,10 +134,6 @@ void hw_init()
     //     adc_gpio_init(adc_pin);
     // }
 
-    // gpio_init(TT_DATA_GPIO);
-    // gpio_set_dir(TT_DATA_GPIO, GPIO_OUT);
-    // FastLED.addLeds<NEOPIXEL, TT_DATA_GPIO>(leds, 24);
-
     // reboot to bootloader if B1 and B2 are held on startup
     if (gpio_get(button_pins[0].input_pin) && gpio_get(button_pins[1].input_pin))
         rom_reset_usb_boot(0, 0);
@@ -200,6 +194,8 @@ void process_lights()
     {
         gpio_put(button_pins[i].led_pin, led_state & (1 << i));
     }
+
+    ws2812_show();
 }
 
 [[noreturn]] int main()
@@ -207,9 +203,8 @@ void process_lights()
     hw_init();
     config_init();
     controller_init();
+    ws2812_init();
     usb_init();
-
-    // FastLED.show();
 
     while (true)
     {
