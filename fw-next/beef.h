@@ -20,3 +20,5 @@ enum
     BUTTON_10 = 1 << 9,
     BUTTON_11 = 1 << 10
 };
+
+void process_buttons();

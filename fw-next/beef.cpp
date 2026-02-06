@@ -135,7 +135,8 @@ void hw_init()
     // }
 
     // reboot to bootloader if B1 and B2 are held on startup
-    if (gpio_get(button_pins[0].input_pin) && gpio_get(button_pins[1].input_pin))
+    process_buttons();
+    if (button_state == (BUTTON_1 | BUTTON_2))
         rom_reset_usb_boot(0, 0);
 }
 
