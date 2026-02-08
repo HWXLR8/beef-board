@@ -6,7 +6,7 @@ AnalogButton* button_y;
 
 int8_t AnalogButton::poll(const uint8_t current_value)
 {
-    int8_t delta = current_value - center;
+    int delta = current_value - center;
     // Handle wrap-around cases
     if (delta > 127)
     {
