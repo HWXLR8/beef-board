@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "PicoEncoder.h"
 
 class Axis
 {
@@ -26,15 +26,13 @@ private:
 class QeAxis : public Axis
 {
 public:
-    QeAxis(uint8_t a_pin, uint8_t b_pin);
+    QeAxis(uint8_t a_pin);
 
     void poll() override;
     [[nodiscard]] uint8_t get() const override;
 
 private:
-    uint8_t a_pin;
-    uint8_t b_pin;
-    uint8_t prev = 0;
+    PicoEncoder encoder;
     uint16_t position = 0;
 };
 

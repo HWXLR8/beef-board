@@ -121,12 +121,6 @@ void hw_init()
         gpio_init(led_pin);
         gpio_set_dir(led_pin, GPIO_OUT);
     }
-    for (const auto pin : tt_pins)
-    {
-        gpio_init(pin);
-        gpio_pull_up(pin);
-        gpio_set_inover(pin, GPIO_OVERRIDE_INVERT);
-    }
 
     // adc_init();
     // for (const auto adc_pin : adc_gpio_pins)

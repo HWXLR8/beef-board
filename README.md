@@ -156,6 +156,9 @@ A collection of scripts and tools are available for SpiceTools users to enhance 
   * FastLED shims
   * Debounce code
 * [dfu-programmer](https://github.com/dfu-programmer/dfu-programmer) for serving as the reference implementation for the Atmel DFU protocol
+* [TinyUSB](https://github.com/hathach/tinyusb) for the USB HID + serial communications implementation for the RP2350
+* [pico-examples](https://github.com/raspberrypi/pico-examples) for providing the WS2812 PIO code
+* [PicoEncoder](https://github.com/pmarques-dev/PicoEncoder) for the PIO-based quadrature encoder implementation
 * Special thanks to Mechada and Cryto for beta testing
 
 # PCB APPROVED BY KORS K
