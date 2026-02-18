@@ -50,8 +50,6 @@ add_executable(beef-board
         config.h
         rgb.cpp
         rgb.h
-        PicoEncoder.cpp
-        PicoEncoder.h
         timer.h
         tusb_config.h
         usb_descriptors.c
@@ -82,7 +80,7 @@ target_include_directories(beef-board PRIVATE
 
 # Add any user requested libraries
 pico_generate_pio_header(beef-board
-        ${CMAKE_CURRENT_LIST_DIR}/pico_encoder.pio
+        ${CMAKE_CURRENT_LIST_DIR}/quadrature_encoder.pio
         ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio
 )
 target_link_libraries(beef-board

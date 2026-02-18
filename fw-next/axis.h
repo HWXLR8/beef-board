@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PicoEncoder.h"
+#include <cstdint>
 
 class Axis
 {
@@ -32,8 +32,7 @@ public:
     [[nodiscard]] uint8_t get() const override;
 
 private:
-    PicoEncoder encoder;
-    uint16_t position = 0;
+    volatile uint32_t position = 0;
 };
 
 const extern int8_t tt_transitions[4][4];
