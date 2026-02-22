@@ -5,7 +5,6 @@
 #include "combo.h"
 #include "config.h"
 #include "pins.h"
-#include "rgb.h"
 #include "tusb.h"
 #include "ws2812.h"
 #include "bsp/board_api.h"
@@ -19,23 +18,8 @@
 uint16_t button_state = 0;
 timer_t hid_expiry_timer;
 bool reactive_leds = true;
-
-struct __attribute__((packed)) hid_lights
-{
-    uint16_t buttons = 0;
-    rgb_t tt_lights;
-    rgb_t bar_lights;
-};
-
 hid_lights lights;
 
-//--------------------------------------------------------------------+
-// USB HID
-//--------------------------------------------------------------------+
-
-// Invoked when received GET_REPORT control request
-// Application must fill buffer report's content and return its length.
-// Return zero will cause the stack to STALL request
 uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
                                uint16_t reqlen)
 {
@@ -48,8 +32,6 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
     return 0;
 }
 
-// Invoked when received SET_REPORT control request or
-// received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer,
                            uint16_t bufsize)
 {
@@ -57,53 +39,55 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
     (void)report_id;
     (void)report_type;
 
+    if (report_type != HID_REPORT_TYPE_OUTPUT)
+    {
+        printf("tud_hid_set_report_cb: received report type %d\n", report_type);
+        return;
+    }
+
     memcpy(&lights, buffer, bufsize);
     hid_expiry_timer.arm(1000);
-    fill_solid(tt_leds.begin(), tt_leds.end(), lights.tt_lights);
-    fill_solid(bar_leds.begin(), bar_leds.end(), lights.bar_lights);
 }
 
-static void send_hid_report()
+void tud_hid_report_failed_cb(uint8_t instance, hid_report_type_t report_type, uint8_t const* report,
+                              uint16_t xferred_bytes)
+{
+    (void)report;
+
+    printf("failed to send report type %d: instance: %d, xferred_bytes %d\n", report_type, instance, xferred_bytes);
+}
+
+void send_hid_report()
 {
     struct __attribute__((packed)) joystick_report_data_t
     {
-        uint8_t X;
-        uint8_t Y; // Needed for LR2 compatibility
-        uint16_t Button; // bit-field representing which buttons have been pressed
+        uint8_t X = 0;
+        uint8_t Y = 127; // Needed for LR2 compatibility
+        uint16_t Buttons = 0; // bit-field representing which buttons have been pressed
     };
-
-    joystick_report_data_t report = {
-        .X = tt_x.get(),
-        .Y = 127
-    };
+    static joystick_report_data_t report;
 
     // Infinitas only reads buttons 1-7, 9-12,
     // so shift bits 8 and up once
     const uint8_t upper = button_state >> 7;
     const uint8_t lower = button_state & 0x7F;
-    report.Button = (upper << 8) | lower;
+    report.X = tt_x.get();
+    report.Buttons = (upper << 8) | lower;
 
     tud_hid_report(0, &report, sizeof(report));
 }
 
-// Every millisecond, we will send 1 report for each HID profile (keyboard, mouse etc ..)
-// tud_hid_report_complete_cb() is used to send the next report after previous one is complete
 void hid_task()
 {
-    // skip if hid is not ready yet
-    if (!tud_hid_ready())
-    {
-        return;
-    }
-
     // Poll every millisecond
     constexpr uint32_t interval_ms = 1;
     static uint32_t start_ms = 0;
 
     const auto now = board_millis();
-    if (now - start_ms < interval_ms)
+    if (now - start_ms < interval_ms || // not enough time
+        !tud_hid_ready()) // skip if hid is not ready yet
     {
-        return; // not enough time
+        return;
     }
     start_ms = now;
 
@@ -142,10 +126,11 @@ void controller_init()
 
 void usb_init()
 {
+    stdio_init_all();
     board_init();
     tusb_rhport_init_t dev_init = { .role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_AUTO };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
-    stdio_init_all();
+    board_init_after_tusb();
 }
 
 void process_buttons()

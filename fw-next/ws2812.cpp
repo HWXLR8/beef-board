@@ -1,5 +1,6 @@
 #include "ws2812.h"
 
+#include "beef.h"
 #include "config.h"
 #include "pins.h"
 #include "pico/stdlib.h"
@@ -57,17 +58,17 @@ void ws2812_init()
 
 void ws2812_show()
 {
-    static uint32_t last_show = 0;
-    constexpr auto frame_time = 1.f / 400;
-    const auto now = board_millis();
-    if (now - last_show < frame_time) return;
-    last_show = now;
+    constexpr auto frame_time_us = 1000000 / 400;
+    static uint64_t last_show_us = 0;
+    const auto now = to_us_since_boot(get_absolute_time());
+    if (now - last_show_us < frame_time_us) return;
+    last_show_us = now;
 
     if (!dma_channel_is_busy(dma_bar))
     {
         for (int i = 0; i < BAR_LEDS; i++)
         {
-            bar_leds_dma[i] = static_cast<uint32_t>(bar_leds[i]);
+            bar_leds_dma[i] = static_cast<uint32_t>(lights.bar_lights);
         }
         dma_channel_set_read_addr(dma_bar, bar_leds_dma.data(), true);
     }
@@ -76,7 +77,7 @@ void ws2812_show()
     {
         for (int i = 0; i < tt_leds.size(); i++)
         {
-            tt_leds_dma[i] = static_cast<uint32_t>(tt_leds[i]);
+            tt_leds_dma[i] = static_cast<uint32_t>(lights.tt_lights);
         }
         dma_channel_set_read_addr(dma_tt, tt_leds_dma.data(), true);
     }

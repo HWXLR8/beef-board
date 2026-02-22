@@ -19,7 +19,6 @@ public:
     virtual combo_t get_button_combo() = 0;
 };
 
-extern ComboProcessor* combo_processor;
 extern timer_t combo_lights_timer;
 
 void combo_init();

@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "rgb.h"
+
 extern uint16_t button_state;
 extern bool reactive_leds;
 
@@ -20,5 +22,14 @@ enum
     BUTTON_10 = 1 << 9,
     BUTTON_11 = 1 << 10
 };
+
+struct __attribute__((packed)) hid_lights
+{
+    uint16_t buttons = 0;
+    rgb_t tt_lights;
+    rgb_t bar_lights;
+};
+
+extern hid_lights lights;
 
 void process_buttons();
