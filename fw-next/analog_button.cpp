@@ -41,7 +41,7 @@ int8_t AnalogButton::poll(const uint8_t current_value)
         deadzone = 1;
         direction_change = direction == -state;
     }
-    else if (sustain_timer.is_expired())
+    else if (sustain_timer.is_expired(true))
     {
         // sustain timer expired, time to reset to neutral
         state = 0;

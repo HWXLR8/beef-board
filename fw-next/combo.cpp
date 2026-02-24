@@ -45,7 +45,7 @@ void process_combos()
             if (!combo_timer.armed)
                 combo_timer.arm(1000);
 
-            if (combo_timer.check_if_expired_and_reset())
+            if (combo_timer.is_expired(true))
             {
                 config_update_callback = button_combo.update_config();
                 combo_lights_timer.arm(CONFIG_CHANGE_NOTIFY_TIME);
@@ -63,7 +63,7 @@ void process_combos()
 
         combo_timer.reset();
         combo_lights_timer.reset();
-        // timer_reset(&RgbHelper::combo_timer);
+        combo_processor->on_reset();
 
         if (config_update_callback.value_or(callback_t{}).deferred_save)
             config.save();

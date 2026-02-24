@@ -68,7 +68,7 @@ void ws2812_show()
     {
         for (int i = 0; i < BAR_LEDS; i++)
         {
-            bar_leds_dma[i] = static_cast<uint32_t>(lights.bar_lights);
+            bar_leds_dma[i] = static_cast<uint32_t>(bar_leds[i]);
         }
         dma_channel_set_read_addr(dma_bar, bar_leds_dma.data(), true);
     }
@@ -77,7 +77,7 @@ void ws2812_show()
     {
         for (int i = 0; i < tt_leds.size(); i++)
         {
-            tt_leds_dma[i] = static_cast<uint32_t>(lights.tt_lights);
+            tt_leds_dma[i] = static_cast<uint32_t>(tt_leds[i]);
         }
         dma_channel_set_read_addr(dma_tt, tt_leds_dma.data(), true);
     }

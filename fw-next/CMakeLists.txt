@@ -48,8 +48,16 @@ add_executable(beef-board
         combo.h
         config.cpp
         config.h
+        fastled.cpp
+        fastled.h
+        hid.cpp
+        hid.h
+        patterns.cpp
+        patterns.h
         rgb.cpp
         rgb.h
+        ticker.cpp
+        ticker.h
         timer.h
         tusb_config.h
         usb_descriptors.c
@@ -58,6 +66,8 @@ add_executable(beef-board
 
         devices/iidx/iidx_combo.cpp
         devices/iidx/iidx_combo.h
+        devices/iidx/iidx_rgb.cpp
+        devices/iidx/iidx_rgb.h
         devices/iidx/iidx_usb.h
 )
 

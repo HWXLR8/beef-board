@@ -2,12 +2,12 @@
 
 #include "beef.h"
 #include "config.h"
-#include "class/hid/hid.h"
+#include "ws2812.h"
 #include "hardware/flash.h"
 #include "pico/flash.h"
 
-constexpr auto DEFAULT_COLOUR = HSV{ 128, 255, 255 }; // Aqua
-constexpr auto DEFAULT_COLOUR_NO_HUE = HSV{ 0, 255, 255 };
+constexpr auto DEFAULT_COLOUR = hsv_t{ 128, 255, 255 }; // Aqua
+constexpr auto DEFAULT_COLOUR_NO_HUE = hsv_t{ 0, 255, 255 };
 constexpr uint32_t magic = 0xDEADBEEF;
 
 config_t config{};
@@ -144,6 +144,15 @@ std::optional<callback_t> toggle_reverse_tt()
     return callback_t{};
 }
 
+std::optional<callback_t> cycle_tt_effects()
+{
+    config.tt_effect = TurntableMode((uint8_t(config.tt_effect) + 1) % uint8_t(TurntableMode::Count));
+    set_leds_off(tt_leds.begin(), tt_leds.end());
+
+    config.save();
+    return callback_t{};
+}
+
 void update_deadzone(const uint8_t deadzone)
 {
     // IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
@@ -198,6 +207,21 @@ std::optional<callback_t> decrease_ratio()
     config.tt_ratio = MAX(config.tt_ratio - 1, static_cast<uint8_t>(RATIO_MIN));
     update_ratio(config.tt_ratio);
 
+    return callback_t{};
+}
+
+std::optional<callback_t> cycle_bar_effects()
+{
+    do
+    {
+        config.bar_effect = BarMode((uint8_t(config.bar_effect) + 1) % uint8_t(BarMode::Count));
+    }
+    while (config.bar_effect == BarMode::Placeholder1 ||
+        config.bar_effect == BarMode::Placeholder3);
+
+    set_leds_off(bar_leds.begin(), bar_leds.end());
+
+    config.save();
     return callback_t{};
 }
 

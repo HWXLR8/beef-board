@@ -4,10 +4,12 @@
 #include "axis.h"
 #include "combo.h"
 #include "config.h"
+#include "hid.h"
 #include "pins.h"
 #include "tusb.h"
 #include "ws2812.h"
 #include "bsp/board_api.h"
+#include "devices/iidx/iidx_rgb.h"
 #include "devices/iidx/iidx_usb.h"
 #include "hardware/gpio.h"
 #include "pico/bootrom.h"
@@ -16,9 +18,8 @@
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
-timer_t hid_expiry_timer;
 bool reactive_leds = true;
-hid_lights lights;
+hid_lights_t lights;
 
 uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
                                uint16_t reqlen)
@@ -113,7 +114,7 @@ void hw_init()
     // }
 
     // reboot to bootloader if B1 and B2 are held on startup
-    process_buttons();
+    process_buttons(0);
     if (button_state == (BUTTON_1 | BUTTON_2))
         rom_reset_usb_boot(0, 0);
 }
@@ -133,7 +134,7 @@ void usb_init()
     board_init_after_tusb();
 }
 
-void process_buttons()
+void process_buttons(int8_t tt1_report)
 {
     button_state = 0;
     for (auto i = 0; i < NUM_BUTTONS; i++)
@@ -143,7 +144,6 @@ void process_buttons()
         button_state |= v << i;
     }
 
-    const auto tt1_report = button_x->poll(tt_x.get());
     switch (tt1_report)
     {
     case -1:
@@ -157,7 +157,7 @@ void process_buttons()
     }
 }
 
-void process_lights()
+void process_lights(int8_t tt1_report)
 {
     uint16_t led_state = lights.buttons;
     if (reactive_leds || !hid_expiry_timer.is_active())
@@ -175,6 +175,7 @@ void process_lights()
         gpio_put(button_pins[i].led_pin, led_state & (1 << i));
     }
 
+    IIDX::RgbManager::update(tt1_report, lights);
     ws2812_show();
 }
 
@@ -196,9 +197,11 @@ void process_lights()
         tud_task();
 
         tt_x.poll();
-        process_buttons();
+        const auto tt1_report = button_x->poll(tt_x.get());
+
+        process_buttons(tt1_report);
         process_combos();
-        process_lights();
+        process_lights(tt1_report);
 
         hid_task();
     }

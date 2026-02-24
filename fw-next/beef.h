@@ -23,13 +23,13 @@ enum
     BUTTON_11 = 1 << 10
 };
 
-struct __attribute__((packed)) hid_lights
+struct __attribute__((packed)) hid_lights_t
 {
     uint16_t buttons = 0;
     rgb_t tt_lights;
     rgb_t bar_lights;
 };
 
-extern hid_lights lights;
+extern hid_lights_t lights;
 
-void process_buttons();
+void process_buttons(int8_t tt1_report);

@@ -4,6 +4,8 @@
 
 namespace IIDX
 {
+    timer_t combo_timer;
+
     enum
     {
         REVERSE_TT = BUTTON_1 | BUTTON_7 | BUTTON_8,
@@ -28,6 +30,10 @@ namespace IIDX
             return {
                 .update_config = toggle_reverse_tt
             };
+        case TT_EFFECTS:
+            return {
+                .update_config = cycle_tt_effects
+            };
         case TT_DEADZONE_INCR:
             return {
                 .update_config = increase_deadzone
@@ -44,6 +50,10 @@ namespace IIDX
             return {
                 .update_config = decrease_ratio
             };
+        case BAR_EFFECTS:
+            return {
+                .update_config = cycle_bar_effects
+            };
         case DISABLE_LEDS:
             return {
                 .update_config = toggle_disable_leds
@@ -51,5 +61,10 @@ namespace IIDX
         default:
             return {};
         }
+    }
+
+    void ComboProcessor::on_reset()
+    {
+        combo_timer.reset();
     }
 }

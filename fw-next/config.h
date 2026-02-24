@@ -2,8 +2,7 @@
 
 #include <optional>
 
-#include "hardware/flash.h"
-#include "pico/flash.h"
+#include "rgb.h"
 
 constexpr auto FLASH_CONFIG_OFFSET = 8 * 1024 * 1024;
 
@@ -52,16 +51,6 @@ struct SDVXKeyMapping
     }
 };
 
-struct HSV
-{
-    uint8_t h, s, v;
-
-    friend bool operator==(const HSV &lhs, const HSV &rhs)
-    {
-        return lhs.h == rhs.h && lhs.s == rhs.s && lhs.v == rhs.v;
-    }
-};
-
 enum class TurntableMode : uint8_t
 {
     Static,
@@ -106,14 +95,14 @@ struct config_t
     uint8_t tt_deadzone;
     BarMode bar_effect;
     bool disable_leds;
-    HSV tt_static_hsv;
-    HSV tt_spin_hsv;
-    HSV tt_shift_hsv;
-    HSV tt_rainbow_static_hsv;
-    HSV tt_rainbow_react_hsv;
-    HSV tt_rainbow_spin_hsv;
-    HSV tt_react_hsv;
-    HSV tt_breathing_hsv;
+    hsv_t tt_static_hsv;
+    hsv_t tt_spin_hsv;
+    hsv_t tt_shift_hsv;
+    hsv_t tt_rainbow_static_hsv;
+    hsv_t tt_rainbow_react_hsv;
+    hsv_t tt_rainbow_spin_hsv;
+    hsv_t tt_react_hsv;
+    hsv_t tt_breathing_hsv;
     uint8_t tt_ratio;
     ControllerType controller_type;
     InputMode iidx_input_mode;
@@ -168,13 +157,13 @@ extern config_t config;
 void config_init();
 
 std::optional<callback_t> toggle_reverse_tt();
-// callback cycle_tt_effects();
-// callback tt_hsv_set_hue();
-// callback tt_hsv_set_sat();
-// callback tt_hsv_set_val();
+std::optional<callback_t> cycle_tt_effects();
+// std::optional<callback_t> tt_hsv_set_hue();
+// std::optional<callback_t> tt_hsv_set_sat();
+// std::optional<callback_t> tt_hsv_set_val();
 std::optional<callback_t> increase_deadzone();
 std::optional<callback_t> decrease_deadzone();
 std::optional<callback_t> increase_ratio();
 std::optional<callback_t> decrease_ratio();
-// callback cycle_bar_effects();
+std::optional<callback_t> cycle_bar_effects();
 std::optional<callback_t> toggle_disable_leds();

@@ -17,6 +17,7 @@ public:
     virtual ~ComboProcessor() = default;
 
     virtual combo_t get_button_combo() = 0;
+    virtual void on_reset() = 0;
 };
 
 extern timer_t combo_lights_timer;

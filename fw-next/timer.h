@@ -18,7 +18,7 @@ struct timer_t
         armed = false;
     }
 
-    [[nodiscard]] bool is_expired() const
+    [[nodiscard]] bool is_expired(const bool reset_on_expiry = false)
     {
         if (!armed)
         {
@@ -26,21 +26,14 @@ struct timer_t
         }
 
         int32_t diff = board_millis() - expiry_time;
-        return diff > 0;
+        const auto expired = diff >= 0;
+        if (expired && reset_on_expiry)
+            reset();
+        return expired;
     }
 
     bool is_active()
     {
-        return armed && !check_if_expired_and_reset();
-    }
-
-    bool check_if_expired_and_reset()
-    {
-        bool expired = is_expired();
-        if (expired)
-        {
-            reset();
-        }
-        return expired;
+        return armed && !is_expired(true);
     }
 };
