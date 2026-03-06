@@ -3,11 +3,11 @@
 #include "beef.h"
 #include "config.h"
 #include "pins.h"
-#include "pico/stdlib.h"
-#include "hardware/pio.h"
-#include "hardware/dma.h"
 #include "ws2812.pio.h"
 #include "bsp/board_api.h"
+#include "hardware/dma.h"
+#include "hardware/pio.h"
+#include "pico/stdlib.h"
 
 std::array<rgb_t, BAR_LEDS> bar_leds;
 std::array<uint32_t, BAR_LEDS> bar_leds_dma;
@@ -58,12 +58,6 @@ void ws2812_init()
 
 void ws2812_show()
 {
-    constexpr auto frame_time_us = 1000000 / 400;
-    static uint64_t last_show_us = 0;
-    const auto now = to_us_since_boot(get_absolute_time());
-    if (now - last_show_us < frame_time_us) return;
-    last_show_us = now;
-
     if (!dma_channel_is_busy(dma_bar))
     {
         for (int i = 0; i < BAR_LEDS; i++)
@@ -81,4 +75,14 @@ void ws2812_show()
         }
         dma_channel_set_read_addr(dma_tt, tt_leds_dma.data(), true);
     }
+}
+
+bool ready_to_show()
+{
+    constexpr auto frame_time_us = 1000000 / 400;
+    static uint64_t last_show_us = 0;
+    const auto now = to_us_since_boot(get_absolute_time());
+    if (now - last_show_us < frame_time_us) return false;
+    last_show_us = now;
+    return true;
 }

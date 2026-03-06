@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "rgb.h"
 
 extern uint16_t button_state;

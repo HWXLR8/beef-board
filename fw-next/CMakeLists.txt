@@ -82,6 +82,9 @@ pico_enable_stdio_usb(beef-board 1)
 target_link_libraries(beef-board
         pico_stdlib
 )
+target_link_options(beef-board PRIVATE
+        "--specs=nano.specs"
+)
 
 # Add the standard include files to the build
 target_include_directories(beef-board PRIVATE

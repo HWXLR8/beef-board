@@ -5,5 +5,6 @@
 
 namespace IIDX::RgbManager
 {
+    void init();
     void update(int8_t tt1_report, const hid_lights_t &led_state_from_hid_report);
 }

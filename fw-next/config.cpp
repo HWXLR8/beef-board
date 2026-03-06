@@ -1,8 +1,10 @@
 #include <cstring>
 
-#include "beef.h"
 #include "config.h"
+#include "analog_button.h"
+#include "beef.h"
 #include "ws2812.h"
+#include "devices/iidx/iidx_rgb.h"
 #include "hardware/flash.h"
 #include "pico/flash.h"
 
@@ -153,6 +155,113 @@ std::optional<callback_t> cycle_tt_effects()
     return callback_t{};
 }
 
+std::optional<callback_t> tt_hsv_set_hue()
+{
+    hsv_t* hsv;
+
+    switch (config.tt_effect)
+    {
+    case TurntableMode::Static:
+        hsv = &config.tt_static_hsv;
+        break;
+    case TurntableMode::Spin:
+        hsv = &config.tt_spin_hsv;
+        break;
+    case TurntableMode::React:
+        hsv = &config.tt_react_hsv;
+        break;
+    case TurntableMode::Breathing:
+        hsv = &config.tt_breathing_hsv;
+        break;
+    default:
+        return std::nullopt;
+    }
+
+    hsv->h += button_x->direction;
+
+    return callback_t{ true };
+}
+
+std::optional<callback_t> tt_hsv_set_sat()
+{
+    hsv_t* hsv;
+
+    switch (config.tt_effect)
+    {
+    case TurntableMode::Static:
+        hsv = &config.tt_static_hsv;
+        break;
+    case TurntableMode::Shift:
+        hsv = &config.tt_shift_hsv;
+        break;
+    case TurntableMode::RainbowStatic:
+        hsv = &config.tt_rainbow_static_hsv;
+        break;
+    case TurntableMode::RainbowReact:
+        hsv = &config.tt_rainbow_react_hsv;
+        break;
+    case TurntableMode::RainbowSpin:
+        hsv = &config.tt_rainbow_spin_hsv;
+        break;
+    case TurntableMode::React:
+        hsv = &config.tt_react_hsv;
+        break;
+    case TurntableMode::Breathing:
+        hsv = &config.tt_breathing_hsv;
+        break;
+    default:
+        return std::nullopt;
+    }
+
+    const auto tt1_report = button_x->direction;
+
+    // prevent looping around
+    if ((hsv->s == 0 && tt1_report < 0) ||
+        (hsv->s == 255 && tt1_report > 0))
+        return std::nullopt;
+
+    hsv->s += tt1_report;
+
+    return callback_t{ true };
+}
+
+std::optional<callback_t> tt_hsv_set_val()
+{
+    hsv_t* hsv;
+
+    switch (config.tt_effect)
+    {
+    case TurntableMode::Static:
+        hsv = &config.tt_static_hsv;
+        break;
+    case TurntableMode::Shift:
+        hsv = &config.tt_shift_hsv;
+        break;
+    case TurntableMode::RainbowStatic:
+        hsv = &config.tt_rainbow_static_hsv;
+        break;
+    case TurntableMode::RainbowReact:
+        hsv = &config.tt_rainbow_react_hsv;
+        break;
+    case TurntableMode::RainbowSpin:
+        hsv = &config.tt_rainbow_spin_hsv;
+        break;
+    default:
+        return std::nullopt;
+    }
+
+    const auto tt1_report = button_x->direction;
+
+    // prevent looping around
+    if ((hsv->v == 0 && tt1_report < 0) ||
+        (hsv->v == 255 && tt1_report > 0))
+        return std::nullopt;
+
+    hsv->v += tt1_report;
+
+    return callback_t{ true };
+}
+
 void update_deadzone(const uint8_t deadzone)
 {
     // IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
@@ -231,7 +340,8 @@ std::optional<callback_t> toggle_disable_leds()
 
     if (config.disable_leds)
     {
-        // FastLED.clear(true);
+        set_leds_off(tt_leds.begin(), tt_leds.end());
+        set_leds_off(bar_leds.begin(), bar_leds.end());
     }
 
     config.save();

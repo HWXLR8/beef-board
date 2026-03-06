@@ -19,3 +19,22 @@ private:
     uint8_t v = 0;
     int8_t direction = 1;
 };
+
+class SpinPattern
+{
+public:
+    SpinPattern(uint8_t spin_duration,
+                uint8_t fast_spin_duration,
+                uint8_t limit = 0);
+
+    bool update(int8_t tt_report);
+    [[nodiscard]] uint8_t get() const;
+
+private:
+    uint8_t spin_duration;
+    uint8_t fast_spin_duration;
+    int8_t last_tt_report = 0;
+    uint8_t spin_counter = 0;
+    uint8_t limit;
+    Ticker* ticker;
+};

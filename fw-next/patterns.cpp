@@ -21,6 +21,7 @@ uint8_t BreathingPattern::update()
         ticker.reset();
         breathing_timer.arm(cycle_time);
         theta = 0;
+        direction = 1;
     }
 
     const auto ticks = ticker.get_ticks();
@@ -58,4 +59,42 @@ uint8_t BreathingPattern::update()
     }
 
     return v;
+}
+
+SpinPattern::SpinPattern(const uint8_t spin_duration,
+                         const uint8_t fast_spin_duration,
+                         const uint8_t limit) :
+    spin_duration(spin_duration),
+    fast_spin_duration(fast_spin_duration),
+    limit(limit),
+    ticker(new Ticker(spin_duration))
+{
+}
+
+bool SpinPattern::update(const int8_t tt_report)
+{
+    if (last_tt_report != tt_report)
+    {
+        const auto duration = tt_report != 0 ? fast_spin_duration : spin_duration;
+        ticker->reset(duration);
+        last_tt_report = tt_report;
+    }
+
+    const auto ticks = ticker->get_ticks();
+    if (tt_report == -1)
+    {
+        spin_counter += limit - ticks;
+    }
+    else
+    {
+        spin_counter += ticks;
+    }
+    spin_counter %= limit;
+
+    return ticks > 0;
+}
+
+uint8_t SpinPattern::get() const
+{
+    return spin_counter;
 }

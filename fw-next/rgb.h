@@ -1,10 +1,20 @@
 #pragma once
 
-#include "hid.h"
 #include "fastled.h"
+#include "hid.h"
 #include "patterns.h"
 
 constexpr uint8_t BAR_LEDS = 16;
+
+struct hsv_t
+{
+    uint8_t h = 0, s = 0, v = 0;
+
+    friend bool operator==(const hsv_t &lhs, const hsv_t &rhs)
+    {
+        return lhs.h == rhs.h && lhs.s == rhs.s && lhs.v == rhs.v;
+    }
+};
 
 struct __attribute__((packed)) rgb_t
 {
@@ -15,21 +25,11 @@ struct __attribute__((packed)) rgb_t
         auto grb = static_cast<uint32_t>(r) << 8 | static_cast<uint32_t>(g) << 16 | static_cast<uint32_t>(b);
         return grb << 8u;
     }
-};
 
-struct hsv_t
-{
-    /*hsv_t() = default;
-
-    hsv_t(uint8_t h, uint8_t s, uint8_t v) : h(h), s(s), v(v)
+    rgb_t& operator=(const hsv_t &rhs)
     {
-    }*/
-
-    uint8_t h = 0, s = 0, v = 0;
-
-    friend bool operator==(const hsv_t &lhs, const hsv_t &rhs)
-    {
-        return lhs.h == rhs.h && lhs.s == rhs.s && lhs.v == rhs.v;
+        hsv2rgb_rainbow(rhs, *this);
+        return *this;
     }
 };
 
@@ -90,3 +90,5 @@ void set_leds_off(Iterator begin, Iterator end)
 {
     fill_solid(begin, end, rgb_t{});
 }
+
+uint tt_anim_normalisation();

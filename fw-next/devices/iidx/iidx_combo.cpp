@@ -1,5 +1,5 @@
-#include "beef.h"
 #include "iidx_combo.h"
+#include "beef.h"
 #include "iidx_usb.h"
 
 namespace IIDX
@@ -57,6 +57,21 @@ namespace IIDX
         case DISABLE_LEDS:
             return {
                 .update_config = toggle_disable_leds
+            };
+        case TT_HSV_HUE:
+            return {
+                .continuous = true,
+                .update_config = tt_hsv_set_hue,
+            };
+        case TT_HSV_SAT:
+            return {
+                .continuous = true,
+                .update_config = tt_hsv_set_sat,
+            };
+        case TT_HSV_VAL:
+            return {
+                .continuous = true,
+                .update_config = tt_hsv_set_val,
             };
         default:
             return {};

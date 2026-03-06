@@ -122,6 +122,7 @@ void hw_init()
 void controller_init()
 {
     combo_init();
+    IIDX::RgbManager::init();
     button_x = new AnalogButton(config.tt_deadzone, true);
 }
 
@@ -175,8 +176,11 @@ void process_lights(int8_t tt1_report)
         gpio_put(button_pins[i].led_pin, led_state & (1 << i));
     }
 
-    IIDX::RgbManager::update(tt1_report, lights);
-    ws2812_show();
+    if (ready_to_show())
+    {
+        IIDX::RgbManager::update(tt1_report, lights);
+        ws2812_show();
+    }
 }
 
 [[noreturn]] int main()
@@ -204,5 +208,16 @@ void process_lights(int8_t tt1_report)
         process_lights(tt1_report);
 
         hid_task();
+
+        /*static uint32_t last_show = 0;
+        static uint32_t ticks = 0;
+        ticks++;
+        const auto now = board_millis();
+        if (now - last_show >= 1000)
+        {
+            printf("ticks: %d\n", ticks);
+            ticks = 0;
+            last_show = now;
+        }*/
     }
 }

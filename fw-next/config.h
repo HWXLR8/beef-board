@@ -82,7 +82,6 @@ enum class BarMode : uint8_t
 struct callback_t
 {
     bool deferred_save;
-    uint8_t val;
 };
 
 // Do not reorder these fields
@@ -158,9 +157,9 @@ void config_init();
 
 std::optional<callback_t> toggle_reverse_tt();
 std::optional<callback_t> cycle_tt_effects();
-// std::optional<callback_t> tt_hsv_set_hue();
-// std::optional<callback_t> tt_hsv_set_sat();
-// std::optional<callback_t> tt_hsv_set_val();
+std::optional<callback_t> tt_hsv_set_hue();
+std::optional<callback_t> tt_hsv_set_sat();
+std::optional<callback_t> tt_hsv_set_val();
 std::optional<callback_t> increase_deadzone();
 std::optional<callback_t> decrease_deadzone();
 std::optional<callback_t> increase_ratio();

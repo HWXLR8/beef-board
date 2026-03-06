@@ -1,7 +1,7 @@
 #include <optional>
 
-#include "beef.h"
 #include "combo.h"
+#include "beef.h"
 #include "devices/iidx/iidx_combo.h"
 
 constexpr auto CONFIG_CHANGE_NOTIFY_TIME = 1000;
@@ -33,10 +33,15 @@ void process_combos()
 
         if (button_combo.continuous)
         {
-            config_update_callback = button_combo.update_config();
-            if (config_update_callback.has_value())
+            auto cb = button_combo.update_config();
+            if (!cb.has_value())
             {
-                combo_lights_timer.arm(500);
+                // Invalid combo held
+                combo_lights_timer.arm(250);
+            }
+            else
+            {
+                config_update_callback = cb;
             }
         }
         else

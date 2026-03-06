@@ -150,7 +150,10 @@ A collection of scripts and tools are available for SpiceTools users to enhance 
 * HW design by [HWXLR8](https://github.com/HWXLR8)
 * FW orignally written by [HWXLR8](https://github.com/HWXLR8) & [supervaka](https://github.com/supervaka), rewritten and hugely improved by [ASleepyCat](https://github.com/ASleepyCat)
 * HID implementation provided by the [LUFA project](https://github.com/abcminiuser/lufa)
-* Implementation of the WS2812 protocol provided by [FastLED](https://github.com/FastLED/FastLED)
+* [FastLED](https://github.com/FastLED/FastLED) for:
+  * WS2812 protocol implementation
+  * HSV to RGB conversion algorithms
+  * Rainbow LED rendering
 * [kinetic-flow](https://github.com/kinetic-flow)'s [arcin-infinitas](https://github.com/kinetic-flow/arcin-infinitas) for:
   * RGB HID functionality
   * FastLED shims
