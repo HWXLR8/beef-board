@@ -98,3 +98,40 @@ uint8_t SpinPattern::get() const
 {
     return spin_counter;
 }
+
+constexpr auto DECAY_TIME = 30;
+// This effectively controls how easy it is to reach max_level
+constexpr auto BUTTON_GUARD_TIME = 15;
+
+Bpm::Bpm(const uint8_t max_level) : max_level(max_level)
+{
+}
+
+uint8_t Bpm::update(const uint16_t button_state)
+{
+    if (!limiter.ready())
+    {
+        return current_level;
+    }
+
+    if (!button_guard.is_active())
+    {
+        const bool pressed_or_released = button_state ^ last_button_state;
+        if (pressed_or_released)
+        {
+            current_level = MIN(current_level+1, max_level);
+            decay.arm(DECAY_TIME);
+            button_guard.arm(BUTTON_GUARD_TIME);
+        }
+    }
+
+    if (current_level > 0 && decay.is_expired())
+    {
+        --current_level;
+        decay.arm(DECAY_TIME);
+    }
+
+    last_button_state = button_state;
+
+    return current_level;
+}

@@ -363,6 +363,16 @@ void hsv2rgb_spectrum(const hsv_t &hsv, rgb_t &rgb)
     hsv2rgb_raw(hsv2, rgb);
 }
 
+void fill_rainbow(std::vector<rgb_t> &leds, uint8_t level, uint8_t initialHue, uint8_t deltaHue)
+{
+    hsv_t hsv{ initialHue, 255, 255 };
+    for (auto it = leds.begin(); it != leds.begin() + level; ++it)
+    {
+        *it = hsv;
+        hsv.h += deltaHue;
+    }
+}
+
 void fill_rainbow_circular(std::vector<rgb_t> &leds, uint8_t initialHue, uint8_t sat, uint8_t val, bool reversed)
 {
     hsv_t hsv{ initialHue, sat, val };

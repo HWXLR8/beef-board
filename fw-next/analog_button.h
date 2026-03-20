@@ -1,5 +1,6 @@
 #pragma once
 
+#include "limiter.h"
 #include "timer.h"
 
 class AnalogButton
@@ -25,6 +26,8 @@ private:
     timer_t sustain_timer;
 
     int8_t state = 0; // -1, 0, 1
+
+    Limiter limiter = Limiter(1000);
 };
 
 extern AnalogButton* button_x;

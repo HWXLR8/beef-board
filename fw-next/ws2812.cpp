@@ -1,15 +1,17 @@
 #include "ws2812.h"
 
+#include <array>
+
 #include "beef.h"
 #include "config.h"
+#include "limiter.h"
 #include "pins.h"
 #include "ws2812.pio.h"
 #include "bsp/board_api.h"
 #include "hardware/dma.h"
 #include "hardware/pio.h"
-#include "pico/stdlib.h"
 
-std::array<rgb_t, BAR_LEDS> bar_leds;
+std::vector<rgb_t> bar_leds = std::vector<rgb_t>(BAR_LEDS);
 std::array<uint32_t, BAR_LEDS> bar_leds_dma;
 std::vector<rgb_t> tt_leds;
 std::vector<uint32_t> tt_leds_dma;
@@ -77,12 +79,9 @@ void ws2812_show()
     }
 }
 
+Limiter limiter(1000000 / 400);
+
 bool ready_to_show()
 {
-    constexpr auto frame_time_us = 1000000 / 400;
-    static uint64_t last_show_us = 0;
-    const auto now = to_us_since_boot(get_absolute_time());
-    if (now - last_show_us < frame_time_us) return false;
-    last_show_us = now;
-    return true;
+    return limiter.ready();
 }

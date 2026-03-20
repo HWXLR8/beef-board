@@ -1,5 +1,7 @@
 #include "iidx_rgb.h"
 
+#include <algorithm>
+
 #include "beef.h"
 #include "config.h"
 #include "iidx_combo.h"
@@ -160,13 +162,41 @@ namespace IIDX::RgbManager
             P2
         };
 
+        void flip_leds(const PlayerSide side)
+        {
+            if (side == P1)
+            {
+                std::reverse(bar_leds.begin(), bar_leds.end());
+            }
+        }
+
+        Bpm bpm(BAR_LEDS);
+
+        void spectrum(const PlayerSide side)
+        {
+            static uint8_t last_level = 0;
+
+            const auto level = bpm.update(button_state);
+
+            if (last_level != level)
+            {
+                set_leds_off(bar_leds.begin(), bar_leds.end());
+                fill_rainbow(bar_leds, level, 0, -16);
+                flip_leds(side);
+            }
+
+            last_level = level;
+        }
+
         void update(const rgb_t &lights)
         {
             switch (config.bar_effect)
             {
             case BarMode::KeySpectrumP1:
+                spectrum(P1);
                 break;
             case BarMode::KeySpectrumP2:
+                spectrum(P2);
                 break;
             case BarMode::HID:
                 hid(bar_leds.begin(), bar_leds.end(), lights);

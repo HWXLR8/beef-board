@@ -52,6 +52,7 @@ add_executable(beef-board
         fastled.h
         hid.cpp
         hid.h
+        limiter.h
         patterns.cpp
         patterns.h
         rgb.cpp
