@@ -50,14 +50,6 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
     hid_expiry_timer.arm(1000);
 }
 
-void tud_hid_report_failed_cb(uint8_t instance, hid_report_type_t report_type, uint8_t const* report,
-                              uint16_t xferred_bytes)
-{
-    (void)report;
-
-    printf("failed to send report type %d: instance: %d, xferred_bytes %d\n", report_type, instance, xferred_bytes);
-}
-
 void send_hid_report()
 {
     struct __attribute__((packed)) joystick_report_data_t
@@ -130,9 +122,17 @@ void usb_init()
 {
     stdio_init_all();
     board_init();
-    tusb_rhport_init_t dev_init = { .role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_AUTO };
+
+    tusb_rhport_init_t dev_init = {
+        .role = TUSB_ROLE_DEVICE,
+        .speed = TUSB_SPEED_AUTO
+    };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
-    board_init_after_tusb();
+
+    if (board_init_after_tusb)
+    {
+        board_init_after_tusb();
+    }
 }
 
 void process_buttons(int8_t tt1_report)
@@ -198,7 +198,8 @@ void process_lights(int8_t tt1_report)
             rom_reset_usb_boot(0, 0);
 #endif
 
-        tud_task();
+        if (tud_task_event_ready())
+            tud_task();
 
         tt_x.poll();
         const auto tt1_report = button_x->poll(tt_x.get());
@@ -208,16 +209,5 @@ void process_lights(int8_t tt1_report)
         process_lights(tt1_report);
 
         hid_task();
-
-        /*static uint32_t last_show = 0;
-        static uint32_t ticks = 0;
-        ticks++;
-        const auto now = board_millis();
-        if (now - last_show >= 1000)
-        {
-            printf("ticks: %d\n", ticks);
-            ticks = 0;
-            last_show = now;
-        }*/
     }
 }
