@@ -14,9 +14,9 @@ int8_t AnalogButton::poll(uint8_t deadzone, uint8_t sustain_ms, const uint8_t cu
   int8_t delta = current_value - center;
   // Handle wrap-around cases
   if (delta > 127) {
-    delta = (delta - 256) * -1;
+    delta = delta - 256;
   } else if (delta < -127) {
-    delta = (delta + 256) * -1;
+    delta = delta + 256;
   }
 
   // is the current value sufficiently far away from the center?
@@ -37,7 +37,9 @@ int8_t AnalogButton::poll(uint8_t deadzone, uint8_t sustain_ms, const uint8_t cu
     // disable deadzone to increase sensitivity to direction changes
     deadzone = 1;
     direction_change = direction == -state;
-  } else if (timer_is_expired(&sustain_timer)) {
+  } else if (timer_is_active(&sustain_timer)) {
+    deadzone = 1;
+  } else {
     // sustain timer expired, time to reset to neutral
     state = 0;
   }
