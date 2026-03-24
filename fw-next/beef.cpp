@@ -120,7 +120,6 @@ void controller_init()
 
 void usb_init()
 {
-    stdio_init_all();
     board_init();
 
     tusb_rhport_init_t dev_init = {
@@ -133,6 +132,8 @@ void usb_init()
     {
         board_init_after_tusb();
     }
+
+    stdio_init_all();
 }
 
 void process_buttons(int8_t tt1_report)
