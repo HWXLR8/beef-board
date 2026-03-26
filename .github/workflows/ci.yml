@@ -52,7 +52,7 @@ jobs:
           echo "PATH=/opt/arm-gnu-toolchain-${ARM_GCC_VERSION}-x86_64-arm-none-eabi/bin:$(echo $PATH)" >> $GITHUB_ENV
       - name: make
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release .
+          cmake -DCMAKE_BUILD_TYPE=Debug .
           make
       - uses: actions/upload-artifact@v4
         with:
