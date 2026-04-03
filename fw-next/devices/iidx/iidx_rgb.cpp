@@ -50,11 +50,14 @@ namespace IIDX::RgbManager
             fill_rainbow_circular(tt_leds, -pos, hsv.s, hsv.v);
         }
 
+        Ticker rainbow_react_ticker(3);
+
         void render_rainbow_react(const hsv_t &hsv,
                                   const int8_t tt_report)
         {
             static uint8_t pos = 0;
-            pos += tt_report * config.rainbow_spin_speed;
+            const auto ticks = rainbow_react_ticker.get_ticks();
+            pos += ticks * tt_report * config.rainbow_spin_speed;
             render_rainbow(hsv, pos);
         }
 

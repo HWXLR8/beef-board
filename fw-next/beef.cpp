@@ -46,6 +46,7 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
         return;
     }
 
+    assert(bufsize == sizeof(hid_lights_t));
     memcpy(&lights, buffer, bufsize);
     hid_expiry_timer.arm(1000);
 }
@@ -194,13 +195,7 @@ void process_lights(int8_t tt1_report)
 
     while (true)
     {
-#ifndef NDEBUG
-        if (get_bootsel_button())
-            rom_reset_usb_boot(0, 0);
-#endif
-
-        if (tud_task_event_ready())
-            tud_task();
+        tud_task();
 
         tt_x.poll();
         const auto tt1_report = button_x->poll(tt_x.get());
