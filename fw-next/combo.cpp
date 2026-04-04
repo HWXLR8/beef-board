@@ -2,27 +2,19 @@
 
 #include "combo.h"
 #include "beef.h"
-#include "devices/iidx/iidx_combo.h"
 
 constexpr auto CONFIG_CHANGE_NOTIFY_TIME = 1000;
 
-ComboProcessor* combo_processor;
 timer_t combo_lights_timer;
-
 timer_t combo_timer;
 bool combo_activated = false;
 bool ignore_combo = false;
 std::optional<callback_t> config_update_callback;
 
-void combo_init()
-{
-    combo_processor = new IIDX::ComboProcessor();
-}
-
 void process_combos()
 {
     reactive_leds = false;
-    const auto button_combo = combo_processor->get_button_combo();
+    const auto button_combo = usb->get_button_combo();
     if (button_combo.update_config != nullptr)
     {
         if (ignore_combo)
@@ -68,7 +60,7 @@ void process_combos()
 
         combo_timer.reset();
         combo_lights_timer.reset();
-        combo_processor->on_reset();
+        usb->on_combo_reset();
 
         if (config_update_callback.value_or(callback_t{}).deferred_save)
             config.save();

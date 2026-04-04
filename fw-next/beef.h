@@ -1,9 +1,11 @@
 #pragma once
 
 #include "rgb.h"
+#include "usb_handler.h"
 
 extern uint16_t button_state;
 extern bool reactive_leds;
+extern usb_handler* usb;
 
 // button macros to map to bit positions within button_state
 enum
@@ -21,13 +23,5 @@ enum
     BUTTON_11 = 1 << 10
 };
 
-struct __attribute__((packed)) hid_lights_t
-{
-    uint16_t buttons = 0;
-    rgb_t tt_lights;
-    rgb_t bar_lights;
-};
-
-extern hid_lights_t lights;
-
-void process_buttons(int8_t tt1_report);
+void process_buttons();
+void process_lights();

@@ -62,6 +62,7 @@ add_executable(beef-board
         timer.h
         tusb_config.h
         usb_descriptors.c
+        usb_handler.h
         ws2812.cpp
         ws2812.h
 
@@ -69,6 +70,7 @@ add_executable(beef-board
         devices/iidx/iidx_combo.h
         devices/iidx/iidx_rgb.cpp
         devices/iidx/iidx_rgb.h
+        devices/iidx/iidx_usb.cpp
         devices/iidx/iidx_usb.h
 )
 

@@ -22,5 +22,4 @@ public:
 
 extern timer_t combo_lights_timer;
 
-void combo_init();
 void process_combos();

@@ -1,4 +1,5 @@
 #include "iidx_combo.h"
+
 #include "beef.h"
 #include "iidx_usb.h"
 
@@ -21,7 +22,7 @@ namespace IIDX
         TT_HSV_VAL = BUTTON_6 | BUTTON_11,
     };
 
-    combo_t ComboProcessor::get_button_combo()
+    combo_t get_button_combo()
     {
         // Ignore digital TT inputs
         switch (button_state & ~(BUTTON_TT_NEG | BUTTON_TT_POS))
@@ -78,7 +79,7 @@ namespace IIDX
         }
     }
 
-    void ComboProcessor::on_reset()
+    void on_combo_reset()
     {
         combo_timer.reset();
     }

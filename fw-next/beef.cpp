@@ -1,7 +1,6 @@
 #include "beef.h"
 
 #include "analog_button.h"
-#include "axis.h"
 #include "combo.h"
 #include "config.h"
 #include "hid.h"
@@ -9,7 +8,6 @@
 #include "tusb.h"
 #include "ws2812.h"
 #include "bsp/board_api.h"
-#include "devices/iidx/iidx_rgb.h"
 #include "devices/iidx/iidx_usb.h"
 #include "hardware/gpio.h"
 #include "pico/bootrom.h"
@@ -19,7 +17,7 @@
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
 bool reactive_leds = true;
-hid_lights_t lights;
+usb_handler* usb;
 
 uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
                                uint16_t reqlen)
@@ -46,29 +44,8 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t rep
         return;
     }
 
-    assert(bufsize == sizeof(hid_lights_t));
-    memcpy(&lights, buffer, bufsize);
+    usb->hid_set_report(itf, report_id, report_type, buffer, bufsize);
     hid_expiry_timer.arm(1000);
-}
-
-void send_hid_report()
-{
-    struct __attribute__((packed)) joystick_report_data_t
-    {
-        uint8_t X = 0;
-        uint8_t Y = 127; // Needed for LR2 compatibility
-        uint16_t Buttons = 0; // bit-field representing which buttons have been pressed
-    };
-    static joystick_report_data_t report;
-
-    // Infinitas only reads buttons 1-7, 9-12,
-    // so shift bits 8 and up once
-    const uint8_t upper = button_state >> 7;
-    const uint8_t lower = button_state & 0x7F;
-    report.X = tt_x.get();
-    report.Buttons = (upper << 8) | lower;
-
-    tud_hid_report(0, &report, sizeof(report));
 }
 
 void hid_task()
@@ -85,7 +62,7 @@ void hid_task()
     }
     start_ms = now;
 
-    send_hid_report();
+    usb->send_hid_report();
 }
 
 void hw_init()
@@ -107,16 +84,14 @@ void hw_init()
     // }
 
     // reboot to bootloader if B1 and B2 are held on startup
-    process_buttons(0);
+    process_buttons();
     if (button_state == (BUTTON_1 | BUTTON_2))
         rom_reset_usb_boot(0, 0);
 }
 
 void controller_init()
 {
-    combo_init();
-    IIDX::RgbManager::init();
-    button_x = new AnalogButton(config.tt_deadzone, true);
+    usb = new IIDX::usb_handler();
 }
 
 void usb_init()
@@ -137,7 +112,7 @@ void usb_init()
     stdio_init_all();
 }
 
-void process_buttons(int8_t tt1_report)
+void process_buttons()
 {
     button_state = 0;
     for (auto i = 0; i < NUM_BUTTONS; i++)
@@ -146,23 +121,11 @@ void process_buttons(int8_t tt1_report)
         auto v = gpio_get(button_pin.input_pin);
         button_state |= v << i;
     }
-
-    switch (tt1_report)
-    {
-    case -1:
-        button_state |= IIDX::BUTTON_TT_NEG;
-        break;
-    case 1:
-        button_state |= IIDX::BUTTON_TT_POS;
-        break;
-    default:
-        break;
-    }
 }
 
-void process_lights(int8_t tt1_report)
+void process_lights()
 {
-    uint16_t led_state = lights.buttons;
+    uint16_t led_state = usb->get_button_light_state();
     if (reactive_leds || !hid_expiry_timer.is_active())
         led_state = button_state;
 
@@ -180,7 +143,7 @@ void process_lights(int8_t tt1_report)
 
     if (ready_to_show())
     {
-        IIDX::RgbManager::update(tt1_report, lights);
+        usb->update_lighting();
         ws2812_show();
     }
 }
@@ -197,12 +160,10 @@ void process_lights(int8_t tt1_report)
     {
         tud_task();
 
-        tt_x.poll();
-        const auto tt1_report = button_x->poll(tt_x.get());
-
-        process_buttons(tt1_report);
+        process_buttons();
         process_combos();
-        process_lights(tt1_report);
+        usb->update();
+        process_lights();
 
         hid_task();
     }
