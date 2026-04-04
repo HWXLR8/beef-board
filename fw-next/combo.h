@@ -5,6 +5,8 @@
 #include "config.h"
 #include "timer.h"
 
+constexpr auto CONFIG_CHANGE_NOTIFY_TIME = 1000;
+
 struct combo_t
 {
     bool continuous;

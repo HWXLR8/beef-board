@@ -98,6 +98,36 @@ namespace IIDX::RgbManager
             fill_solid(tt_leds.begin(), tt_leds.end(), hsv_t{ h, hsv.s, v });
         }
 
+        // Illuminate + as blue, - as red in two halves
+        void reverse_tt(const bool reverse_tt)
+        {
+            auto first_half = CRGB::Blue;
+            auto second_half = CRGB::Red;
+            if (reverse_tt)
+            {
+                first_half = CRGB::Red;
+                second_half = CRGB::Blue;
+            }
+
+            const auto middle = tt_leds.begin() + config.tt_leds / 2;
+            fill_solid(tt_leds.begin(), middle, first_half);
+            fill_solid(middle, tt_leds.end(), second_half);
+
+            combo_timer.arm(CONFIG_CHANGE_NOTIFY_TIME);
+        }
+
+        void display_tt_change(const rgb_t &colour,
+                               const uint8_t value,
+                               const uint8_t range)
+        {
+            const uint8_t num_of_leds = value * (config.tt_leds / range);
+            const auto range_leds = tt_leds.begin() + num_of_leds;
+            fill_solid(tt_leds.begin(), range_leds, colour);
+            fill_solid(range_leds, tt_leds.end(), CRGB::Black);
+
+            combo_timer.arm(CONFIG_CHANGE_NOTIFY_TIME);
+        }
+
         // Match tt_report with physical turntable movement
         // -1 is clockwise, +1 is counter-clockwise
         int8_t normalise_tt_report(const int8_t tt_report)

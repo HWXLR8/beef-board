@@ -140,7 +140,7 @@ void config_t::save() const
 std::optional<callback_t> toggle_reverse_tt()
 {
     config.reverse_tt = !config.reverse_tt;
-    // IIDX::RgbManager::Turntable::reverse_tt(reverse_tt);
+    IIDX::RgbManager::Turntable::reverse_tt(config.reverse_tt);
 
     config.save();
     return callback_t{};
@@ -262,17 +262,17 @@ std::optional<callback_t> tt_hsv_set_val()
     return callback_t{ true };
 }
 
+constexpr uint8_t DEADZONE_MAX = 6;
+constexpr uint8_t DEADZONE_MIN = 1;
+
 void update_deadzone(const uint8_t deadzone)
 {
-    // IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
-    //                                                deadzone,
-    //                                                DEADZONE_MAX);
+    IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
+                                                   deadzone,
+                                                   DEADZONE_MAX);
 
     config.save();
 }
-
-constexpr uint8_t DEADZONE_MAX = 6;
-constexpr uint8_t DEADZONE_MIN = 1;
 
 std::optional<callback_t> increase_deadzone()
 {
@@ -290,18 +290,18 @@ std::optional<callback_t> decrease_deadzone()
     return callback_t{};
 }
 
+constexpr uint8_t RATIO_MAX = 6;
+constexpr uint8_t RATIO_MIN = 1;
+
 void update_ratio(const uint8_t ratio)
 {
     // Present TT ratio as TT sensitivity to the user
-    // IIDX::RgbManager::Turntable::display_tt_change(CRGB::Red,
-    //                                                RATIO_MAX + 1 - ratio,
-    //                                                RATIO_MAX);
+    IIDX::RgbManager::Turntable::display_tt_change(CRGB::Red,
+                                                   RATIO_MAX + 1 - ratio,
+                                                   RATIO_MAX);
 
     config.save();
 }
-
-constexpr uint8_t RATIO_MAX = 6;
-constexpr uint8_t RATIO_MIN = 1;
 
 std::optional<callback_t> increase_ratio()
 {

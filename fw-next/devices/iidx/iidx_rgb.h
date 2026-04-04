@@ -13,6 +13,14 @@ namespace IIDX
 
     namespace RgbManager
     {
+        namespace Turntable
+        {
+            void reverse_tt(bool reverse_tt);
+            void display_tt_change(const rgb_t &colour,
+                                   uint8_t value,
+                                   uint8_t range);
+        }
+
         void init();
         void update(int8_t tt1_report, const hid_lights_t &led_state_from_hid_report);
     }

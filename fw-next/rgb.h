@@ -33,6 +33,14 @@ struct __attribute__((packed)) rgb_t
     }
 };
 
+namespace CRGB
+{
+    static rgb_t Red = { 255, 0, 0 };
+    static rgb_t Green = { 0, 255, 0 };
+    static rgb_t Blue = { 0, 0, 255 };
+    static rgb_t Black = {};
+}
+
 template <typename Iterator>
 void fill_solid(Iterator begin, Iterator end, uint8_t r, uint8_t g, uint8_t b)
 {

@@ -3,8 +3,6 @@
 #include "combo.h"
 #include "beef.h"
 
-constexpr auto CONFIG_CHANGE_NOTIFY_TIME = 1000;
-
 timer_t combo_lights_timer;
 timer_t combo_timer;
 bool combo_activated = false;
