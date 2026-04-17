@@ -9,7 +9,7 @@ struct timer_t
 
     void arm(const uint32_t duration_ms)
     {
-        this->expiry_time = board_millis() + duration_ms;
+        this->expiry_time = tusb_time_millis_api() + duration_ms;
         this->armed = true;
     }
 
@@ -25,7 +25,7 @@ struct timer_t
             return false;
         }
 
-        int32_t diff = board_millis() - expiry_time;
+        int32_t diff = tusb_time_millis_api() - expiry_time;
         const auto expired = diff >= 0;
         if (expired && reset_on_expiry)
             reset();

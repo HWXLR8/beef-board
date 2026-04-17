@@ -12,7 +12,7 @@ uint32_t Ticker::get_ticks()
         reset();
     }
 
-    const auto now = board_millis();
+    const auto now = tusb_time_millis_api();
     const auto delta_time = now - last_tick_time;
     auto ticks = delta_time / tick_duration;
 
@@ -25,7 +25,7 @@ uint32_t Ticker::get_ticks()
 
 void Ticker::reset()
 {
-    last_tick_time = board_millis();
+    last_tick_time = tusb_time_millis_api();
 }
 
 void Ticker::reset(const uint32_t tick_duration)

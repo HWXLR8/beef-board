@@ -46,9 +46,9 @@ if (DEFINED ENV{PICO_SDK_FETCH_FROM_GIT_TAG} AND (NOT PICO_SDK_FETCH_FROM_GIT_TA
 endif ()
 
 if (PICO_SDK_FETCH_FROM_GIT AND NOT PICO_SDK_FETCH_FROM_GIT_TAG)
-  set(PICO_SDK_FETCH_FROM_GIT_TAG "master")
-  message("Using master as default value for PICO_SDK_FETCH_FROM_GIT_TAG")
-endif()
+    set(PICO_SDK_FETCH_FROM_GIT_TAG "master")
+    message("Using master as default value for PICO_SDK_FETCH_FROM_GIT_TAG")
+endif ()
 
 set(PICO_SDK_PATH "${PICO_SDK_PATH}" CACHE PATH "Path to the Raspberry Pi Pico SDK")
 set(PICO_SDK_FETCH_FROM_GIT "${PICO_SDK_FETCH_FROM_GIT}" CACHE BOOL "Set to ON to fetch copy of SDK from git if not otherwise locatable")
@@ -64,7 +64,7 @@ if (NOT PICO_SDK_PATH)
         endif ()
         FetchContent_Declare(
                 pico_sdk
-                GIT_REPOSITORY https://github.com/raspberrypi/pico-sdk
+                GIT_REPOSITORY https://github.com/ASleepyCat/pico-sdk
                 GIT_TAG ${PICO_SDK_FETCH_FROM_GIT_TAG}
         )
 
@@ -75,7 +75,7 @@ if (NOT PICO_SDK_PATH)
                 FetchContent_Populate(
                         pico_sdk
                         QUIET
-                        GIT_REPOSITORY https://github.com/raspberrypi/pico-sdk
+                        GIT_REPOSITORY https://github.com/ASleepyCat/pico-sdk
                         GIT_TAG ${PICO_SDK_FETCH_FROM_GIT_TAG}
                         GIT_SUBMODULES_RECURSE FALSE
 
@@ -87,7 +87,7 @@ if (NOT PICO_SDK_PATH)
                 FetchContent_Populate(
                         pico_sdk
                         QUIET
-                        GIT_REPOSITORY https://github.com/raspberrypi/pico-sdk
+                        GIT_REPOSITORY https://github.com/ASleepyCat/pico-sdk
                         GIT_TAG ${PICO_SDK_FETCH_FROM_GIT_TAG}
 
                         SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/pico_sdk-src
@@ -102,7 +102,7 @@ if (NOT PICO_SDK_PATH)
     else ()
         message(FATAL_ERROR
                 "SDK location was not specified. Please set PICO_SDK_PATH or set PICO_SDK_FETCH_FROM_GIT to on to fetch from git."
-                )
+        )
     endif ()
 endif ()
 

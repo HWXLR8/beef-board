@@ -28,7 +28,7 @@ set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_LIST_DIR}/boards)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 set(PICO_SDK_FETCH_FROM_GIT 1)
-set(PICO_SDK_FETCH_FROM_GIT_TAG ${sdkVersion})
+set(PICO_SDK_FETCH_FROM_GIT_TAG "tinyusb-update")
 include(pico_sdk_import.cmake)
 
 project(beef-board C CXX ASM)
@@ -38,6 +38,8 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(beef-board
+        adc.cpp
+        adc.h
         analog_button.cpp
         analog_button.h
         axis.cpp
@@ -61,7 +63,8 @@ add_executable(beef-board
         ticker.h
         timer.h
         tusb_config.h
-        usb_descriptors.c
+        usb_descriptors.cpp
+        usb_descriptors.h
         usb_handler.h
         ws2812.cpp
         ws2812.h
@@ -72,6 +75,12 @@ add_executable(beef-board
         devices/iidx/iidx_rgb.h
         devices/iidx/iidx_usb.cpp
         devices/iidx/iidx_usb.h
+
+        devices/sdvx/sdvx_combo.cpp
+        devices/sdvx/sdvx_combo.h
+        devices/sdvx/sdvx_usb.cpp
+        devices/sdvx/sdvx_usb.h
+        devices/sdvx/sdvx_rgb.h
 )
 
 pico_set_program_name(beef-board "beef-board")

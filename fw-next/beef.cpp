@@ -55,7 +55,7 @@ void hid_task()
     constexpr uint32_t interval_ms = 1;
     static uint32_t start_ms = 0;
 
-    const auto now = board_millis();
+    const auto now = tusb_time_millis_api();
     if (now - start_ms < interval_ms || // not enough time
         !tud_hid_ready()) // skip if hid is not ready yet
     {
