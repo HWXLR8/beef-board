@@ -16,4 +16,9 @@ public:
     virtual combo_t get_button_combo() = 0;
     virtual void on_combo_reset() = 0;
     virtual uint16_t get_button_light_state() = 0;
+
+    virtual tusb_desc_device_t const* get_descriptor_device() = 0;
+    virtual const uint8_t* get_hid_descriptor_report() = 0;
+    virtual uint8_t const* get_descriptor_configuration() = 0;
+    virtual char const* get_descriptor_string(uint8_t index) = 0;
 };

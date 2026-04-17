@@ -9,6 +9,7 @@
 #include "ws2812.h"
 #include "bsp/board_api.h"
 #include "devices/iidx/iidx_usb.h"
+#include "devices/sdvx/sdvx_usb.h"
 #include "hardware/gpio.h"
 #include "pico/bootrom.h"
 #include "pico/stdio.h"
@@ -77,12 +78,6 @@ void hw_init()
         gpio_set_dir(led_pin, GPIO_OUT);
     }
 
-    // adc_init();
-    // for (const auto adc_pin : adc_gpio_pins)
-    // {
-    //     adc_gpio_init(adc_pin);
-    // }
-
     // reboot to bootloader if B1 and B2 are held on startup
     process_buttons();
     if (button_state == (BUTTON_1 | BUTTON_2))
@@ -91,7 +86,39 @@ void hw_init()
 
 void controller_init()
 {
-    usb = new IIDX::usb_handler();
+    switch (button_state)
+    {
+    case BUTTON_1 | BUTTON_8:
+        config.controller_type = ControllerType::IIDX;
+        config.iidx_input_mode = InputMode::Joystick;
+        config.save();
+        break;
+    /*case BUTTON_2 | BUTTON_8:
+        set_controller_type(config, ControllerType::IIDX);
+        set_input_mode(config, InputMode::Keyboard);
+        break;*/
+    case BUTTON_1 | BUTTON_9:
+        config.controller_type = ControllerType::SDVX;
+        config.iidx_input_mode = InputMode::Joystick;
+        config.save();
+        break;
+    /*case BUTTON_2 | BUTTON_9:
+        set_controller_type(config, ControllerType::SDVX);
+        set_input_mode(config, InputMode::Keyboard);
+        break;*/
+    default:
+        break;
+    }
+
+    switch (config.controller_type)
+    {
+    case ControllerType::IIDX:
+        usb = new IIDX::usb_handler();
+        break;
+    case ControllerType::SDVX:
+        usb = new SDVX::usb_handler();
+        break;
+    }
 }
 
 void usb_init()

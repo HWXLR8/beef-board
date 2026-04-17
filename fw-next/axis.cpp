@@ -1,21 +1,19 @@
 #include "axis.h"
 
-#include "hardware/dma.h"
+#include "adc.h"
 #include "config.h"
-#include "pins.h"
 #include "quadrature_encoder.pio.h"
-
-AnalogAxis analog_x(adc_gpio_pins[0]);
-AnalogAxis analog_y(adc_gpio_pins[1]);
-QeAxis tt_x(tt_pins[0]);
-QeAxis tt_y(tt_pins[2]);
+#include "hardware/adc.h"
+#include "hardware/dma.h"
 
 AnalogAxis::AnalogAxis(const uint8_t pin) : pin(pin)
 {
+    adc_gpio_init(pin);
 }
 
 void AnalogAxis::poll()
 {
+    position = adc_buf[pin - ADC_BASE_PIN];
 }
 
 uint8_t AnalogAxis::get() const

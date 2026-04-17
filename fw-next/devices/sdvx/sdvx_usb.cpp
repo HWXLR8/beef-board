@@ -1,42 +1,47 @@
-#include "iidx_usb.h"
+#include "sdvx_usb.h"
 
+#include "adc.h"
 #include "analog_button.h"
 #include "axis.h"
-#include "combo.h"
-#include "config.h"
-#include "iidx_rgb.h"
+#include "beef.h"
 #include "pins.h"
+#include "sdvx_combo.h"
+#include "sdvx_rgb.h"
 #include "usb_descriptors.h"
+#include "hardware/adc.h"
+#include "hardware/dma.h"
 
-namespace IIDX
+namespace SDVX
 {
     hid_lights_t lights{};
     Axis* axis_x;
-    int8_t tt1_report = 0;
+    Axis* axis_y;
 
     usb_handler::usb_handler()
     {
-        RgbManager::init();
-        axis_x = new QeAxis(tt_pins[0]);
-        button_x = new AnalogButton(config.tt_deadzone, true);
+        adc_init();
+
+        axis_x = new AnalogAxis(adc_gpio_pins[1]);
+        axis_y = new AnalogAxis(adc_gpio_pins[0]);
+        button_x = new AnalogButton(1, false);
+        button_y = new AnalogButton(1, false);
+
+        adc_dma_init();
     }
 
     void usb_handler::send_hid_report()
     {
         struct __attribute__((packed)) joystick_report_data_t
         {
-            uint8_t X = 0;
-            uint8_t Y = 127; // Needed for LR2 compatibility
-            uint16_t Buttons = 0; // bit-field representing which buttons have been pressed
+            uint8_t X;
+            uint8_t Y;
+            uint16_t Button; // bit-field representing which buttons have been pressed
         };
         static joystick_report_data_t report;
 
-        // Infinitas only reads buttons 1-7, 9-12,
-        // so shift bits 8 and up once
-        const uint8_t upper = button_state >> 7;
-        const uint8_t lower = button_state & 0x7F;
         report.X = axis_x->get();
-        report.Buttons = (upper << 8) | lower;
+        report.Y = axis_y->get();
+        report.Button = button_state;
 
         tud_hid_report(0, &report, sizeof(report));
     }
@@ -51,29 +56,18 @@ namespace IIDX
     void usb_handler::update()
     {
         axis_x->poll();
-        tt1_report = button_x->poll(axis_x->get());
-
-        switch (tt1_report)
-        {
-        case -1:
-            button_state |= BUTTON_TT_NEG;
-            break;
-        case 1:
-            button_state |= BUTTON_TT_POS;
-            break;
-        default:
-            break;
-        }
+        axis_y->poll();
+        button_x->poll(axis_x->get());
+        button_y->poll(axis_y->get());
     }
 
     void usb_handler::update_lighting()
     {
-        RgbManager::update(tt1_report, lights);
     }
 
     combo_t usb_handler::get_button_combo()
     {
-        return IIDX::get_button_combo();
+        return SDVX::get_button_combo();
     }
 
     uint16_t usb_handler::get_button_light_state()
@@ -83,7 +77,6 @@ namespace IIDX
 
     void usb_handler::on_combo_reset()
     {
-        IIDX::on_combo_reset();
     }
 
     void usb_handler::on_config_push()
@@ -101,7 +94,7 @@ namespace IIDX
         .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
 
         .idVendor = 0x1CCF,
-        .idProduct = 0x8048,
+        .idProduct = 0x101C,
         .bcdDevice = 0x0100,
 
         .iManufacturer = 0x01,
@@ -136,8 +129,8 @@ namespace IIDX
             HID_COLLECTION_END,
 
             // Buttons
-            // 11 physical (7 + 1 padding (Infinitas) + 4 extra) + digital TT (-/+)
-            HID_BUTTONS(14),
+            // 7 physical (for some reason START is bound to B9 in EAC)
+            HID_BUTTONS(9),
 
             // Button lighting
             HID_BUTTON_LIGHT(1),
@@ -146,18 +139,9 @@ namespace IIDX
             HID_BUTTON_LIGHT(4),
             HID_BUTTON_LIGHT(5),
             HID_BUTTON_LIGHT(6),
+            HID_PADDING_OUTPUT(2),
             HID_BUTTON_LIGHT(7),
-            HID_BUTTON_LIGHT(8),
-            HID_BUTTON_LIGHT(9),
-            HID_BUTTON_LIGHT(10),
-            HID_BUTTON_LIGHT(11),
-            HID_PADDING_OUTPUT(5),
-
-            // TT WS2812
-            HID_RGB(12),
-
-            // Bar WS2812
-            HID_RGB(15),
+            HID_PADDING_OUTPUT(7),
         HID_COLLECTION_END
     };
     //@formatter:on
@@ -187,23 +171,13 @@ namespace IIDX
 
     static char const* string_desc_arr[] =
     {
-        "Button 1",
-        "Button 2",
-        "Button 3",
-        "Button 4",
-        "Button 5",
-        "Button 6",
-        "Button 7",
-        "Button 8",
-        "Button 9",
-        "Button 10",
-        "Button 11",
-        "Turntable R",
-        "Turntable G",
-        "Turntable B",
-        "Centre Bar R",
-        "Centre Bar G",
-        "Centre Bar B"
+        "BT-A",
+        "BT-B",
+        "BT-C",
+        "BT-D",
+        "FX-L",
+        "FX-R",
+        "Start"
     };
 
     char const* usb_handler::get_descriptor_string(uint8_t index)

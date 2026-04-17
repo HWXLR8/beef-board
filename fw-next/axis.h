@@ -34,10 +34,3 @@ public:
 private:
     volatile uint32_t position = 0;
 };
-
-const extern int8_t tt_transitions[4][4];
-extern AnalogAxis analog_x;
-extern AnalogAxis analog_y;
-extern QeAxis tt_x;
-extern QeAxis tt_y;
-
