@@ -20,6 +20,8 @@ fw-next/generated
 fw-next/Makefile
 fw-next/pico-sdk
 fw-next/pico_flash_region.ld
+fw-next/pioasm
+fw-next/pioasm-install
 fw-next/Testing
 fw-next/*.a
 fw-next/*.bin
@@ -29,6 +31,7 @@ fw-next/*.elf
 fw-next/*.hex
 fw-next/*.map
 fw-next/*.uf2
+fw-next/*.pio.h
 
 pcb/*-backups
 pcb/*.kicad_prl
