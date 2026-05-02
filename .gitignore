@@ -54,3 +54,4 @@ tt-adapter/sym-lib-table
 
 **/.vscode
 **/.idea
+build/

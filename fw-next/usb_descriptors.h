@@ -71,19 +71,29 @@ HID_COLLECTION(0x02), \
 HID_COLLECTION_END
 //@formatter:on
 
+// HID Output only descriptor
+// Interface number, string index, protocol, report descriptor len, EP Out address, size & polling interval
+#define TUD_HID_OUT_DESCRIPTOR(_itfnum, _stridx, _boot_protocol, _report_desc_len, _epout, _epsize, _ep_interval) \
+  /* Interface */\
+  9, TUSB_DESC_INTERFACE, _itfnum, 0, 1, TUSB_CLASS_HID, (uint8_t)((_boot_protocol != HID_ITF_PROTOCOL_NONE) ? (uint8_t)HID_SUBCLASS_BOOT : 0u), _boot_protocol, _stridx,\
+  /* HID descriptor */\
+  9, HID_DESC_TYPE_HID, U16_TO_U8S_LE(0x0111), 0, 1, HID_DESC_TYPE_REPORT, U16_TO_U8S_LE(_report_desc_len),\
+  /* Endpoint Out */\
+  7, TUSB_DESC_ENDPOINT, _epout, TUSB_XFER_INTERRUPT, U16_TO_U8S_LE(_epsize), _ep_interval
+
 enum
 {
     ITF_NUM_CDC_0,
     ITF_NUM_CDC_1,
     ITF_NUM_HID,
+    ITF_NUM_LIGHTS,
     ITF_NUM_TOTAL
 };
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
-
-#define EPNUM_CDC_CMD  0x81
-#define EPNUM_CDC      0x02
-#define EPNUM_HID      0x03
+#define EPNUM_CDC_CMD   0x81
+#define EPNUM_CDC       0x02
+#define EPNUM_HID       0x03
+#define EPNUM_LIGHTS    0x04
 
 // String Descriptor Index
 enum

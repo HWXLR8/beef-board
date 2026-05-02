@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "hidapi==0.14.0.post4",
+# ]
+# ///
+
 """
 IIDX Light State Reader with USB HID Output
 
@@ -11,14 +19,14 @@ then sends them to a USB HID device in a specific format:
 import sys
 # Set this to where your spiceapi python files are located
 # These are available in spice2x releases
-sys.path.append(r"G:\spice2x.github.io\src\spice2x\api\resources\python")
+sys.path.append(r"/folder/to/spice2x/api/resources/python")
 import time
 import argparse
 try:
     from spiceapi.connection import Connection
     from spiceapi.iidx import iidx_tapeled_get
-except ImportError:
-    print("Error: Could not find spiceapi python files. Make sure to set the correct path above.")
+except ImportError as e:
+    print("Error: Could not find spiceapi python files. Make sure to set the correct path in the script. {e}")
     sys.exit(1)
 
 try:
@@ -60,9 +68,7 @@ def find_usb_device(vid, pid):
         device: HID device object or None if not found
     """
     try:
-        # List all connected HID devices
         devices = hid.enumerate(vid, pid)
-
         if not devices:
             return None
 
@@ -73,7 +79,6 @@ def find_usb_device(vid, pid):
                 device_info = d
                 break
 
-        # Open the device
         device = hid.device()
         device.open_path(device_info['path'])
         print(f"Opened HID device: {device_info['manufacturer_string']} {device_info['product_string']}")
@@ -104,16 +109,13 @@ def format_tape_leds(tape_leds):
     Returns:
         list: 48 integers representing 16 RGB LEDs
     """
-    # Create 16 RGB LEDs with values from tape LEDs
-    result = []
-
-    # If we have no LED data, return all zeros
     if not tape_leds:
         return [0, 0, 0] * NUM_OF_LEDS
 
     # Calculate how many RGB triplets we have
     total_triplets = len(tape_leds) // 3
 
+    result = []
     # If we have 16 or fewer LEDs, just use them directly
     if total_triplets <= NUM_OF_LEDS:
         for i in range(total_triplets):
@@ -168,10 +170,7 @@ def send_to_usb_device(device: hid.device, data):
         # For devices that don't use report IDs, use 0
         report_data = [0] + data
 
-        # Write the data to the device
         bytes_written = device.write(report_data)
-
-        # Check if all data was written
         if bytes_written != len(report_data):
             print(f"Warning: Only {bytes_written} of {len(report_data)} bytes were written")
             return False
@@ -182,11 +181,6 @@ def send_to_usb_device(device: hid.device, data):
         return False
 
 def parse_arguments():
-    """Parse command line arguments.
-
-    Returns:
-        args: Parsed arguments
-    """
     parser = argparse.ArgumentParser(description='IIDX Light State Reader with USB HID Output')
 
     parser.add_argument('--port', type=int, required=True, help='SpiceAPI server port')
@@ -196,12 +190,9 @@ def parse_arguments():
     return parser.parse_args()
 
 def main():
-    """Main function to run the script."""
     args = parse_arguments()
 
-    # Find USB device
     device = find_usb_device(DEFAULT_VID, DEFAULT_PID)
-
     if device:
         print(f"Connected to Beef Board")
     else:
@@ -216,33 +207,27 @@ def main():
         while True:
             if not conn:
                 try:
-                    # Connect to spiceapi server
                     conn = connect_to_spiceapi(args.port, args.password)
                 except Exception:
                     print(f"Error connecting to spiceapi server, retrying in a bit...")
                     time.sleep(1)
                     continue
 
-            # Read light states
             tape_leds = read_tape_leds(conn, args.name)
             if tape_leds is None:
                 raise ValueError(f"Unknown tape LED device '{args.name}'")
 
-            # Format data for USB HID output
             tape_led_values = format_tape_leds(tape_leds)
 
-            # Send to USB device
             success = send_to_usb_device(device, tape_led_values)
             if not success:
                 print("Failed to send data to Beef Board")
 
-            # Wait before next update
             time.sleep(1 / 120)
 
     except (ConnectionResetError, KeyboardInterrupt):
         print("\nExiting...")
     finally:
-        # Close connections
         device.close()
         if conn:
             conn.close()

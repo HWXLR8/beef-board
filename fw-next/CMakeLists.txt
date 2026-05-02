@@ -71,6 +71,7 @@ add_executable(beef-board
 
         devices/iidx/iidx_combo.cpp
         devices/iidx/iidx_combo.h
+        devices/iidx/iidx_defs.h
         devices/iidx/iidx_rgb.cpp
         devices/iidx/iidx_rgb.h
         devices/iidx/iidx_usb.cpp

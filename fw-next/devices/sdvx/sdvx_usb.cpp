@@ -46,11 +46,12 @@ namespace SDVX
         tud_hid_report(0, &report, sizeof(report));
     }
 
-    void usb_handler::hid_set_report(uint8_t itf, uint8_t report_id, hid_report_type_t report_type,
+    void usb_handler::hid_set_report(uint8_t instance, uint8_t report_id, hid_report_type_t report_type,
                                      uint8_t const* buffer, uint16_t bufsize)
     {
         assert(bufsize == sizeof(hid_lights_t));
         memcpy(&lights, buffer, bufsize);
+        hid_expiry_timer.arm(1000);
     }
 
     void usb_handler::update()
@@ -146,15 +147,17 @@ namespace SDVX
     };
     //@formatter:on
 
-    const uint8_t* usb_handler::get_hid_descriptor_report()
+    const uint8_t* usb_handler::get_hid_descriptor_report(uint8_t instance)
     {
+        (void)instance;
         return desc_hid_report;
     }
 
+#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
     constexpr uint8_t desc_configuration[] =
     {
         // Config number, interface count, string index, total length, attribute, power in mA
-        TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 500),
+        TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL-1, 0, CONFIG_TOTAL_LEN, 0x00, 500),
 
         // Interface number, string index, notification EP, notification EP size, EP Out & In address, EP Out & In size
         TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_0, 0, EPNUM_CDC_CMD, 8, EPNUM_CDC, 0x80 | EPNUM_CDC, 64),

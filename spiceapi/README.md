@@ -8,26 +8,25 @@ You will need to put your light bar's LED mode to `Tape LED (P1/P2)` either in t
 
 You will also need to setup SpiceAPI by either adding `-api <port number e.g. 8080>` to your launch arguments in your game startup script, or by setting it in `spicecfg.exe` under the API tab. The setting should be called something like `API TCP Port`.
 
-To use this script, you first need to install the script's dependencies.
-
-```bash
-pip install -r requirements.txt
-```
-
-Next, open up the `iidx_light_reader.py` script and go to the line near the top where it says `sys.path.append("/path/to/spice2x/api/resources/python")`. You will need to change the string to your local copy of the SpiceAPI Python library. You can find this in any spice2x release. If you already have the SpiceAPI library in your Python path, you can skip this step.
+Before using this script, open `iidx_light_reader.py` in a text editor and go to the line near the top where it says `sys.path.append("/path/to/spice2x/api/resources/python")`. You will need to change the string to your local copy of the SpiceAPI Python library. You can find this in any spice2x release. If you already have the SpiceAPI library in your Python path, you can skip this step.
 
 Then pass in the API port number you chose.
 
 ```bash
-python iidx_light_reader.py --port <port number>
+uv run iidx_light_reader.py --port <port number>
 ```
 
 If you have a password set for SpiceAPI you can also pass that in with the `--password` argument.
 
-Now start the game. Your controller should set the centre bar lights off when the game is launched, which indicates the script is working correctly.
+Now start the game. Your controller should turn the centre bar lights off when the game is launched, which indicates the script is working correctly.
 
 ## Troubleshooting
 
 Make sure you have the latest Beef Board firmware flashed onto your board as well as a recent version of spice2x.
 
 If, for whatever reason, the script isn't working properly, check if there are any error or warning messages from the script. If you can't figure out the reason for the message, then create a new Github issue in the beef-board repository with the details of your message and setup.
+
+## For Linux users
+
+Linux users must copy the `99-hidapi-beef-board.rules` file to `/etc/udev/rules.d/` for the scripts to be able to find and connect to the board.
+Make sure to disconnect and reconnect the board to your computer after you've copied the file to that location.

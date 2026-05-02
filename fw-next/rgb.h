@@ -39,6 +39,7 @@ namespace CRGB
     static rgb_t Green = { 0, 255, 0 };
     static rgb_t Blue = { 0, 0, 255 };
     static rgb_t Black = {};
+    static rgb_t White = { 255, 255, 255 };
 }
 
 template <typename Iterator>

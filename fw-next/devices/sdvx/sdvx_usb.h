@@ -11,7 +11,7 @@ namespace SDVX
         usb_handler();
 
         void send_hid_report() override;
-        void hid_set_report(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer,
+        void hid_set_report(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer,
                             uint16_t bufsize) override;
         void update() override;
         void update_lighting() override;
@@ -21,7 +21,7 @@ namespace SDVX
         void on_config_push() override;
 
         tusb_desc_device_t const* get_descriptor_device() override;
-        const uint8_t* get_hid_descriptor_report() override;
+        const uint8_t* get_hid_descriptor_report(uint8_t instance) override;
         uint8_t const* get_descriptor_configuration() override;
         char const* get_descriptor_string(uint8_t index) override;
     };

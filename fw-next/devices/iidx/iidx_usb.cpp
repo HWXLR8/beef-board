@@ -4,6 +4,7 @@
 #include "axis.h"
 #include "combo.h"
 #include "config.h"
+#include "iidx_defs.h"
 #include "iidx_rgb.h"
 #include "pins.h"
 #include "usb_descriptors.h"
@@ -41,11 +42,24 @@ namespace IIDX
         tud_hid_report(0, &report, sizeof(report));
     }
 
-    void usb_handler::hid_set_report(uint8_t itf, uint8_t report_id, hid_report_type_t report_type,
+    void usb_handler::hid_set_report(uint8_t instance, uint8_t report_id, hid_report_type_t report_type,
                                      uint8_t const* buffer, uint16_t bufsize)
     {
-        assert(bufsize == sizeof(hid_lights_t));
-        memcpy(&lights, buffer, bufsize);
+        switch (ITF_NUM_HID + instance)
+        {
+        case ITF_NUM_HID:
+            assert(bufsize == sizeof(hid_lights_t));
+            memcpy(&lights, buffer, bufsize);
+            hid_expiry_timer.arm(1000);
+            break;
+        case ITF_NUM_LIGHTS:
+            assert(bufsize == sizeof(RgbManager::Bar::tape_leds));
+            memcpy(&RgbManager::Bar::tape_leds, buffer, bufsize);
+            lights_expiry_timer.arm(1000);
+            break;
+        default:
+            break;
+        }
     }
 
     void usb_handler::update()
@@ -102,7 +116,7 @@ namespace IIDX
 
         .idVendor = 0x1CCF,
         .idProduct = 0x8048,
-        .bcdDevice = 0x0100,
+        .bcdDevice = 0x0200,
 
         .iManufacturer = 0x01,
         .iProduct = 0x02,
@@ -160,13 +174,31 @@ namespace IIDX
             HID_RGB(15),
         HID_COLLECTION_END
     };
+
+    constexpr uint8_t desc_lights_report[] =
+    {
+        HID_USAGE_PAGE_N(0xFFEB, 2),
+        HID_USAGE(0x02),
+        HID_LOGICAL_MIN_N(0x00, 2),
+        HID_LOGICAL_MAX_N(0xFF, 2),
+        HID_COLLECTION(HID_COLLECTION_APPLICATION),
+          // Tape LED
+          HID_USAGE(1),
+          HID_REPORT_SIZE(0x08 * 3),
+          HID_REPORT_COUNT(LIGHT_BAR_LEDS),
+          HID_OUTPUT(HID_DATA | HID_VARIABLE | HID_ABSOLUTE),
+        HID_COLLECTION_END
+    };
     //@formatter:on
 
-    const uint8_t* usb_handler::get_hid_descriptor_report()
+    const uint8_t* usb_handler::get_hid_descriptor_report(uint8_t instance)
     {
+        instance = ITF_NUM_HID - instance;
+        if (instance == ITF_NUM_LIGHTS) return desc_lights_report;
         return desc_hid_report;
     }
 
+#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_HID_DESC_LEN)
     constexpr uint8_t desc_configuration[] =
     {
         // Config number, interface count, string index, total length, attribute, power in mA
@@ -177,7 +209,11 @@ namespace IIDX
 
         // Interface number, string index, protocol, report descriptor len, EP Out & In address, size & polling interval
         TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID,
-                                 0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
+                                 0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1),
+
+        // Interface number, string index, protocol, report descriptor len, EP Out address, size & polling interval
+        TUD_HID_OUT_DESCRIPTOR(ITF_NUM_LIGHTS, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_lights_report),
+                               EPNUM_LIGHTS, CFG_TUD_HID_EP_BUFSIZE, 1)
     };
 
     uint8_t const* usb_handler::get_descriptor_configuration()

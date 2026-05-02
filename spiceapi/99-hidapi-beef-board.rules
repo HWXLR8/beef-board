@@ -1,0 +1,2 @@
+SUBSYSTEM=="usb", ATTR{idVendor}=="1ccf", ATTR{idProduct}=="8048", MODE="0666", TAG+="uaccess"
+KERNEL=="hidraw*", ATTRS{idVendor}=="1ccf", ATTRS{idProduct}=="8048", MODE="0666", TAG+="uaccess"

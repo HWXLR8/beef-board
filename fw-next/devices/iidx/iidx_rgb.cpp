@@ -4,7 +4,9 @@
 
 #include "beef.h"
 #include "config.h"
+#include "hid.h"
 #include "iidx_combo.h"
+#include "iidx_defs.h"
 #include "rgb.h"
 #include "ws2812.h"
 
@@ -221,6 +223,30 @@ namespace IIDX::RgbManager
             last_level = level;
         }
 
+        Ticker tape_led_ticker(50);
+        rgb_t tape_leds[LIGHT_BAR_LEDS];
+
+        void tape_led(const PlayerSide side)
+        {
+            if (!lights_expiry_timer.is_active())
+            {
+                static uint8_t i = 0;
+                const auto ticks = tape_led_ticker.get_ticks();
+                set_leds_off(bar_leds.begin(), bar_leds.end());
+                i = (i + ticks) % LIGHT_BAR_LEDS;
+                bar_leds[LIGHT_BAR_LEDS - 1 - i] = CRGB::White;
+            }
+            else
+            {
+                for (uint8_t i = 0; i < LIGHT_BAR_LEDS; ++i)
+                {
+                    bar_leds[LIGHT_BAR_LEDS - 1 - i] = tape_leds[i];
+                }
+            }
+
+            flip_leds(side);
+        }
+
         void update(const rgb_t &lights)
         {
             switch (config.bar_effect)
@@ -235,8 +261,10 @@ namespace IIDX::RgbManager
                 hid(bar_leds.begin(), bar_leds.end(), lights);
                 break;
             case BarMode::TapeLedP1:
+                tape_led(P1);
                 break;
             case BarMode::TapeLedP2:
+                tape_led(P2);
                 break;
             case BarMode::Disable:
                 set_leds_off(bar_leds.begin(), bar_leds.end());

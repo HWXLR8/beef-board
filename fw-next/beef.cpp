@@ -20,10 +20,10 @@ uint16_t button_state = 0;
 bool reactive_leds = true;
 usb_handler* usb;
 
-uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
                                uint16_t reqlen)
 {
-    (void)itf;
+    (void)instance;
     (void)report_id;
     (void)report_type;
     (void)buffer;
@@ -32,21 +32,10 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
     return 0;
 }
 
-void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer,
+void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer,
                            uint16_t bufsize)
 {
-    (void)itf;
-    (void)report_id;
-    (void)report_type;
-
-    if (report_type != HID_REPORT_TYPE_OUTPUT)
-    {
-        printf("tud_hid_set_report_cb: received report type %d\n", report_type);
-        return;
-    }
-
-    usb->hid_set_report(itf, report_id, report_type, buffer, bufsize);
-    hid_expiry_timer.arm(1000);
+    usb->hid_set_report(instance, report_id, report_type, buffer, bufsize);
 }
 
 void hid_task()
@@ -130,11 +119,7 @@ void usb_init()
         .speed = TUSB_SPEED_AUTO
     };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
-
-    if (board_init_after_tusb)
-    {
-        board_init_after_tusb();
-    }
+    board_init_after_tusb();
 
     stdio_init_all();
 }

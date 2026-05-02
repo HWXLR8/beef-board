@@ -21,10 +21,9 @@ uint8_t const* tud_descriptor_device_cb()
 // Invoked when received GET HID REPORT DESCRIPTOR
 // Application return pointer to descriptor
 // Descriptor contents must exist long enough for transfer to complete
-uint8_t const* tud_hid_descriptor_report_cb(uint8_t itf)
+uint8_t const* tud_hid_descriptor_report_cb(uint8_t instance)
 {
-    (void)itf;
-    return usb->get_hid_descriptor_report();
+    return usb->get_hid_descriptor_report(instance);
 }
 
 //--------------------------------------------------------------------+
@@ -51,7 +50,7 @@ static char const* string_desc_arr[] =
 {
     (const char[]){ 0x09, 0x04 }, // 0: is supported language is English (0x0409)
     "SEGV",                       // 1: Manufacturer
-    "BEEF BOARD V2"               // 2: Product
+    "BEEF BOARD"               // 2: Product
 };
 
 static uint16_t _desc_str[32 + 1];
