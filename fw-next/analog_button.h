@@ -13,6 +13,8 @@ public:
     int8_t poll(uint8_t current_value);
 
     int8_t direction = 0; // currently observed direction
+    int8_t delta = 0;
+
 private:
     // Number of ticks we need to advance before recognizing an input
     uint8_t current_deadzone;

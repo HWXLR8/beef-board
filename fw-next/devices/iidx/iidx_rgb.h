@@ -5,7 +5,7 @@
 
 namespace IIDX
 {
-    struct __attribute__((packed)) hid_lights_t
+    struct TU_ATTR_PACKED hid_lights_t
     {
         uint16_t buttons = 0;
         rgb_t tt_lights;

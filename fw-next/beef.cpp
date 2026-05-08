@@ -6,6 +6,7 @@
 #include "hid.h"
 #include "pins.h"
 #include "tusb.h"
+#include "usb_descriptors.h"
 #include "ws2812.h"
 #include "bsp/board_api.h"
 #include "devices/iidx/iidx_usb.h"
@@ -18,6 +19,8 @@
 // bits 11 and 12 map to digital tt -/+
 uint16_t button_state = 0;
 bool reactive_leds = true;
+// Ignore buttons after bootup sequence
+bool ignore_buttons = false;
 usb_handler* usb;
 
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
@@ -36,6 +39,48 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
                            uint16_t bufsize)
 {
     usb->hid_set_report(instance, report_id, report_type, buffer, bufsize);
+}
+
+void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint16_t len)
+{
+    usb->hid_report_complete(instance, report, len);
+}
+
+void send_keyboard_report(const uint8_t* const key_codes, const uint8_t n)
+{
+    struct TU_ATTR_PACKED keyboard_report_data_t
+    {
+        uint8_t key_code[KEYBOARD_KEYS];
+    };
+    static keyboard_report_data_t report;
+
+    uint8_t used_key_codes = 0;
+    for (uint8_t i = 0; i < n; i++)
+    {
+        uint8_t key_code = 0;
+        if (button_state & 1 << i)
+        {
+            key_code = key_codes[i];
+        }
+        report.key_code[used_key_codes++] = key_code;
+    }
+
+    tud_hid_n_report(ITF_NUM_KEYBOARD - ITF_HID_BASE, REPORT_ID_KEYBOARD, &report, sizeof(report));
+}
+
+void send_mouse_report(const int8_t x, const int8_t y)
+{
+    struct TU_ATTR_PACKED mouse_report_data_t
+    {
+        int8_t X;
+        int8_t Y;
+    };
+    static mouse_report_data_t report;
+
+    report.X = x;
+    report.Y = y;
+
+    tud_hid_n_report(ITF_NUM_KEYBOARD - ITF_HID_BASE, REPORT_ID_MOUSE, &report, sizeof(report));
 }
 
 void hid_task()
@@ -71,6 +116,8 @@ void hw_init()
     process_buttons();
     if (button_state == (BUTTON_1 | BUTTON_2))
         rom_reset_usb_boot(0, 0);
+
+    ignore_buttons = true;
 }
 
 void controller_init()
@@ -82,19 +129,21 @@ void controller_init()
         config.iidx_input_mode = InputMode::Joystick;
         config.save();
         break;
-    /*case BUTTON_2 | BUTTON_8:
-        set_controller_type(config, ControllerType::IIDX);
-        set_input_mode(config, InputMode::Keyboard);
-        break;*/
-    case BUTTON_1 | BUTTON_9:
-        config.controller_type = ControllerType::SDVX;
-        config.iidx_input_mode = InputMode::Joystick;
+    case BUTTON_2 | BUTTON_8:
+        config.controller_type = ControllerType::IIDX;
+        config.iidx_input_mode = InputMode::Keyboard;
         config.save();
         break;
-    /*case BUTTON_2 | BUTTON_9:
-        set_controller_type(config, ControllerType::SDVX);
-        set_input_mode(config, InputMode::Keyboard);
-        break;*/
+    case BUTTON_1 | BUTTON_9:
+        config.controller_type = ControllerType::SDVX;
+        config.sdvx_input_mode = InputMode::Joystick;
+        config.save();
+        break;
+    case BUTTON_2 | BUTTON_9:
+        config.controller_type = ControllerType::SDVX;
+        config.sdvx_input_mode = InputMode::Keyboard;
+        config.save();
+        break;
     default:
         break;
     }
@@ -133,6 +182,12 @@ void process_buttons()
         auto v = gpio_get(button_pin.input_pin);
         button_state |= v << i;
     }
+
+    // Ignore button inputs after startup
+    ignore_buttons = ignore_buttons && button_state;
+    // If we are still ignoring button inputs, clear button_state
+    // Otherwise, retain
+    button_state *= !ignore_buttons;
 }
 
 void process_lights()

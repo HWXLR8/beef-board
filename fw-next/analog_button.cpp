@@ -11,16 +11,17 @@ int8_t AnalogButton::poll(const uint8_t current_value)
         return state;
     }
 
-    int delta = current_value - center;
+    int current_delta = current_value - center;
     // Handle wrap-around cases
-    if (delta > 127)
+    if (current_delta > 127)
     {
-        delta = delta - 256;
+        current_delta = current_delta - 256;
     }
-    else if (delta < -127)
+    else if (current_delta < -127)
     {
-        delta = delta + 256;
+        current_delta = current_delta + 256;
     }
+    delta = current_delta;
 
     // is the current value sufficiently far away from the center?
     int8_t current_direction = 0;

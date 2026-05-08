@@ -24,28 +24,38 @@ namespace IIDX
 
     void usb_handler::send_hid_report()
     {
-        struct __attribute__((packed)) joystick_report_data_t
+        switch (config.iidx_input_mode)
         {
-            uint8_t X = 0;
-            uint8_t Y = 127; // Needed for LR2 compatibility
-            uint16_t Buttons = 0; // bit-field representing which buttons have been pressed
-        };
-        static joystick_report_data_t report;
+        case InputMode::Joystick:
+            {
+                struct TU_ATTR_PACKED joystick_report_data_t
+                {
+                    uint8_t X = 0;
+                    uint8_t Y = 127; // Needed for LR2 compatibility
+                    uint16_t Buttons = 0; // bit-field representing which buttons have been pressed
+                };
+                static joystick_report_data_t report;
 
-        // Infinitas only reads buttons 1-7, 9-12,
-        // so shift bits 8 and up once
-        const uint8_t upper = button_state >> 7;
-        const uint8_t lower = button_state & 0x7F;
-        report.X = axis_x->get();
-        report.Buttons = (upper << 8) | lower;
+                // Infinitas only reads buttons 1-7, 9-12,
+                // so shift bits 8 and up once
+                const uint8_t upper = button_state >> 7;
+                const uint8_t lower = button_state & 0x7F;
+                report.X = axis_x->get();
+                report.Buttons = (upper << 8) | lower;
 
-        tud_hid_report(0, &report, sizeof(report));
+                tud_hid_report(0, &report, sizeof(report));
+                break;
+            }
+        case InputMode::Keyboard:
+            send_keyboard_report(config.iidx_keys.key_codes, sizeof(config.iidx_keys.key_codes));
+            break;
+        }
     }
 
     void usb_handler::hid_set_report(uint8_t instance, uint8_t report_id, hid_report_type_t report_type,
                                      uint8_t const* buffer, uint16_t bufsize)
     {
-        switch (ITF_NUM_HID + instance)
+        switch (ITF_HID_BASE + instance)
         {
         case ITF_NUM_HID:
             assert(bufsize == sizeof(hid_lights_t));
@@ -140,9 +150,9 @@ namespace IIDX
             HID_COLLECTION(HID_COLLECTION_LOGICAL),
                 HID_USAGE(HID_USAGE_DESKTOP_X),
                 HID_USAGE(HID_USAGE_DESKTOP_Y),
-                HID_LOGICAL_MIN_N(0, 2),
+                HID_LOGICAL_MIN(0),
                 HID_LOGICAL_MAX_N(255, 2),
-                HID_PHYSICAL_MIN(0),
+                HID_PHYSICAL_MIN_N(-1, 2),
                 HID_PHYSICAL_MAX(1),
                 HID_REPORT_COUNT(0x02),
                 HID_REPORT_SIZE(0x08),
@@ -179,7 +189,7 @@ namespace IIDX
     {
         HID_USAGE_PAGE_N(0xFFEB, 2),
         HID_USAGE(0x02),
-        HID_LOGICAL_MIN_N(0x00, 2),
+        HID_LOGICAL_MIN(0x00),
         HID_LOGICAL_MAX_N(0xFF, 2),
         HID_COLLECTION(HID_COLLECTION_APPLICATION),
           // Tape LED
@@ -193,12 +203,15 @@ namespace IIDX
 
     const uint8_t* usb_handler::get_hid_descriptor_report(uint8_t instance)
     {
-        instance = ITF_NUM_HID - instance;
-        if (instance == ITF_NUM_LIGHTS) return desc_lights_report;
+        if (ITF_HID_BASE + instance == ITF_NUM_LIGHTS) return desc_lights_report;
         return desc_hid_report;
     }
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_HID_DESC_LEN)
+    void usb_handler::hid_report_complete(uint8_t instance, uint8_t const* report, uint16_t len)
+    {
+    }
+
+#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_HID_INOUT_DESC_LEN + TUD_HID_DESC_LEN + TUD_HID_DESC_LEN)
     constexpr uint8_t desc_configuration[] =
     {
         // Config number, interface count, string index, total length, attribute, power in mA
@@ -211,9 +224,13 @@ namespace IIDX
         TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID,
                                  0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1),
 
+        // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
+        TUD_HID_DESCRIPTOR(ITF_NUM_KEYBOARD, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_keyboard_report),
+                           EPNUM_KEYBOARD, CFG_TUD_HID_EP_BUFSIZE, 1),
+
         // Interface number, string index, protocol, report descriptor len, EP Out address, size & polling interval
-        TUD_HID_OUT_DESCRIPTOR(ITF_NUM_LIGHTS, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_lights_report),
-                               EPNUM_LIGHTS, CFG_TUD_HID_EP_BUFSIZE, 1)
+        TUD_HID_DESCRIPTOR(ITF_NUM_LIGHTS, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_lights_report), EPNUM_LIGHTS,
+                           CFG_TUD_HID_EP_BUFSIZE, 1)
     };
 
     uint8_t const* usb_handler::get_descriptor_configuration()

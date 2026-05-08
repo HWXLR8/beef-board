@@ -1,5 +1,7 @@
 #pragma once
 
+#include "hid.h"
+
 //@formatter:off
 #define LedStringBase 0x02
 
@@ -71,29 +73,23 @@ HID_COLLECTION(0x02), \
 HID_COLLECTION_END
 //@formatter:on
 
-// HID Output only descriptor
-// Interface number, string index, protocol, report descriptor len, EP Out address, size & polling interval
-#define TUD_HID_OUT_DESCRIPTOR(_itfnum, _stridx, _boot_protocol, _report_desc_len, _epout, _epsize, _ep_interval) \
-  /* Interface */\
-  9, TUSB_DESC_INTERFACE, _itfnum, 0, 1, TUSB_CLASS_HID, (uint8_t)((_boot_protocol != HID_ITF_PROTOCOL_NONE) ? (uint8_t)HID_SUBCLASS_BOOT : 0u), _boot_protocol, _stridx,\
-  /* HID descriptor */\
-  9, HID_DESC_TYPE_HID, U16_TO_U8S_LE(0x0111), 0, 1, HID_DESC_TYPE_REPORT, U16_TO_U8S_LE(_report_desc_len),\
-  /* Endpoint Out */\
-  7, TUSB_DESC_ENDPOINT, _epout, TUSB_XFER_INTERRUPT, U16_TO_U8S_LE(_epsize), _ep_interval
-
 enum
 {
     ITF_NUM_CDC_0,
     ITF_NUM_CDC_1,
     ITF_NUM_HID,
+    ITF_NUM_KEYBOARD,
     ITF_NUM_LIGHTS,
     ITF_NUM_TOTAL
 };
 
+constexpr uint8_t ITF_HID_BASE = ITF_NUM_HID;
+
 #define EPNUM_CDC_CMD   0x81
 #define EPNUM_CDC       0x02
 #define EPNUM_HID       0x03
-#define EPNUM_LIGHTS    0x04
+#define EPNUM_KEYBOARD  0x84
+#define EPNUM_LIGHTS    0x05
 
 // String Descriptor Index
 enum
@@ -103,3 +99,47 @@ enum
     STRID_PRODUCT,
     STRID_TOTAL,
 };
+
+constexpr uint8_t KEYBOARD_KEYS = 13;
+
+enum
+{
+    REPORT_ID_KEYBOARD = 1,
+    REPORT_ID_MOUSE,
+    REPORT_ID_COUNT
+};
+
+//@formatter:off
+constexpr uint8_t desc_keyboard_report[] =
+{
+    HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),
+    HID_USAGE(HID_USAGE_DESKTOP_KEYBOARD),
+    HID_COLLECTION(HID_COLLECTION_APPLICATION),
+        HID_REPORT_ID(REPORT_ID_KEYBOARD)
+        HID_USAGE_PAGE(HID_USAGE_PAGE_KEYBOARD),
+        HID_USAGE_MIN(0x00),
+        HID_USAGE_MAX_N(0xFF, 2),
+        HID_LOGICAL_MIN(0x00),
+        HID_LOGICAL_MAX_N(0xFF, 2),
+        HID_REPORT_COUNT(KEYBOARD_KEYS),
+        HID_REPORT_SIZE(0x08),
+        HID_INPUT(HID_DATA | HID_ARRAY | HID_ABSOLUTE),
+    HID_COLLECTION_END,
+
+    HID_USAGE_PAGE(HID_USAGE_PAGE_DESKTOP),
+    HID_USAGE(HID_USAGE_DESKTOP_MOUSE),
+    HID_COLLECTION(HID_COLLECTION_APPLICATION),
+        HID_REPORT_ID(REPORT_ID_MOUSE)
+        HID_USAGE(HID_USAGE_DESKTOP_POINTER),
+        HID_COLLECTION(HID_COLLECTION_LOGICAL),
+            HID_USAGE(HID_USAGE_DESKTOP_X),
+            HID_USAGE(HID_USAGE_DESKTOP_Y),
+            HID_LOGICAL_MIN(0x81),
+            HID_LOGICAL_MAX(0x7F),
+            HID_REPORT_COUNT(0x02),
+            HID_REPORT_SIZE(0x08),
+            HID_INPUT(HID_DATA | HID_VARIABLE | HID_RELATIVE),
+        HID_COLLECTION_END,
+    HID_COLLECTION_END
+};
+//@formatter:on

@@ -16,7 +16,7 @@ struct hsv_t
     }
 };
 
-struct __attribute__((packed)) rgb_t
+struct TU_ATTR_PACKED rgb_t
 {
     uint8_t r = 0, g = 0, b = 0;
 

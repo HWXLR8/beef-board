@@ -19,6 +19,7 @@ public:
 
     virtual tusb_desc_device_t const* get_descriptor_device() = 0;
     virtual const uint8_t* get_hid_descriptor_report(uint8_t instance) = 0;
+    virtual void hid_report_complete(uint8_t instance, uint8_t const* report, uint16_t len) = 0;
     virtual uint8_t const* get_descriptor_configuration() = 0;
     virtual char const* get_descriptor_string(uint8_t index) = 0;
 };

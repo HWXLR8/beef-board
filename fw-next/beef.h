@@ -25,3 +25,5 @@ enum
 
 void process_buttons();
 void process_lights();
+void send_keyboard_report(const uint8_t* key_codes, uint8_t n);
+void send_mouse_report(int8_t x, int8_t y);
