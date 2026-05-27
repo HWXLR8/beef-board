@@ -12,8 +12,16 @@
 #include "devices/iidx/iidx_usb.h"
 #include "devices/sdvx/sdvx_usb.h"
 #include "hardware/gpio.h"
+#include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdio.h"
+
+enum class command_t : uint8_t
+{
+    None,
+    Bootloader,
+    ResetConfig
+};
 
 // bit-field storing button state. bits 0-10 map to buttons 1-11
 // bits 11 and 12 map to digital tt -/+
@@ -21,24 +29,56 @@ uint16_t button_state = 0;
 bool reactive_leds = true;
 // Ignore buttons after bootup sequence
 bool ignore_buttons = false;
+auto current_command = command_t::None;
 usb_handler* usb;
 
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
                                uint16_t reqlen)
 {
-    (void)instance;
-    (void)report_id;
-    (void)report_type;
-    (void)buffer;
-    (void)reqlen;
+    if (report_type != HID_REPORT_TYPE_FEATURE || ITF_HID_BASE + instance != ITF_NUM_CONFIG)
+        return 0;
 
-    return 0;
+    switch (report_id)
+    {
+    case REPORT_ID_CONFIG:
+        reqlen = sizeof(config) - sizeof(config.magic);
+        memcpy(buffer, &config.version, reqlen);
+        return reqlen;
+    case REPORT_ID_FWVER:
+        {
+            constexpr uint32_t firmware_version = FW_VER;
+            memcpy(buffer, &firmware_version, reqlen);
+            return reqlen;
+        }
+    default:
+        return 0;
+    }
 }
 
 void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer,
                            uint16_t bufsize)
 {
-    usb->hid_set_report(instance, report_id, report_type, buffer, bufsize);
+    switch (report_type)
+    {
+    case HID_REPORT_TYPE_OUTPUT:
+        usb->hid_set_report(instance, report_id, report_type, buffer, bufsize);
+        break;
+    case HID_REPORT_TYPE_FEATURE:
+        switch (report_id)
+        {
+        case REPORT_ID_CONFIG:
+            printf("received feature config report: bufsize: %d\n", bufsize);
+            memcpy(&config.version, buffer, bufsize);
+            break;
+        case REPORT_ID_COMMAND:
+            memcpy(&current_command, buffer, bufsize);
+            break;
+        default:
+            break;
+        }
+    default:
+        break;
+    }
 }
 
 void tud_hid_report_complete_cb(uint8_t instance, uint8_t const* report, uint16_t len)
@@ -65,7 +105,7 @@ void send_keyboard_report(const uint8_t* const key_codes, const uint8_t n)
         report.key_code[used_key_codes++] = key_code;
     }
 
-    tud_hid_n_report(ITF_NUM_KEYBOARD - ITF_HID_BASE, REPORT_ID_KEYBOARD, &report, sizeof(report));
+    tud_hid_report(REPORT_ID_KEYBOARD, &report, sizeof(report));
 }
 
 void send_mouse_report(const int8_t x, const int8_t y)
@@ -80,7 +120,7 @@ void send_mouse_report(const int8_t x, const int8_t y)
     report.X = x;
     report.Y = y;
 
-    tud_hid_n_report(ITF_NUM_KEYBOARD - ITF_HID_BASE, REPORT_ID_MOUSE, &report, sizeof(report));
+    tud_hid_report(REPORT_ID_MOUSE, &report, sizeof(report));
 }
 
 void hid_task()
@@ -98,6 +138,41 @@ void hid_task()
     start_ms = now;
 
     usb->send_hid_report();
+}
+
+[[noreturn]] void reboot()
+{
+    tud_disconnect();
+    watchdog_enable(250, false);
+    while (true);
+}
+
+void reboot_to_bootloader()
+{
+    tud_disconnect();
+
+    update_button_lighting(0);
+    std::fill(bar_leds.begin(), bar_leds.end(), rgb_t{});
+    std::fill(tt_leds.begin(), tt_leds.end(), rgb_t{});
+    while (!ready_to_show());
+    ws2812_show();
+
+    rom_reset_usb_boot(0, 0);
+}
+
+void handle_command()
+{
+    switch (current_command)
+    {
+    case command_t::None:
+        return;
+    case command_t::Bootloader:
+        reboot_to_bootloader();
+    case command_t::ResetConfig:
+        config.version = 0;
+        config.save();
+        reboot();
+    }
 }
 
 void hw_init()
@@ -203,15 +278,20 @@ void process_lights()
         led_state = 0;
     }
 
-    for (auto i = 0; i < NUM_BUTTONS; ++i)
-    {
-        gpio_put(button_pins[i].led_pin, led_state & (1 << i));
-    }
+    update_button_lighting(led_state);
 
     if (ready_to_show())
     {
         usb->update_lighting();
         ws2812_show();
+    }
+}
+
+void update_button_lighting(uint16_t led_state)
+{
+    for (auto i = 0; i < NUM_BUTTONS; ++i)
+    {
+        gpio_put(button_pins[i].led_pin, led_state & (1 << i));
     }
 }
 
@@ -226,6 +306,7 @@ void process_lights()
     while (true)
     {
         tud_task();
+        handle_command();
 
         process_buttons();
         process_combos();

@@ -43,7 +43,7 @@ namespace IIDX
                 report.X = axis_x->get();
                 report.Buttons = (upper << 8) | lower;
 
-                tud_hid_report(0, &report, sizeof(report));
+                tud_hid_report(REPORT_ID_JOYSTICK, &report, sizeof(report));
                 break;
             }
         case InputMode::Keyboard:
@@ -114,25 +114,7 @@ namespace IIDX
     {
     }
 
-    static constexpr tusb_desc_device_t desc_device =
-    {
-        .bLength = sizeof(tusb_desc_device_t),
-        .bDescriptorType = TUSB_DESC_DEVICE,
-        .bcdUSB = 0x0200,
-        .bDeviceClass = 0x00,
-        .bDeviceSubClass = 0x00,
-        .bDeviceProtocol = 0x00,
-        .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
-
-        .idVendor = 0x1CCF,
-        .idProduct = 0x8048,
-        .bcdDevice = 0x0200,
-
-        .iManufacturer = 0x01,
-        .iProduct = 0x02,
-
-        .bNumConfigurations = 0x01
-    };
+    static constexpr tusb_desc_device_t desc_device = generate_device_descriptor(0x1CCF, 0x8048);
 
     tusb_desc_device_t const* usb_handler::get_descriptor_device()
     {
@@ -146,6 +128,7 @@ namespace IIDX
         HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),
         HID_COLLECTION(HID_COLLECTION_APPLICATION),
             // Analog
+            HID_REPORT_ID(REPORT_ID_JOYSTICK)
             HID_USAGE(HID_USAGE_DESKTOP_POINTER),
             HID_COLLECTION(HID_COLLECTION_LOGICAL),
                 HID_USAGE(HID_USAGE_DESKTOP_X),
@@ -182,21 +165,23 @@ namespace IIDX
 
             // Bar WS2812
             HID_RGB(15),
-        HID_COLLECTION_END
+        HID_COLLECTION_END,
+
+        HID_REPORT_DESC_KEYBOARD
     };
 
     constexpr uint8_t desc_lights_report[] =
     {
-        HID_USAGE_PAGE_N(0xFFEB, 2),
+        HID_USAGE_PAGE_N(0xFFFB, 2),
         HID_USAGE(0x02),
         HID_LOGICAL_MIN(0x00),
         HID_LOGICAL_MAX_N(0xFF, 2),
         HID_COLLECTION(HID_COLLECTION_APPLICATION),
-          // Tape LED
-          HID_USAGE(1),
-          HID_REPORT_SIZE(0x08 * 3),
-          HID_REPORT_COUNT(LIGHT_BAR_LEDS),
-          HID_OUTPUT(HID_DATA | HID_VARIABLE | HID_ABSOLUTE),
+            // Tape LED
+            HID_USAGE(1),
+            HID_REPORT_SIZE(0x08 * 3),
+            HID_REPORT_COUNT(LIGHT_BAR_LEDS),
+            HID_OUTPUT(HID_DATA | HID_VARIABLE | HID_ABSOLUTE),
         HID_COLLECTION_END
     };
     //@formatter:on
@@ -224,9 +209,7 @@ namespace IIDX
         TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID,
                                  0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1),
 
-        // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
-        TUD_HID_DESCRIPTOR(ITF_NUM_KEYBOARD, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_keyboard_report),
-                           EPNUM_KEYBOARD, CFG_TUD_HID_EP_BUFSIZE, 1),
+        CONFIG_DESCRIPTOR,
 
         // Interface number, string index, protocol, report descriptor len, EP Out address, size & polling interval
         TUD_HID_DESCRIPTOR(ITF_NUM_LIGHTS, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_lights_report), EPNUM_LIGHTS,

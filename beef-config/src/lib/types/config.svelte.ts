@@ -1,62 +1,22 @@
-import { ReportId } from '$lib/types/hid';
+import { DeviceType, ReportId } from '$lib/types/hid';
 import { appState } from '$lib/types/state.svelte';
-import { TurntableMode, BarMode, ControllerType, InputMode, Hsv, numberToTurntableMode, numberToBarMode, numberToControllerType, numberToInputMode, turntableModeToNumber, barModeToNumber, controllerTypeToNumber, inputModeToNumber } from '$lib/types/types.svelte';
-import * as HIDCodes from '$lib/types/hid-codes';
-
-const packetSize = 1024;
-
-export class IIDXKeyMapping {
-  public main_buttons: number[];
-  public function_buttons: number[];
-  public tt_ccw: number;
-  public tt_cw: number;
-  public padding: number[];
-
-  constructor() {
-    this.main_buttons = [
-      HIDCodes.HID_KEYBOARD_SC_S, // 1
-      HIDCodes.HID_KEYBOARD_SC_D, // 2
-      HIDCodes.HID_KEYBOARD_SC_F, // 3
-      HIDCodes.HID_KEYBOARD_SC_SPACE, // 4
-      HIDCodes.HID_KEYBOARD_SC_J, // 5
-      HIDCodes.HID_KEYBOARD_SC_K, // 6
-      HIDCodes.HID_KEYBOARD_SC_L // 7
-    ];
-    this.function_buttons = [
-      HIDCodes.HID_KEYBOARD_SC_1_AND_EXCLAMATION, // E1/Start
-      HIDCodes.HID_KEYBOARD_SC_2_AND_AT, // E2
-      HIDCodes.HID_KEYBOARD_SC_3_AND_HASHMARK, // E3
-      HIDCodes.HID_KEYBOARD_SC_4_AND_DOLLAR // E4/Select
-    ];
-    this.tt_ccw = HIDCodes.HID_KEYBOARD_SC_DOWN_ARROW; // TT-
-    this.tt_cw = HIDCodes.HID_KEYBOARD_SC_UP_ARROW; // TT+
-    this.padding = Array(7).fill(0);
-  }
-}
-
-export class SDVXKeyMapping {
-  public bt_buttons: number[];
-  public fx_buttons: number[];
-  public padding_1: number[];
-  public start: number;
-  public padding_2: number[];
-
-  constructor() {
-    this.bt_buttons = [
-      HIDCodes.HID_KEYBOARD_SC_D, // BT-A
-      HIDCodes.HID_KEYBOARD_SC_F, // BT-B
-      HIDCodes.HID_KEYBOARD_SC_J, // BT-C
-      HIDCodes.HID_KEYBOARD_SC_K // BT-D
-    ];
-    this.fx_buttons = [
-      HIDCodes.HID_KEYBOARD_SC_C, // FX-L
-      HIDCodes.HID_KEYBOARD_SC_M // FX-R
-    ];
-    this.padding_1 = Array(2).fill(0);
-    this.start = HIDCodes.HID_KEYBOARD_SC_ENTER; // Start
-    this.padding_2 = Array(11).fill(0);
-  }
-}
+import { 
+  TurntableMode,
+  BarMode, ControllerType,
+  InputMode,
+  Hsv,
+  numberToTurntableMode,
+  numberToBarMode,
+  numberToControllerType,
+  numberToInputMode,
+  turntableModeToNumber,
+  barModeToNumber,
+  controllerTypeToNumber,
+  inputModeToNumber,
+  IIDXKeyMapping,
+  SDVXKeyMapping,
+  Feature
+} from '$lib/types/types.svelte';
 
 export class Config {
   version = $state(0);
@@ -139,13 +99,12 @@ export class Config {
     this.iidx_input_mode = numberToInputMode[configData.getUint8(32)];
     this.sdvx_input_mode = numberToInputMode[configData.getUint8(33)];
 
-    if (this.version >= 12) {
-      this.tt_sustain_ms = configData.getUint8(34);
+    let offset = 34;
+    if (configData.byteLength > offset) {
+      this.tt_sustain_ms = configData.getUint8(offset++);
     }
 
-    // Read key mappings if version supports it
-    let offset = 35;
-    if (this.version >= 13) {
+    if (configData.byteLength > offset) {
       // Read IIDX key mappings)
       for (let i = 0; i < this.iidx_keys.main_buttons.length; i++) {
         this.iidx_keys.main_buttons[i] = configData.getUint8(offset++);
@@ -178,17 +137,44 @@ export class Config {
       offset += this.sdvx_keys.padding_2.length;
     }
 
-    if (this.version >= 15) {
+    if (configData.byteLength > offset) {
       this.iidx_buttons_debounce = configData.getUint8(offset++);
       this.iidx_effectors_debounce = configData.getUint8(offset++);
       this.sdvx_buttons_debounce = configData.getUint8(offset++);
     }
 
-    if (this.version >= 16) {
+    if (configData.byteLength > offset) {
       this.led_refresh = configData.getUint8(offset++);
       this.rainbow_spin_speed = configData.getUint8(offset++);
       this.tt_leds = configData.getUint8(offset++);
     }
+  }
+
+  supports(feature: Feature): boolean {
+    if (appState.device?.deviceType === DeviceType.Arm) {
+      return true;
+    }
+
+    switch (feature) {
+      case Feature.TtSustainMs:
+        return this.version >= 12;
+      case Feature.KeyMappings:
+        return this.version >= 13;
+      case Feature.ButtonDebounce:
+        return this.version >= 15;
+      case Feature.LedRefactor:
+        return this.version >= 16;
+      default:
+        return false;
+    }
+  }
+
+  fwOutdated(): boolean {
+    if (appState.device?.deviceType === DeviceType.Arm) {
+      return false;
+    }
+
+    return this.version < 16;
   }
 }
 
@@ -198,11 +184,11 @@ export async function readConfig(): Promise<Config> {
   }
 
   try {
-    const result = await appState.device.receiveFeatureReport(ReportId.Config);
+    const result = await appState.device.device.receiveFeatureReport(ReportId.Config);
     const configData = new DataView(result.buffer.slice(1)); // Skip report id
 
     const version = configData.getUint8(0);
-    if (version <= 10) {
+    if (appState.device.deviceType === DeviceType.Avr && version <= 10) {
       throw new Error('Firmware version is too old. Please flash the latest firmware build');
     }
 
@@ -220,6 +206,7 @@ export async function updateConfig(config: Config): Promise<void> {
   console.log("updating config")
 
   try {
+    const packetSize = 1024;
     const configBuffer = new ArrayBuffer(packetSize);
     const configView = new DataView(configBuffer);
 
@@ -266,14 +253,12 @@ export async function updateConfig(config: Config): Promise<void> {
     configView.setUint8(32, inputModeToNumber[config.iidx_input_mode]);
     configView.setUint8(33, inputModeToNumber[config.sdvx_input_mode]);
 
-    // Write tt_sustain_ms if version supports it
-    if (config.version >= 12) {
-      configView.setUint8(34, config.tt_sustain_ms);
+    let offset = 34;
+    if (config.supports(Feature.TtSustainMs)) {
+      configView.setUint8(offset++, config.tt_sustain_ms);
     }
 
-    // Write key mappings if version supports it
-    let offset = 35;
-    if (config.version >= 13) {
+    if (config.supports(Feature.KeyMappings)) {
       // Write IIDX key mappings
       for (let i = 0; i < config.iidx_keys.main_buttons.length; i++) {
         configView.setUint8(offset++, config.iidx_keys.main_buttons[i]);
@@ -307,20 +292,20 @@ export async function updateConfig(config: Config): Promise<void> {
       offset += config.sdvx_keys.padding_2.length;
     }
 
-    if (config.version >= 15) {
+    if (config.supports(Feature.ButtonDebounce)) {
       configView.setUint8(offset++, config.iidx_buttons_debounce);
       configView.setUint8(offset++, config.iidx_effectors_debounce);
       configView.setUint8(offset++, config.sdvx_buttons_debounce);
     }
 
-    if (config.version >= 16) {
+    if (config.supports(Feature.LedRefactor)) {
       configView.setUint8(offset++, config.led_refresh);
       configView.setUint8(offset++, config.rainbow_spin_speed);
       configView.setUint8(offset++, config.tt_leds);
     }
 
     const data = new Uint8Array(configBuffer);
-    await appState.device.sendFeatureReport(ReportId.Config, data);
+    await appState.device.device.sendFeatureReport(ReportId.Config, data);
   } catch (err) {
     throw new Error(`Failed to update config: ${err}`);
   }

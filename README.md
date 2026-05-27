@@ -17,11 +17,12 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 
 1. [Wiring configuration](#wiring-configuration)
 2. [Settings](#settings)
-3. [SpiceTools companion scripts](#spicetools)
-4. [Bill of Materials](#bom)
-5. [Credits](#credits)
+3. [SpiceTools companion scripts](#spicetools-companion-scripts)
+4. [For Linux users](#for-linux-users)
+5. [Bill of Materials](#bill-of-materials)
+6. [Credits](#credits)
 
-## Wiring configuration<a name="wiring-configuration"></a>
+## Wiring configuration
 
 <details>
 
@@ -58,7 +59,7 @@ This is a USB I/O PCB for use with Konami Rhythm games. Drop-in support for PHOE
 
 </details>
 
-## Settings<a name="settings"></a>
+## Settings
 
 ## Web configuration tool
 
@@ -108,11 +109,15 @@ There also exist button combinations which perform special actions if held while
 | SDVX mode - HID | B1 + B9 |
 | SDVX mode - Keyboard | B2 + B9 |
 
-## SpiceTools companion scripts<a name="spicetools"></a>
+## SpiceTools companion scripts
 
 A collection of scripts and tools are available for SpiceTools users to enhance your playing experience. Check the `README.md` under `spiceapi` for instructions and what they do.
 
-## Bill of Materials<a name="bom"></a>
+## For Linux users
+
+Linux users will need to copy the udev rule in `linux/59-beef-board.rules` to `/etc/udev/rules.d` in order for HID and web configuration functionality to work correctly.
+
+## Bill of Materials
 
 ```plaintext
 ### PIN HEADERS ###
@@ -145,7 +150,7 @@ A collection of scripts and tools are available for SpiceTools users to enhance 
 2   USB-B (ED2983-ND)
 ```
 
-## Credits<a name="credits"></a>
+## Credits
 
 * HW design by [HWXLR8](https://github.com/HWXLR8)
 * FW orignally written by [HWXLR8](https://github.com/HWXLR8) & [supervaka](https://github.com/supervaka), rewritten and hugely improved by [ASleepyCat](https://github.com/ASleepyCat)

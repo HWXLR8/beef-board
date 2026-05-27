@@ -115,6 +115,7 @@ target_link_libraries(beef-board
         hardware_flash
         hardware_pio
         hardware_timer
+        hardware_watchdog
         pico_bootrom
         pico_flash
         tinyusb_board

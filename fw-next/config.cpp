@@ -111,7 +111,6 @@ void config_update()
             .iidx_buttons_debounce = 0,
             .iidx_effectors_debounce = 0,
             .sdvx_buttons_debounce = 0,
-            .led_refresh = 60,
             .rainbow_spin_speed = 1,
             .tt_leds = 24
         };

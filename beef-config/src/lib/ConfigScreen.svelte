@@ -17,9 +17,9 @@
 	import ToolTipLabel from '$lib/ToolTipLabel.svelte';
 
 	import { readConfig, updateConfig, type Config } from '$lib/types/config.svelte';
-	import { Command, sendCommand, waitForReconnection } from '$lib/types/hid';
+	import { Command, DeviceType, sendCommand, waitForReconnection } from '$lib/types/hid';
 	import { appState } from '$lib/types/state.svelte';
-	import { TurntableMode, BarMode, ControllerType } from '$lib/types/types.svelte';
+	import { Feature, TurntableMode, BarMode, ControllerType } from '$lib/types/types.svelte';
 	import WarningAlert from '$lib/WarningAlert.svelte';
 	import ColorPicker from '$lib/ColorPicker.svelte';
 
@@ -45,8 +45,8 @@
 	});
 </script>
 
-{#if config}
-	{#if config.version < 16}
+{#if config && appState.device}
+	{#if config.fwOutdated()}
 		<WarningAlert
 			title="Outdated Firmware"
 			description="Your firmware version is too old. Some features may not be available. Please update your firmware to access all features."
@@ -95,7 +95,7 @@
 				<SliderInput bind:value={config.tt_deadzone} min={1} max={6} id="tt-deadzone" />
 			</div>
 
-			{#if config.version >= 12}
+			{#if config.supports(Feature.TtSustainMs)}
 				<div class="mb-4">
 					<ToolTipLabel forId="tt-sustain-time" label="Turntable Sustain Time">
 						<p>Controls how long in milliseconds the last turntable direction is sustained.</p>
@@ -114,7 +114,7 @@
 				<SliderInput bind:value={config.tt_ratio} min={1} max={6} id="tt-ratio" reversed={true} />
 			</div>
 
-			{#if config.version >= 15}
+			{#if config.supports(Feature.ButtonDebounce)}
 				<Separator class="mb-4" />
 
 				<h3 class="mb-2 text-xl font-bold">Debouncing</h3>
@@ -177,20 +177,22 @@
 					modeMapping={barModeMapping}
 				/>
 
-				{#if config.version >= 16}
+				{#if config.supports(Feature.LedRefactor)}
 					<Accordion.Root type="single">
 						<Accordion.Item value="item-1">
 							<Accordion.Trigger>Advanced</Accordion.Trigger>
 							<Accordion.Content>
-								<div class="mb-4">
-									<ToolTipLabel forId="led-refresh" label="RGB LED Refresh Rate">
-										<p>
-											Controls how often the RGB LEDs are updated. Higher values result in smoother
-											LED animations at the cost of performance.
-										</p>
-									</ToolTipLabel>
-									<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
-								</div>
+								{#if appState.device.deviceType === DeviceType.Avr}
+									<div class="mb-4">
+										<ToolTipLabel forId="led-refresh" label="RGB LED Refresh Rate">
+											<p>
+												Controls how often the RGB LEDs are updated. Higher values result in smoother
+												LED animations at the cost of performance.
+											</p>
+										</ToolTipLabel>
+										<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
+									</div>
+								{/if}
 
 								<div class="mb-4">
 									<ToolTipLabel
@@ -241,7 +243,7 @@
 
 			<h3 class="mb-2 text-xl font-bold">Debouncing</h3>
 
-			{#if config.version >= 15}
+			{#if config.supports(Feature.ButtonDebounce)}
 				<div class="mb-4">
 					<Label for="sdvx-button-debounce">Button Debounce</Label>
 					<SliderInput
@@ -257,7 +259,7 @@
 		</div>
 	{/if}
 
-	{#if config.version >= 13}
+	{#if config.supports(Feature.KeyMappings)}
 		<Separator class="mb-4" />
 		<KeyBinding bind:config />
 	{/if}

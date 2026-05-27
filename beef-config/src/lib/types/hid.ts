@@ -11,19 +11,46 @@ export enum Command {
   ResetConfig = 2
 }
 
+export enum DeviceType {
+  Avr,
+  Arm
+}
+
+export class BeefBoard {
+  device: HIDDevice;
+  deviceType: DeviceType;
+
+  constructor(device: HIDDevice, deviceType: DeviceType) {
+    this.device = device;
+    this.deviceType = deviceType;
+  }
+}
+
 export async function waitForReconnection(): Promise<void> {
   await onDisconnect().then(connectDevice);
 }
 
-export async function detectDevice(): Promise<HIDDevice | null> {
-  const devices = await navigator.hid.requestDevice({
-    filters: [
-      { vendorId: 0x1ccf, productId: 0x8048, usagePage: 0xffeb, usage: 0x01 }, // IIDX
-      { vendorId: 0x1ccf, productId: 0x101c, usagePage: 0xffeb, usage: 0x01 }  // SDVX
-    ]
-  });
+export async function detectDevice(): Promise<BeefBoard | null> {
+  const usagePages = new Map<DeviceType, number>();
+  usagePages.set(DeviceType.Avr, 0xffeb);
+  usagePages.set(DeviceType.Arm, 0xfffb);
 
-  if (devices.length === 0) {
+  let devices: HIDDevice[] = [];
+  let deviceType: DeviceType | null = null;
+  for (const [dType, usagePage] of usagePages) {
+    devices = await navigator.hid.requestDevice({
+      filters: [
+        { vendorId: 0x1ccf, productId: 0x8048, usagePage: usagePage, usage: 0x01 }, // IIDX
+        { vendorId: 0x1ccf, productId: 0x101c, usagePage: usagePage, usage: 0x01 }  // SDVX
+      ]
+    });
+
+    if (devices.length !== 0) {
+      deviceType = dType;
+      break;
+    }
+  }
+  if (deviceType === null) {
     return null;
   }
 
@@ -36,7 +63,7 @@ export async function detectDevice(): Promise<HIDDevice | null> {
   if (!selectedDevice.opened) {
     await selectedDevice.open();
   }
-  return selectedDevice;
+  return new BeefBoard(selectedDevice, deviceType);
 }
 
 export async function readCommitHash(): Promise<string> {
@@ -45,7 +72,7 @@ export async function readCommitHash(): Promise<string> {
   }
 
   try {
-    const result = await appState.device.receiveFeatureReport(ReportId.FirmwareVersion);
+    const result = await appState.device.device.receiveFeatureReport(ReportId.FirmwareVersion);
     const hashData = new DataView(result.buffer.slice(1)); // Skip report id
     return hashData.getUint32(0, true).toString(16).padStart(8, '0');
   } catch (err) {
@@ -60,7 +87,7 @@ export async function sendCommand(command: Command): Promise<void> {
 
   try {
     const commandData = new Uint8Array([command]);
-    await appState.device.sendFeatureReport(ReportId.Command, commandData);
+    await appState.device.device.sendFeatureReport(ReportId.Command, commandData);
   } catch (err) {
     throw new Error('Failed to send command', { cause: err });
   }

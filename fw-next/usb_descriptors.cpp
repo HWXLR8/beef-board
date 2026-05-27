@@ -23,8 +23,8 @@ uint8_t const* tud_descriptor_device_cb()
 // Descriptor contents must exist long enough for transfer to complete
 uint8_t const* tud_hid_descriptor_report_cb(uint8_t instance)
 {
-    if (ITF_HID_BASE + instance == ITF_NUM_KEYBOARD)
-        return desc_keyboard_report;
+    if (ITF_HID_BASE + instance == ITF_NUM_CONFIG)
+        return desc_config_report;
     return usb->get_hid_descriptor_report(instance);
 }
 

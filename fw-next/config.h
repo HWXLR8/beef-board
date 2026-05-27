@@ -4,6 +4,10 @@
 
 #include "rgb.h"
 
+#ifndef FW_VER
+#define FW_VER 0xDEADBEEF
+#endif
+
 constexpr auto FLASH_CONFIG_OFFSET = 8 * 1024 * 1024;
 
 enum class ControllerType : uint8_t
@@ -85,7 +89,7 @@ struct callback_t
 };
 
 // Do not reorder these fields
-struct config_t
+struct TU_ATTR_PACKED config_t
 {
     uint32_t magic;
     uint8_t version;
@@ -112,13 +116,11 @@ struct config_t
     uint8_t iidx_buttons_debounce;
     uint8_t iidx_effectors_debounce;
     uint8_t sdvx_buttons_debounce;
-    uint8_t led_refresh;
+    uint8_t reserved; // led_refresh on avr
     uint8_t rainbow_spin_speed;
     uint8_t tt_leds;
 
     void save() const;
-    // void set_controller_type(ControllerType mode);
-    // void set_input_mode(InputMode mode);
 
     bool equals(const config_t* other) const
     {
@@ -146,7 +148,7 @@ struct config_t
             iidx_buttons_debounce == other->iidx_buttons_debounce &&
             iidx_effectors_debounce == other->iidx_effectors_debounce &&
             sdvx_buttons_debounce == other->sdvx_buttons_debounce &&
-            led_refresh == other->led_refresh &&
+            reserved == other->reserved &&
             rainbow_spin_speed == other->rainbow_spin_speed &&
             tt_leds == other->tt_leds;
     }

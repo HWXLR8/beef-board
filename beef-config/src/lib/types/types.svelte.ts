@@ -1,4 +1,5 @@
 import type { HsvaColor } from "svelte-awesome-color-picker";
+import * as HIDCodes from '$lib/types/hid-codes';
 
 export enum TurntableMode {
   Static = 'Static',
@@ -101,4 +102,64 @@ export class Hsv {
   toHid(): [number, number, number] {
     return [(this.h * 255) / 360, (this.s * 255) / 100, (this.v * 255) / 100];
   }
+}
+
+export class IIDXKeyMapping {
+  public main_buttons: number[];
+  public function_buttons: number[];
+  public tt_ccw: number;
+  public tt_cw: number;
+  public padding: number[];
+
+  constructor() {
+    this.main_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_S, // 1
+      HIDCodes.HID_KEYBOARD_SC_D, // 2
+      HIDCodes.HID_KEYBOARD_SC_F, // 3
+      HIDCodes.HID_KEYBOARD_SC_SPACE, // 4
+      HIDCodes.HID_KEYBOARD_SC_J, // 5
+      HIDCodes.HID_KEYBOARD_SC_K, // 6
+      HIDCodes.HID_KEYBOARD_SC_L // 7
+    ];
+    this.function_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_1_AND_EXCLAMATION, // E1/Start
+      HIDCodes.HID_KEYBOARD_SC_2_AND_AT, // E2
+      HIDCodes.HID_KEYBOARD_SC_3_AND_HASHMARK, // E3
+      HIDCodes.HID_KEYBOARD_SC_4_AND_DOLLAR // E4/Select
+    ];
+    this.tt_ccw = HIDCodes.HID_KEYBOARD_SC_DOWN_ARROW; // TT-
+    this.tt_cw = HIDCodes.HID_KEYBOARD_SC_UP_ARROW; // TT+
+    this.padding = Array(7).fill(0);
+  }
+}
+
+export class SDVXKeyMapping {
+  public bt_buttons: number[];
+  public fx_buttons: number[];
+  public padding_1: number[];
+  public start: number;
+  public padding_2: number[];
+
+  constructor() {
+    this.bt_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_D, // BT-A
+      HIDCodes.HID_KEYBOARD_SC_F, // BT-B
+      HIDCodes.HID_KEYBOARD_SC_J, // BT-C
+      HIDCodes.HID_KEYBOARD_SC_K // BT-D
+    ];
+    this.fx_buttons = [
+      HIDCodes.HID_KEYBOARD_SC_C, // FX-L
+      HIDCodes.HID_KEYBOARD_SC_M // FX-R
+    ];
+    this.padding_1 = Array(2).fill(0);
+    this.start = HIDCodes.HID_KEYBOARD_SC_ENTER; // Start
+    this.padding_2 = Array(11).fill(0);
+  }
+}
+
+export enum Feature {
+  TtSustainMs,
+  KeyMappings,
+  ButtonDebounce,
+  LedRefactor
 }

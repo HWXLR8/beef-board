@@ -6,7 +6,7 @@
 
 constexpr uint8_t BAR_LEDS = 16;
 
-struct hsv_t
+struct TU_ATTR_PACKED hsv_t
 {
     uint8_t h = 0, s = 0, v = 0;
 

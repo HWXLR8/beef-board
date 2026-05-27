@@ -94,7 +94,7 @@ export class DfuDevice extends EventEmitter {
   private async sendDfuCommandOut(
     request: DfuRequest,
     value: number,
-    data?: Uint8Array
+    data?: Uint8Array<ArrayBuffer>
   ): Promise<void> {
     const result = await this._device.controlTransferOut({
       requestType: 'class',
@@ -127,7 +127,7 @@ export class DfuDevice extends EventEmitter {
     return new DataView(result.data!.buffer);
   }
 
-  private async dfuDownload(data: Uint8Array): Promise<void> {
+  private async dfuDownload(data: Uint8Array<ArrayBuffer>): Promise<void> {
     await this.sendDfuCommandOut(DfuRequest.DNLOAD, this.transaction++, data);
     await this.waitForState(DfuState.dfuIDLE);
   }
@@ -211,7 +211,7 @@ export class DfuDevice extends EventEmitter {
 }
 
 // Helper function to create DFU-compatible firmware with suffix
-function createDfuImage(segment: Uint8Array, start: number): Uint8Array {
+function createDfuImage(segment: Uint8Array, start: number): Uint8Array<ArrayBuffer> {
   const header = Buffer.alloc(ATMEL_CONTROL_BLOCK_SIZE);
 
   header.writeUInt8(DfuCommand.PROG_START, 0);
@@ -257,7 +257,7 @@ function createDfuImage(segment: Uint8Array, start: number): Uint8Array {
 // and to shift any overflows into the next block.
 // I'm not sure if this is actually a bug in regards to the Intel Hex spec,
 // but it causes issues with the Atmel DFU protocol.
-function convertMapToFixedLength(inputMap: MemoryMap, fixedLength: number) {
+function convertMapToFixedLength(inputMap: MemoryMap, fixedLength: number): Map<number, Uint8Array> {
   const outputMap = new Map();
   let currentChunk = new Uint8Array(fixedLength);
   let offset = 0;       // current write index in the chunk

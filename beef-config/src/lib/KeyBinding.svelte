@@ -2,8 +2,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
-	import { ControllerType } from '$lib/types/types.svelte';
-	import { IIDXKeyMapping, SDVXKeyMapping, type Config } from '$lib/types/config.svelte';
+	import { ControllerType, IIDXKeyMapping, SDVXKeyMapping } from '$lib/types/types.svelte';
+	import { type Config } from '$lib/types/config.svelte';
 	import { getKeyCode, getKeyName } from '$lib/types/hid-codes';
 	import { appState } from '$lib/types/state.svelte';
 

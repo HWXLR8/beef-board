@@ -1,15 +1,15 @@
-import { detectDevice } from "$lib/types/hid";
+import { BeefBoard, detectDevice } from "$lib/types/hid";
 
 class AppState {
   disableConfigTab = $state(false);
-  device = $state<HIDDevice | null>(null);
+  device = $state<BeefBoard | null>(null);
   error = $state<string | undefined>();
 }
 
 export const appState = new AppState();
 
 export async function onDisconnect(): Promise<void> {
-  await appState.device?.close();
+  await appState.device?.device.close();
   appState.disableConfigTab = false;
   appState.device = null;
   appState.error = undefined;

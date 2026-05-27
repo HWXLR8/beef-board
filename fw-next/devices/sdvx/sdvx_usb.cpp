@@ -47,7 +47,7 @@ namespace SDVX
                 report.Y = axis_y->get();
                 report.Button = button_state;
 
-                tud_hid_report(0, &report, sizeof(report));
+                tud_hid_report(REPORT_ID_JOYSTICK, &report, sizeof(report));
                 break;
             }
         case InputMode::Keyboard:
@@ -95,25 +95,7 @@ namespace SDVX
     {
     }
 
-    static constexpr tusb_desc_device_t desc_device =
-    {
-        .bLength = sizeof(tusb_desc_device_t),
-        .bDescriptorType = TUSB_DESC_DEVICE,
-        .bcdUSB = 0x0200,
-        .bDeviceClass = 0x00,
-        .bDeviceSubClass = 0x00,
-        .bDeviceProtocol = 0x00,
-        .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
-
-        .idVendor = 0x1CCF,
-        .idProduct = 0x101C,
-        .bcdDevice = 0x0200,
-
-        .iManufacturer = 0x01,
-        .iProduct = 0x02,
-
-        .bNumConfigurations = 0x01
-    };
+    static constexpr tusb_desc_device_t desc_device = generate_device_descriptor(0x1CCF, 0x101C);
 
     tusb_desc_device_t const* usb_handler::get_descriptor_device()
     {
@@ -127,6 +109,7 @@ namespace SDVX
         HID_USAGE(HID_USAGE_DESKTOP_JOYSTICK),
         HID_COLLECTION(HID_COLLECTION_APPLICATION),
             // Analog
+            HID_REPORT_ID(REPORT_ID_JOYSTICK)
             HID_USAGE(HID_USAGE_DESKTOP_POINTER),
             HID_COLLECTION(HID_COLLECTION_LOGICAL),
                 HID_USAGE(HID_USAGE_DESKTOP_X),
@@ -154,7 +137,10 @@ namespace SDVX
             HID_PADDING_OUTPUT(2),
             HID_BUTTON_LIGHT(7),
             HID_PADDING_OUTPUT(7),
-        HID_COLLECTION_END
+        HID_COLLECTION_END,
+
+        HID_REPORT_DESC_KEYBOARD,
+        HID_REPORT_DESC_MOUSE
     };
     //@formatter:on
 
@@ -166,13 +152,12 @@ namespace SDVX
 
     void usb_handler::hid_report_complete(uint8_t instance, uint8_t const* report, uint16_t len)
     {
-        auto is_keyboard_report = instance + ITF_HID_BASE == ITF_NUM_KEYBOARD;
-        if (!is_keyboard_report)
+        auto is_hid_report = ITF_HID_BASE + instance == ITF_NUM_HID;
+        if (!is_hid_report)
             return;
 
         if (report[0] == REPORT_ID_KEYBOARD && tud_hid_ready())
         {
-            printf("hid_report_complete_cb\n");
             send_mouse_report(button_x->delta, button_y->delta);
         }
     }
@@ -190,9 +175,7 @@ namespace SDVX
         TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID,
                                  0x80 | EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1),
 
-        // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
-        TUD_HID_DESCRIPTOR(ITF_NUM_KEYBOARD, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_keyboard_report), EPNUM_KEYBOARD,
-                           CFG_TUD_HID_EP_BUFSIZE, 1)
+        CONFIG_DESCRIPTOR
     };
 
     uint8_t const* usb_handler::get_descriptor_configuration()

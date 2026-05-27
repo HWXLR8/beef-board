@@ -17,6 +17,7 @@ then sends them to a USB HID device in a specific format:
 """
 
 import sys
+from sys import platform
 # Set this to where your spiceapi python files are located
 # These are available in spice2x releases
 sys.path.append(r"/folder/to/spice2x/api/resources/python")
@@ -85,6 +86,8 @@ def find_usb_device(vid, pid):
         return device
     except Exception as e:
         print(f"Error finding HID device: {e}")
+        if sys.platform == "linux":
+            print("Make sure you have udev rules for Beef Board installed")
         return None
 
 def read_tape_leds(conn, name):
