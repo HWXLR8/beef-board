@@ -32,6 +32,13 @@ bool ignore_buttons = false;
 auto current_command = command_t::None;
 usb_handler* usb;
 
+void tud_suspend_cb(bool remote_wakeup_en)
+{
+    (void)remote_wakeup_en;
+
+    clear_all_lights();
+}
+
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t* buffer,
                                uint16_t reqlen)
 {
@@ -150,13 +157,7 @@ void hid_task()
 void reboot_to_bootloader()
 {
     tud_disconnect();
-
-    update_button_lighting(0);
-    std::fill(bar_leds.begin(), bar_leds.end(), rgb_t{});
-    std::fill(tt_leds.begin(), tt_leds.end(), rgb_t{});
-    while (!ready_to_show());
-    ws2812_show();
-
+    clear_all_lights();
     rom_reset_usb_boot(0, 0);
 }
 
@@ -265,6 +266,15 @@ void process_buttons()
     button_state *= !ignore_buttons;
 }
 
+void clear_all_lights()
+{
+    update_button_lighting(0);
+    std::fill(bar_leds.begin(), bar_leds.end(), rgb_t{});
+    std::fill(tt_leds.begin(), tt_leds.end(), rgb_t{});
+    while (!ready_to_show());
+    ws2812_show();
+}
+
 void process_lights()
 {
     uint16_t led_state = usb->get_button_light_state();
@@ -306,6 +316,8 @@ void update_button_lighting(uint16_t led_state)
     while (true)
     {
         tud_task();
+        if (tud_suspended())
+            continue;
         handle_command();
 
         process_buttons();

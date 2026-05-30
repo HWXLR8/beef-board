@@ -24,6 +24,7 @@ enum
 };
 
 void process_buttons();
+void clear_all_lights();
 void process_lights();
 void update_button_lighting(uint16_t led_state);
 void send_keyboard_report(const uint8_t* key_codes, uint8_t n);
