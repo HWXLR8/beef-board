@@ -9,7 +9,6 @@
 #include "sdvx_rgb.h"
 #include "usb_descriptors.h"
 #include "hardware/adc.h"
-#include "hardware/dma.h"
 
 namespace SDVX
 {

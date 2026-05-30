@@ -22,7 +22,6 @@ uint8_t AnalogAxis::get() const
 }
 
 static PIO pio;
-constexpr uint32_t dma_transfer_count = 1;
 
 QeAxis::QeAxis(uint8_t a_pin)
 {
@@ -46,31 +45,16 @@ QeAxis::QeAxis(uint8_t a_pin)
 
     quadrature_encoder_program_init(pio, sm, a_pin, 0);
 
-    auto data_chan = dma_claim_unused_channel(true);
-    auto ctrl_chan = dma_claim_unused_channel(true);
-
-    auto c_data = dma_channel_get_default_config(data_chan);
-    channel_config_set_read_increment(&c_data, false);
-    channel_config_set_dreq(&c_data, pio_get_dreq(pio, sm, false));
-    channel_config_set_chain_to(&c_data, ctrl_chan);
+    auto chan = dma_claim_unused_channel(true);
+    auto cfg = dma_channel_get_default_config(chan);
+    channel_config_set_read_increment(&cfg, false);
+    channel_config_set_dreq(&cfg, pio_get_dreq(pio, sm, false));
 
     dma_channel_configure(
-        data_chan, &c_data,
+        chan, &cfg,
         &position,
         &pio->rxf[sm],
-        dma_transfer_count,
-        false // Wait for ctrl_chan to start it
-    );
-
-    auto c_ctrl = dma_channel_get_default_config(ctrl_chan);
-    channel_config_set_read_increment(&c_ctrl, false);
-    channel_config_set_chain_to(&c_ctrl, data_chan);
-
-    dma_channel_configure(
-        ctrl_chan, &c_ctrl,
-        &dma_hw->ch[data_chan].al1_transfer_count_trig,
-        &dma_transfer_count,
-        1,
+        dma_encode_endless_transfer_count(),
         true
     );
 }
