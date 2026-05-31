@@ -59,6 +59,17 @@ namespace SDVX
     void usb_handler::hid_set_report(uint8_t instance, uint8_t report_id, hid_report_type_t report_type,
                                      uint8_t const* buffer, uint16_t bufsize)
     {
+        if (report_id != REPORT_ID_JOYSTICK)
+        {
+            if (bufsize != sizeof(hid_lights_t) - 1)
+                return;
+            report_id = buffer[0];
+            if (report_id != REPORT_ID_JOYSTICK)
+                return;
+            // skip report id since tinyusb for some reason doesn't omit it for output reports
+            buffer++;
+            bufsize--;
+        }
         assert(bufsize == sizeof(hid_lights_t));
         memcpy(&lights, buffer, bufsize);
         hid_expiry_timer.arm(1000);

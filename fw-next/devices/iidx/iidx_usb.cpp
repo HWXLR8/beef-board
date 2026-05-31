@@ -8,6 +8,7 @@
 #include "iidx_rgb.h"
 #include "pins.h"
 #include "usb_descriptors.h"
+#include "ws2812.h"
 
 namespace IIDX
 {
@@ -58,10 +59,23 @@ namespace IIDX
         switch (ITF_HID_BASE + instance)
         {
         case ITF_NUM_HID:
-            assert(bufsize == sizeof(hid_lights_t));
-            memcpy(&lights, buffer, bufsize);
-            hid_expiry_timer.arm(1000);
-            break;
+            {
+                if (report_id != REPORT_ID_JOYSTICK)
+                {
+                    if (bufsize != sizeof(hid_lights_t) - 1)
+                        return;
+                    report_id = buffer[0];
+                    if (report_id != REPORT_ID_JOYSTICK)
+                        return;
+                    // skip report id since tinyusb for some reason doesn't omit it for output reports
+                    buffer++;
+                    bufsize--;
+                }
+                assert(bufsize == sizeof(hid_lights_t));
+                memcpy(&lights, buffer, bufsize);
+                hid_expiry_timer.arm(1000);
+                break;
+            }
         case ITF_NUM_LIGHTS:
             assert(bufsize == sizeof(RgbManager::Bar::tape_leds));
             memcpy(&RgbManager::Bar::tape_leds, buffer, bufsize);
