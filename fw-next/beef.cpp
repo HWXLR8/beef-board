@@ -74,9 +74,18 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_
         switch (report_id)
         {
         case REPORT_ID_CONFIG:
-            printf("received feature config report: bufsize: %d\n", bufsize);
-            memcpy(&config.version, buffer, bufsize);
-            break;
+            {
+                printf("received feature config report: bufsize: %d\n", bufsize);
+                config_t new_cfg;
+                memcpy(&new_cfg.version, buffer, bufsize);
+                if (validate_config(new_cfg))
+                {
+                    config = new_cfg;
+                    config.save();
+                    usb->on_config_push();
+                }
+                break;
+            }
         case REPORT_ID_COMMAND:
             memcpy(&current_command, buffer, bufsize);
             break;
@@ -231,6 +240,8 @@ void controller_init()
         break;
     case ControllerType::SDVX:
         usb = new SDVX::usb_handler();
+        break;
+    default:
         break;
     }
 }

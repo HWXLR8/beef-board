@@ -13,13 +13,15 @@ constexpr auto FLASH_CONFIG_OFFSET = 8 * 1024 * 1024;
 enum class ControllerType : uint8_t
 {
     IIDX,
-    SDVX
+    SDVX,
+    Count
 };
 
 enum class InputMode : uint8_t
 {
     Joystick,
-    Keyboard
+    Keyboard,
+    Count
 };
 
 // Key mapping structures
@@ -156,6 +158,7 @@ struct TU_ATTR_PACKED config_t
 
 extern config_t config;
 void config_init();
+bool validate_config(const config_t &cfg);
 
 std::optional<callback_t> toggle_reverse_tt();
 std::optional<callback_t> cycle_tt_effects();

@@ -50,6 +50,8 @@ namespace IIDX
         case InputMode::Keyboard:
             send_keyboard_report(config.iidx_keys.key_codes, sizeof(config.iidx_keys.key_codes));
             break;
+        default:
+            break;
         }
     }
 
@@ -126,6 +128,8 @@ namespace IIDX
 
     void usb_handler::on_config_push()
     {
+        std::fill(tt_leds.begin(), tt_leds.end(), rgb_t{});
+        std::fill(bar_leds.begin(), bar_leds.end(), rgb_t{});
     }
 
     static constexpr tusb_desc_device_t desc_device = generate_device_descriptor(0x1CCF, 0x8048);

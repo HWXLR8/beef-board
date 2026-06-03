@@ -53,6 +53,8 @@ namespace SDVX
             send_keyboard_report(config.sdvx_keys.key_codes, sizeof(config.sdvx_keys.key_codes));
             // mouse report will be sent inside hid_report_complete()
             break;
+        default:
+            break;
         }
     }
 

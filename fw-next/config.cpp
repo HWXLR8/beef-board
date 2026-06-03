@@ -47,6 +47,12 @@ constexpr SDVXKeyMapping DEFAULT_SDVX_KEYS = {
     }
 };
 
+constexpr uint8_t DEADZONE_MAX = 6;
+constexpr uint8_t DEADZONE_MIN = 1;
+
+constexpr uint8_t RATIO_MAX = 6;
+constexpr uint8_t RATIO_MIN = 1;
+
 struct flash_op_params
 {
     uint32_t offset;
@@ -128,6 +134,23 @@ void config_init()
 
     config_update();
     config.save();
+}
+
+bool validate_config(const config_t &cfg)
+{
+    if (cfg.tt_effect >= TurntableMode::Count ||
+        cfg.bar_effect >= BarMode::Count ||
+        cfg.tt_deadzone < DEADZONE_MIN || cfg.tt_deadzone > DEADZONE_MAX ||
+        cfg.tt_ratio < RATIO_MIN || cfg.tt_ratio > RATIO_MAX ||
+        cfg.controller_type >= ControllerType::Count ||
+        cfg.iidx_input_mode >= InputMode::Count ||
+        cfg.sdvx_input_mode >= InputMode::Count ||
+        cfg.rainbow_spin_speed == 0 ||
+        cfg.tt_leds == 0)
+    {
+        return false;
+    }
+    return true;
 }
 
 void config_t::save() const
@@ -261,9 +284,6 @@ std::optional<callback_t> tt_hsv_set_val()
     return callback_t{ true };
 }
 
-constexpr uint8_t DEADZONE_MAX = 6;
-constexpr uint8_t DEADZONE_MIN = 1;
-
 void update_deadzone(const uint8_t deadzone)
 {
     IIDX::RgbManager::Turntable::display_tt_change(CRGB::Green,
@@ -288,9 +308,6 @@ std::optional<callback_t> decrease_deadzone()
 
     return callback_t{};
 }
-
-constexpr uint8_t RATIO_MAX = 6;
-constexpr uint8_t RATIO_MIN = 1;
 
 void update_ratio(const uint8_t ratio)
 {
