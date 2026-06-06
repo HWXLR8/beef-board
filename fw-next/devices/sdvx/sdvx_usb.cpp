@@ -63,7 +63,7 @@ namespace SDVX
     {
         if (report_id != REPORT_ID_JOYSTICK)
         {
-            if (bufsize != sizeof(hid_lights_t) - 1)
+            if (bufsize != sizeof(hid_lights_t) + 1)
                 return;
             report_id = buffer[0];
             if (report_id != REPORT_ID_JOYSTICK)
